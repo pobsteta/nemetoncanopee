@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+/build/
+/dist/
+.venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+rapport-tests.xml
+.DS_Store
+# Sidecars de statistiques générés par GDAL/QGIS (dérivés, non versionnés)
+*.aux.xml
+# Données et modèles : jamais dans le dépôt
+/data/
+/models/
