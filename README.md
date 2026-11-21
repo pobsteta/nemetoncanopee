@@ -13,7 +13,7 @@ FORMS-T (LSCE) et l'améliore avec le LiDAR HD, les essences, une cohérence tem
 l'ortho IGN à 20 cm.
 
 Le périmètre, les données, l'architecture et les jalons sont décrits dans le
-[brief de développement](BRIEF.md).
+[brief de développement](docs/brief.md).
 
 ---
 
