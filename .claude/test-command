@@ -1,0 +1,8 @@
+#!/bin/sh
+# Commande de tests du projet : scripts de release, style, tests unitaires.
+set -e
+.github/scripts/test-release-necessaire.sh
+.github/scripts/test-version-calendaire.sh
+ruff check .
+ruff format --check .
+pytest --cov=nemeton_canopee

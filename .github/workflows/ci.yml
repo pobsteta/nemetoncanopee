@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Tester la décision de release
+        run: .github/scripts/test-release-necessaire.sh
+
+      - name: Tester le calcul de version calendaire
+        run: .github/scripts/test-version-calendaire.sh
+
+      - name: Configurer Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Installer le paquet et les outils de développement
+        run: python -m pip install -e ".[dev]"
+
+      - name: Vérifier le style (ruff)
+        run: |
+          ruff check .
+          ruff format --check .
+
+      - name: Tests unitaires + couverture
+        run: pytest --cov=nemeton_canopee --cov-report=term-missing --cov-report=xml --junitxml=rapport-tests.xml
+
+      - name: Publier les rapports de test
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapports-tests
+          path: |
+            rapport-tests.xml
+            coverage.xml
+          if-no-files-found: warn
+
+      - name: Construire le paquet (sdist + wheel)
+        run: python -m build
+
+      - name: Générer le badge de couverture
+        if: github.event_name == 'push'
+        run: genbadge coverage -i coverage.xml -o .github/badges/coverage.svg -n couverture -l
+
+      - name: Publier le badge mis à jour
+        if: github.event_name == 'push'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: mise à jour du badge de couverture [skip ci]"
+          file_pattern: .github/badges/*.svg

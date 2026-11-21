@@ -1,0 +1,54 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "nemeton-canopee"
+description = "Cartes annuelles de hauteur, de volume et de biomasse forestière pour Nemeton."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Pascal Obstetar" }]
+dynamic = ["version"]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+  "build",
+  "genbadge[coverage]",
+  "pytest",
+  "pytest-cov",
+  "ruff",
+]
+
+[project.scripts]
+canopee = "nemeton_canopee.cli:main"
+
+[project.urls]
+Depot = "https://github.com/pobsteta/nemetoncanopee"
+Releases = "https://github.com/pobsteta/nemetoncanopee/releases"
+
+# La version n'est écrite nulle part : elle vient du tag git vAAAA.MM.N posé par release.yml.
+[tool.hatch.version]
+source = "vcs"
+fallback-version = "0.0.0"
+
+[tool.hatch.version.raw-options]
+local_scheme = "no-local-version"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/nemeton_canopee"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.coverage.run]
+source = ["nemeton_canopee"]
+branch = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
