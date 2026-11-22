@@ -136,3 +136,88 @@ Critères : forêt, Bourgogne-Franche-Comté (code région 27), MNH LiDAR HD pub
 ## 10. Journal d'accès (URL réellement appelées le 22/11/2026)
 
 `https://data.geopf.fr/wms-r/wms?SERVICE=WMS&REQUEST=GetCapabilities` (200) · `https://data.geopf.fr/wfs/ows?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetCapabilities` (200) · `https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetCapabilities` (200) · WFS DescribeFeatureType et GetFeature sur `IGNF_LIDAR-HD_METADONNEE:metadata` et `LANDCOVER.FORESTINVENTORY.V2:formation_vegetale` · WMS-R GetMap MNH, MNT, BDORTHO, IRC, BD Forêt · `https://data.geopf.fr/telechargement/capabilities` · `https://www.data.gouv.fr/api/1/datasets/mnh-lidar-hd/` · `https://geo.api.gouv.fr/communes` (commune et département des dalles) · `https://earth-search.aws.element84.com/v1` (collections, search, `sentinel-cogs` et `sentinel-s1-l1c` en Range) · `https://stac.dataspace.copernicus.eu/v1` (collections, search, téléchargement → 401) · notice Copernicus et Licence Ouverte 2.0 (PDF) · `https://stac-extensions.github.io/<extension>/<version>/schema.json` (voir `conf/stac-schemas/README.md`).
+
+## 11. Références à battre : accès à FORMS-T v1 et à FORMSpoT (mission 006)
+
+Consulté le 22/11/2026 par l'`acquereur`, propriétaire Pascal. Pourquoi : permettre au jalon 2 de comparer le modèle du projet à FORMS-T v1 et FORMSpoT sur les 4 dalles d'essai, à périmètre égal. Tous les chiffres « mesuré » viennent de lectures réellement faites le 22/11/2026 ; les dalles sont celles du § 8 (vol 2022, coin NO en km, donc `0939-6654` = x 939 000–940 000, y 6 653 000–6 654 000).
+
+### 11.1 FORMS-T v1 (Zenodo 15489231, DOI 10.5281/zenodo.15489231)
+
+**Source** : `https://zenodo.org/api/records/15489231` (HTTP 200), publié le 2025-06-06 ; article associé DOI 10.1016/j.rse.2025.114959 (non lu : la page éditeur redirige, voir 11.5). **Licence** : `cc-by-4.0` (champ `license.id` de l'API Zenodo, `access_right = open`). Le catalogue STAC indique `license: other` ; la licence Zenodo prévaut, à confirmer par Pascal si usage commercial.
+
+**Fichiers (22 .tif + 1 PNG), un par année 2018–2024** :
+
+| Variable | Fichiers | Taille unitaire | Résolution | Unité (Zenodo) |
+|---|---|---|---|---|
+| Hauteur | `Height_2018.tif` … `Height_2024.tif` (7) | 6,24 à 6,42 Go (`Height_2022.tif` : 6 284 638 728 o) | 10 m | centimètres |
+| Volume (« WVD », wood volume density) | `WVD_2018.tif` … `WVD_2024.tif` (7) | 0,359 à 0,361 Go (`WVD_2022.tif` : 359 591 011 o) | 30 m | m³/ha |
+| Biomasse aérienne (« AGBD ») | `AGBD_2018.tif` … `AGBD_2024.tif` (7) | 0,342 à 0,344 Go (`AGBD_2022.tif` : 342 936 872 o) | 30 m | Mg/ha |
+| (aperçu) | `Height_map_preview.png` (3 802 285 o) | | | |
+
+Décompte : 7 + 7 + 7 = 21 rasters (les 21 années-variables), plus l'aperçu. Les 21 rasters sont listés dans le JSON de l'API.
+
+**Format (mesuré par `rasterio` 1.5.2 sur `/vsicurl/`)** : GeoTIFF **tuilé 256 × 256, compression deflate, sans vues d'ensemble (`overviews = []`)**, EPSG:2154, **int16, nodata = 0**, échelle 1, décalage 0.
+- Hauteur : pas 10 m, 111 000 × 120 000 pixels, emprise x 75 730–1 275 730, y 6 005 080–7 115 080.
+- WVD et AGBD : pas 30 m, 40 000 × 40 000 pixels, emprise x 75 730–1 275 730, y 5 915 080–7 115 080.
+- Le STAC (11.1 bis) annonce les mêmes valeurs (scale 1, offset 0, nodata 0, int16) et, pour 2022, des statistiques nationales : hauteur moyenne 788,8 cm, max 3 959 ; WVD moyenne 109,1 (min 1, max 799) ; AGBD moyenne 85,0 (min 1, max 381).
+
+**Alignement sur la grille du projet** : l'origine est x = 75 730 m, y = 7 115 080 m. Pour la hauteur à 10 m, les bords de dalle de 1 km tombent sur des pixels entiers (fenêtre 100 × 100 px pour les 4 dalles, décalage de colonne entier). Pour WVD et AGBD à 30 m, **1 km n'est pas un multiple de 30 m et l'origine décale** : la fenêtre vaut 33,33 px, avec un décalage fractionnaire (par exemple colonne 28 775,67 pour `0939-6654`) ; la lecture de 33 × 33 pixels n'est donc pas alignée sur la dalle et il faut rééchantillonner (voir recette).
+
+**Lecture partielle : testée, fonctionne sans compte.**
+- `curl -r 0-1023 https://zenodo.org/api/records/15489231/files/Height_2022.tif/content` : **HTTP 206**, `content-range: bytes 0-1023/6284638728`, `accept-ranges: bytes`, 1 024 o en 0,47 s.
+- `rasterio.open('/vsicurl/https://zenodo.org/api/records/15489231/files/Height_2022.tif/content')` : ouverture 4,4 s la première fois (1,2 à 1,5 s ensuite) ; lecture de la fenêtre de la dalle `0939-6654` (100 × 100 px) en environ 1 s de plus (total 5,2 s la première fois, 1,8 s la seconde). **Volume transféré mesuré (journal GDAL, 5 requêtes 206)** : 163 840 o pour la hauteur ; 131 072 o pour AGBD (5 requêtes aussi). Soit environ 0,16 Mo contre 6,3 Go pour le fichier entier.
+- Les 4 dalles lues sur les 3 variables 2022 (12 lectures, aucune erreur). Moyenne des pixels > 0 :
+
+| Dalle | Hauteur FORMS-T (m) | max (m) | WVD (m³/ha) | AGBD (Mg/ha) | Pixels nodata (WVD) |
+|---|---|---|---|---|---|
+| `0901-6665` | 25,72 | 30,09 | 267,5 | 216,2 | 0 % |
+| `0902-6665` | 20,98 | 29,88 | 206,2 | 171,0 | 0,5 % |
+| `0939-6654` | 26,40 | 37,79 | 394,1 | 208,5 | 0,4 % |
+| `0939-6655` | 22,98 | 36,89 | 329,3 | 176,3 | 0,6 % |
+
+- **Limite** : Zenodo impose un quota (en-têtes `x-ratelimit-limit: 133`, `retry-after: 60`) ; une lecture par fenêtre est largement dans la limite, mais une boucle sur des centaines de dalles demandera d'attendre ou de passer par le STAC. Zenodo est un point d'accès unique : pour la chaîne de test hors réseau, il faut figer des extraits dans le dépôt.
+- **Écart à noter, pas tranché** : la moyenne de hauteur FORMS-T sur la dalle `0939-6654` (26,4 m) est bien supérieure à la moyenne MNH LiDAR HD du § 8 (17,72 m), et celle de `0901-6665` (25,7 m) à 19,67 m. Les deux moyennes ne portent pas sur le même ensemble de pixels (le MNH du § 8 inclut tout pixel, la mienne exclut les 0) et FORMS-T Zenodo (`Height_2022.tif`) n'est pas forcément le même fichier que `Height_mavg_2022.tif` du STAC (voir 11.1 bis). Le jalon 2 devra mesurer l'écart pixel à pixel avant toute conclusion.
+
+**Définition du volume.** Pour FORMS-T v1, **non établie** : l'article RSE (10.1016/j.rse.2025.114959) n'a pas pu être lu (la page éditeur renvoie une redirection, aucun texte intégral accessible). Zenodo dit seulement « Wood volume map at 30 m resolution (WVD files). Units are in cubic meters per hectare » et « FORMS-T Growing Stock Volume ». Pour le prédécesseur FORMS (ESSD 2023, `https://essd.copernicus.org/articles/15/4927/2023/essd-15-4927-2023.html`, Zenodo 7840108) : « the main stem's volume of up to 7 cm diameter », arbres inventoriés à partir de « 7.5 cm DBH », sur/sous écorce non précisé ; biomasse = volume × « 0.59 Mg m−3 » (conifères) et « 0.89 Mg m−3 » (feuillus), soit facteur d'expansion 1,34 / 1,61 × densité 0,44 / 0,55 (CARBOFOR, Loustau 2010) ; R² 0,63 et MAE 30 m³/ha à l'échelle de l'écorégion. **On ne peut pas supposer que FORMS-T v1 reprend cette définition.** Comparaison avec l'ADR 0002 : à instruire par Pascal (comparer avec la définition de `docs/adr/0002-definition-du-volume.md`, non relue ici).
+
+### 11.1 bis FORMS-T via le STAC (second accès)
+
+`https://api.stac.teledetection.fr/collections/forms-t` (200) et `.../items/FORMS-T-2022` (200) : lisibles sans compte. Un item par année (`FORMS-T-2018` … `-2024`), trois actifs `height`, `agbd`, `wvd`. **Les liens de données (`https://s3-data.meso.umontpellier.fr/sm1-gdc-ext/forms-t/...`) répondent 403 sans jeton** (testé : `Height_mavg_2022.tif`, 403 en 224 o). Le jeton s'obtient en ouvrant un compte Data Terra (connexion ORCID) puis `tld apikey register` (bibliothèque `teledetection`) : **compte gratuit requis**, non créé ici, non testé. Le fichier de hauteur du STAC s'appelle `Height_mavg_2022.tif` (« mavg » : probablement moyenne glissante, **non confirmé**) alors que Zenodo livre `Height_2022.tif` : l'identité des deux fichiers n'est pas établie. Contact producteur : Martin Schwartz (LSCE), cité dans les métadonnées de la collection. DOI de la collection STAC : 10.71961/0ts1-zz77.
+
+### 11.2 FORMSpoT (THEIA, DOI 10.71961/F879-K244 ; article RSE 346, 115631 ; Zenodo 22111200)
+
+**Zenodo 22111200 ne contient pas les données** : un seul fichier, `1-s2.0-S0034425726004013-main.pdf` (8 569 179 o), l'article (`cc-by-4.0`, publié le 2026-08-26, DOI 10.1016/j.rse.2026.115631). Aucun raster. **Source des données** : `https://doi.theia.data-terra.org/FORMSpoT/` (200), diffusion par le STAC `https://api.datastore-mtd.theia.data-terra.org/collections/FORMSpoT` (200, lisible sans compte).
+
+**Licence des données : CC-BY-NC 4.0** (« Creative Commons Attribution Non Commercial 4.0 International », page THEIA) : **usage non commercial seulement** ; l'article, lui, est CC-BY. Cette restriction touche l'usage par Nemeton si celui-ci est commercial : à faire trancher par Pascal.
+
+**Contenu** : 11 items, `FORMSpoT-2014` … `FORMSpoT-2024` (liste STAC, 11 identifiants). Actif `height_<année>` = `https://s3-data.meso.umontpellier.fr/sm1-gdc-ext/FORMSpoT/<année>/full_<année>.vrt` (**un VRT, pas un COG unique**). Résolution 1,5 m, EPSG:2154, grille 768 000 × 720 000 px, emprise x 99 000–1 251 000, y 6 046 000–7 126 000, origine (99 000 ; 7 126 000). **uint16, nodata 65 535**, unité **décimètres** (« Units: decimeters (0.1 m) »), échelle 1. Volume annoncé : environ 160 Go par année (notebook THEIA). Statistiques STAC 2022 : moyenne 48,3, max 511. Le titiler public rapporte `overviews: [2,4,…,2048]`, `dtype uint16`, `nodata_value 65535`. Produit complémentaire FORMSpoT-Δ (polygones de perturbation, hors périmètre ici). Pas de biomasse ni de volume : **hauteur seulement**. Précision publiée (article, RSE) : MAE 3,85 m contre l'inventaire forestier, 3,54 m contre les MNH LiDAR (texte de l'article, § 5.1.1).
+
+**Accès par fenêtre : par la voie officielle, un compte est exigé.** Les URL S3 répondent **403 sans jeton** (testé : `full_2022.vrt`, 403). Le notebook THEIA prescrit `tld apikey register` (connexion Data Terra / ORCID). Compte non créé, **lecture officielle non testée**.
+
+**Voie sans compte, testée mais non officielle** : le visualiseur public de THEIA (titiler) lit les fichiers côté serveur et accepte une fenêtre :
+
+`https://wmts.stac.teledetection.fr/cog/bbox/939000,6653000,940000,6654000/667x667.tif?url=https://s3-data.meso.umontpellier.fr/sm1-gdc-ext/FORMSpoT/2022/full_2022.vrt&coord_crs=EPSG:2154&dst_crs=EPSG:2154`
+
+Résultat mesuré : HTTP 200, 1 781 268 o reçus en 1,8 s, GeoTIFF 2 bandes uint16 (hauteur + masque 0/255), EPSG:2154, pas 1,4993 m (667 px pour 1 000 m, car 1 000/1,5 n'est pas entier). Les 4 dalles lues ainsi (hauteur moyenne ; max ; nodata) : `0901-6665` 20,86 m ; 29,2 m ; 0 % · `0902-6665` 17,77 m ; 28,9 m ; 0 % · `0939-6654` 19,16 m ; 36,8 m ; 0 % · `0939-6655` 16,77 m ; 34,6 m ; 0 %. **Fragile** : service de visualisation, sans engagement de disponibilité ni de quota ; les variantes `bbox/...tif?bounds_crs=...` ont renvoyé HTTP 500. À ne pas câbler dans la chaîne ; acceptable pour une mesure ponctuelle du jalon 2.
+
+### 11.3 Recette pour extraire l'année 2022 sur une dalle de 1 km
+
+Dalle exemple `0939-6654` (x 939 000–940 000, y 6 653 000–6 654 000, EPSG:2154).
+
+1. **FORMS-T hauteur 2022 (10 m, anonyme)** : `rasterio.open('/vsicurl/https://zenodo.org/api/records/15489231/files/Height_2022.tif/content')` ; fenêtre `from_bounds(939000, 6653000, 940000, 6654000, transform=src.transform)` ; bande 1 ; int16 en cm ; **0 = nodata** ; résultat 100 × 100 px, déjà alignée sur la dalle (le 10 m divise 1 km et l'origine tombe sur 1 km) ; aucune reprojection. Le jeu du projet est uint16 avec nodata 65 535 : **0 est une hauteur valide chez nous, nodata chez FORMS-T** ; convertir 0 en 65 535 avant comparaison.
+2. **FORMS-T volume / biomasse 2022 (30 m, anonyme)** : mêmes appels sur `WVD_2022.tif` et `AGBD_2022.tif` ; fenêtre non alignée (33,33 px) ; lire une fenêtre élargie à l'entier supérieur puis rééchantillonner (moyenne pondérée par la surface, pas le plus proche voisin) sur la grille de la dalle. Unités : m³/ha et Mg/ha ; 0 = nodata.
+3. **FORMSpoT hauteur 2022 (1,5 m)** : par compte Data Terra : `tld apikey register`, puis `pystac_client` sur `https://api.stac.teledetection.fr` (écart relevé : le notebook THEIA ouvre `https://api.stac.teledetection.fr`, où `/collections/FORMSpoT` renvoie 404 « Collection formspot does not exist » le 22/11/2026 ; la collection n'a été trouvée que sur `https://api.datastore-mtd.theia.data-terra.org`, à utiliser comme racine STAC) ; asset `height_2022`, `rasterio.open(href)` signé, fenêtre en EPSG:2154. Sans compte : voie titiler ci-dessus (non officielle). Reconvertir décimètres en centimètres (× 10) pour aligner sur l'unité du projet ; 65 535 = nodata dans les deux (identique à la convention du § 7). Passage 1,5 m vers la grille du projet : agrégation (moyenne ou maximum, à décider avec le jalon 2) par bloc, 1 000 / 1,5 n'étant pas entier.
+4. **Impossible ou payant** : rien n'est payant. Demande un compte gratuit : l'accès officiel au STAC signé (FORMS-T via S3 et FORMSpoT). Impossible : une définition du volume FORMS-T v1 (article non lu) ; une lecture FORMSpoT signée (non testée) ; une grille FORMSpoT alignée sans rééchantillonnage.
+
+### 11.4 Journal d'accès (URL réellement appelées le 22/11/2026)
+
+`https://zenodo.org/api/records/15489231` (200) · `.../files/Height_2022.tif/content` en Range 0-1023 (206) et par `/vsicurl/` (Height, WVD, AGBD 2022 ; 206 sur chaque bloc) · `https://zenodo.org/api/records/22111200` (200) et son PDF · `https://api.stac.teledetection.fr/` (200), `/collections/forms-t` (200), `/items/FORMS-T-2022` (200), `/sign?href=` (404) · `https://s3-data.meso.umontpellier.fr/sm1-gdc-ext/forms-t/Height_maps/Height_mavg_2022.tif` (403) et `.../FORMSpoT/2022/full_2022.vrt` (403) · `https://doi.theia.data-terra.org/FORMSpoT/` (200) · `https://api.datastore-mtd.theia.data-terra.org/collections/FORMSpoT` et `/items/FORMSpoT-2022` (200) · `https://gist.githubusercontent.com/martinschwartz95/9b7492a861038eec40c26633a96f8a3e/raw` et `.../71bf53926acf779d7081e3256db37d8d/raw` (notebooks) · `https://wmts.stac.teledetection.fr/cog/info` et `/cog/bbox/...` (200, 500 selon variante) · `https://doi.org/10.1016/j.rse.2025.114959` et `.../rse.2026.115631` (redirections vers linkinghub.elsevier.com, contenu non lisible) · `https://essd.copernicus.org/articles/15/4927/2023/essd-15-4927-2023.html`.
+
+### 11.5 Ce qui n'a pas pu être vérifié
+
+1. Définition du volume de FORMS-T v1 (article RSE non lu) ; seule celle de FORMS (ESSD 2023) est citée.
+2. Lecture signée (compte Data Terra) de FORMS-T et de FORMSpoT : non testée, aucun compte créé.
+3. Identité entre `Height_2022.tif` (Zenodo) et `Height_mavg_2022.tif` (STAC) ; sens de « mavg ».
+4. Écart de moyennes de hauteur avec le MNH (11.1) : non élucidé.
+5. Version et date de dépôt de FORMS-T : champ `version` absent de Zenodo (`None`) ; date de publication 2025-06-06 ; le STAC indique `published` 2025-12-11 pour l'item 2022.
+6. Licence FORMSpoT NC lue sur une seule page (THEIA) ; la licence de l'article (CC-BY) est une autre chose.
