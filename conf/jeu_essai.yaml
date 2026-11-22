@@ -1,0 +1,41 @@
+# Paramètres de fabrication du jeu d'essai (mission 002), lus par
+# scripts/fabriquer_jeu_essai.py. Valeurs marquées PROVISOIRE : à geler avant la fusion de 003.
+crs: "EPSG:2154"
+dalles: ["0901-6665", "0902-6665", "0939-6654", "0939-6655"]  # docs/referentiels.md § 8
+paires:
+  A: ["0901-6665", "0902-6665"]
+  B: ["0939-6654", "0939-6655"]
+apprentissage: A  # PROVISOIRE : A = apprentissage, B = test (décision du 22/11, par délégation)
+test: B
+taille_bloc_m: 10000
+
+pas_source_m: 0.5  # pas du GetMap IGN
+mnh_pas_m: 2.0  # PROVISOIRE : maximum des pixels de 0,5 m
+mnt_pas_m: 10.0  # PROVISOIRE : moyenne des pixels de 0,5 m
+nodata_hauteur: 65535  # spec § 2 : uint16, cm
+nodata_mnt: -9999.0
+compression: {compress: deflate, zlevel: 9}
+
+# Fenêtre Sentinel-2 : mois-jour de début et de fin, dans l'année de vol de la dalle (manifeste).
+s2_fenetre: ["05-01", "09-30"]
+s2_nb_scenes: 3  # au plus par dalle
+s2_nuage_scene_max: 20.0  # % eo:cloud_cover de la scène (filtre de recherche)
+s2_nuage_dalle_max: 0.02  # fraction de pixels nuage/ombre/neige sur la dalle
+s2_candidats_max: 40  # scènes examinées par dalle
+s2_bandes_10m: {B02: blue, B03: green, B04: red, B08: nir}
+s2_bandes_20m: {B05: rededge1, B06: rededge2, B07: rededge3, B8A: nir08, B11: swir16, B12: swir22, SCL: scl}
+scl_mauvais: [0, 1, 3, 8, 9, 10, 11]  # sans donnée, saturé, ombre, nuages, cirrus, neige
+s2_valeurs: >-
+  réflectance = DN x 0,0001 (offset déjà appliqué par Earth Search, earthsearch:boa_offset_applied)
+  - provisoire, à vérifier au jalon 3
+
+wms: https://data.geopf.fr/wms-r
+wfs: https://data.geopf.fr/wfs/ows
+stac: https://earth-search.aws.element84.com/v1
+couche_mnh: IGNF_LIDAR-HD_MNH_ELEVATION.ELEVATIONGRIDCOVERAGE.LAMB93
+couche_mnt: IGNF_LIDAR-HD_MNT_ELEVATION.ELEVATIONGRIDCOVERAGE.LAMB93
+couche_meta: "IGNF_LIDAR-HD_METADONNEE:metadata"
+couche_foret: "LANDCOVER.FORESTINVENTORY.V2:formation_vegetale"
+
+licence_ign: "Licence Ouverte 2.0 (Etalab) ; source : IGN"
+licence_s2: "Contains modified Copernicus Sentinel data {annee}"

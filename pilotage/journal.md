@@ -48,3 +48,6 @@
 2026-11-22 · dev · 002 · reprise aller-retour 1/3 : paramètres dans conf/jeu_essai.yaml, année S2 tirée du manifeste, formule d'échelle S2 explicite (DN × 0,0001, provisoire), tests de licence, plage MNH et CRS ajoutés ; jeu régénéré à emprises identiques, 3,09 Mo ; test-command vert.
 2026-11-22 · relecteur · 002 · aller-retour 1/3 relu : points 1 à 3 levés, 42 tests verts ; reste : la comparaison du CRS source à 2154 n'est pas dans le script ; non bloquant : conf posée par globals(), « feuillus / résineux » en dur.
 2026-11-22 · Claude (orchestrateur) · 002 · aller-retour 2/3 renvoyé au dev.
+2026-11-22 · dev · 002 · aller-retour 2/3 : CRS source du GetMap contrôlé (Lambert-93 équivalent, datum IGN non nommé toléré, méridien d'origine vérifié), conf passée en objet, essences du découpage tirées de la BD Forêt ; 32 rasters (8 LiDAR + 24 S2 ; le « 28 » annoncé avant était une erreur de décompte) ; test-command vert.
+2026-11-22 · relecteur · 002 · prêt : contrôle CRS en place (WGS84 toléré, 27572 et 3949 refusés, méridien de Paris refusé après ajout) ; 42 tests verts, 3,09 Mo.
+2026-11-22 · Claude (orchestrateur, par délégation) · 002 · décidé : mission 002 intégrée à la branche de la PR #2 · pourquoi : relecteur « prêt », tests verts · ce que Pascal peut défaire : retirer le commit de 002.
