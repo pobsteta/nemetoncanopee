@@ -15,6 +15,9 @@ from nemeton_canopee import grille
 from nemeton_canopee.conf import Configuration
 from nemeton_canopee.erreurs import DonneeRefusee, exiger_fichier
 
+CLES = ["taille_bloc_m", "apprentissage", "test"]
+CLES_ENTREE = ["dalle", "bloc"]
+
 
 @dataclass(frozen=True)
 class Decoupage:
@@ -27,6 +30,7 @@ class Decoupage:
 
 def controler(d: dict, taille_dalle_m: int) -> Decoupage:
     """Contrôle un découpage lu (dictionnaire YAML) et le renvoie, ou lève `DonneeRefusee`."""
+    controler_cles(d)
     taille = int(d["taille_bloc_m"])
     entrees = {"apprentissage": d.get("apprentissage") or [], "test": d.get("test") or []}
     for role, liste in entrees.items():
@@ -56,6 +60,24 @@ def controler(d: dict, taille_dalle_m: int) -> Decoupage:
             "(règle : blocs spatiaux distincts)"
         )
     return Decoupage(apprentissage=appr, test=test, taille_bloc_m=taille)
+
+
+def controler_cles(d: object) -> None:
+    """Refuse (code 3) un découpage auquel il manque une clé obligatoire."""
+    if not isinstance(d, dict):
+        raise DonneeRefusee("découpage refusé : decoupage.yaml n'est pas un dictionnaire")
+    manquantes = [c for c in CLES if c not in d]
+    for role in ("apprentissage", "test"):
+        for i, e in enumerate(d.get(role) or []):
+            if not isinstance(e, dict):
+                manquantes.append(f"{role}[{i}]")
+                continue
+            manquantes += [f"{role}[{i}].{c}" for c in CLES_ENTREE if c not in e]
+    if manquantes:
+        raise DonneeRefusee(
+            f"découpage refusé : clés absentes de decoupage.yaml : {', '.join(manquantes)} "
+            f"(règle : {', '.join(CLES)} obligatoires, chaque entrée avec {', '.join(CLES_ENTREE)})"
+        )
 
 
 def lire(conf: Configuration) -> Decoupage:

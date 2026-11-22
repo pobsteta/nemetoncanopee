@@ -39,6 +39,9 @@ stac:
     id: nemeton-canopee
     titre: nemetoncanopee
     description: Cartes annuelles de hauteur forestière à 10 m (jalon 1, modèle trivial).
+  lignee: >-
+    MNH LiDAR HD (IGN) et Sentinel-2 L2A de l'année de vol ; modèle {version_modele} ;
+    lissage temporel identité au jalon 1
   licence: other  # en attente de l'ADR 0003 (décision réservée à Pascal)
   liens_licence:
     - titre: Licence Ouverte 2.0 (Etalab), données IGN

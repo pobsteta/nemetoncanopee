@@ -104,9 +104,8 @@ def item(conf: Configuration, c: Couche, dossier_item: Path) -> pystac.Item:
         "proj:shape": list(c.forme),
         "proj:transform": [c.pas_m, 0.0, float(xmin), 0.0, -c.pas_m, float(ymax)],
         "processing:software": {"nemeton-canopee": __version__},
-        "processing:lineage": (
-            "MNH LiDAR HD et Sentinel-2 L2A de l'année de vol ; modèle "
-            f"{c.tags['CANOPEE_VERSION_MODELE']} ; lissage temporel identité au jalon 1"
+        "processing:lineage": conf.stac["lignee"].format(
+            version_modele=c.tags["CANOPEE_VERSION_MODELE"]
         ),
         "mentions": c.mentions,
         "canopee:version_modele": c.tags["CANOPEE_VERSION_MODELE"],

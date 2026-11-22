@@ -25,13 +25,16 @@ from nemeton_canopee.erreurs import DonneeRefusee, EntreeManquante, exiger_fichi
 from nemeton_canopee.ingest import controler_annee_de_vol, lire_manifeste, lire_scenes
 
 
-def _controler_emprise(src: rasterio.DatasetReader, dalle: str, taille_m: int, nom: str) -> None:
+def _controler_emprise(
+    src: rasterio.DatasetReader, dalle: str, taille_m: int, crs: str, nom: str
+) -> None:
+    grille.controler_crs(src.crs, crs, nom)
     attendue = grille.emprise(dalle, taille_m)
     lue = tuple(round(v, 6) for v in src.bounds)
-    if lue != tuple(float(v) for v in attendue) or src.crs.to_epsg() != 2154:
+    if lue != tuple(float(v) for v in attendue):
         raise DonneeRefusee(
-            f"{nom} hors de la grille de la dalle {dalle} : emprise {lue}, {src.crs} "
-            f"(règle : Lambert-93, grille alignée sur la dalle {attendue})"
+            f"{nom} hors de la grille de la dalle {dalle} : emprise {lue} "
+            f"(règle : grille alignée sur la dalle {attendue})"
         )
 
 
@@ -43,7 +46,7 @@ def pile_scene(conf: Configuration, dalle: str, fichiers: pd.DataFrame) -> np.nd
     for fichier in fichiers["fichier"]:
         chemin = exiger_fichier(conf.zone.racine / fichier, "ingest (scène absente)")
         with rasterio.open(chemin) as src:
-            _controler_emprise(src, dalle, taille, fichier)
+            _controler_emprise(src, dalle, taille, conf.grille["crs"], fichier)
             lues = src.read(out_shape=(src.count, *forme), resampling=Resampling.nearest)
             for nom, valeurs in zip(src.descriptions, lues, strict=True):
                 bandes[str(nom)] = valeurs

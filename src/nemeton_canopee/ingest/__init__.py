@@ -18,6 +18,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from nemeton_canopee import grille
 from nemeton_canopee.chemins import Chemins
 from nemeton_canopee.conf import Configuration, Zone
 from nemeton_canopee.ecriture import atomique
@@ -61,13 +62,29 @@ class Dalle:
     version_donnees: str
 
 
+def controler_annees(demandees: set[int], disponibles: set[int]) -> None:
+    """Refuse une année demandée (`--annees`) qui n'a aucune dalle (code 3, rien d'écrit)."""
+    vides = sorted(set(demandees) - set(disponibles))
+    if vides:
+        raise DonneeRefusee(
+            f"année {', '.join(map(str, vides))} demandée sans aucune dalle volée cette année-là "
+            f"(années de vol disponibles : {sorted(int(a) for a in disponibles)} ; règle : une "
+            "dalle n'est traitée que pour son année de vol)"
+        )
+
+
 def choisir(disponibles: Sequence[str], demandees: Sequence[str] | None) -> list[str]:
-    """Dalles demandées (toutes par défaut) ; une dalle inconnue est une entrée manquante."""
+    """Dalles demandées (toutes par défaut) ; identifiant invalide ou hors zone refusé."""
     if not demandees:
         return sorted(disponibles)
+    for dalle in demandees:
+        grille.controler_identifiant(dalle)
     inconnues = sorted(set(demandees) - set(disponibles))
     if inconnues:
-        raise EntreeManquante(f"dalles inconnues de la zone : {', '.join(inconnues)}")
+        raise DonneeRefusee(
+            f"dalles {', '.join(inconnues)} refusées : hors de la zone {sorted(disponibles)} "
+            "(règle : seules les dalles déclarées dans conf/zones sont traitées)"
+        )
     return sorted(set(demandees))
 
 
@@ -144,10 +161,17 @@ def executer(
     ]
     manifeste["date_vol"] = [v[0] for v in vols]
     manifeste["annee"] = [v[1] for v in vols]
+    controler_annees(annees_voulues if annees else set(), set(manifeste["annee"]))
     manifeste = manifeste[manifeste["annee"].isin(annees_voulues)]
+    if manifeste.empty:
+        raise DonneeRefusee(
+            f"aucune dalle choisie n'a été volée en {sorted(annees_voulues)} "
+            "(règle : une dalle n'est traitée que pour son année de vol)"
+        )
 
     scenes = pd.read_csv(exiger_fichier(zone.chemin("scenes"), "ingest"), dtype=str)
-    manifeste["version_donnees"] = version_donnees(zone, scenes)
+    version = version_donnees(zone, scenes)
+    manifeste["version_donnees"] = version
     annee_de = dict(zip(manifeste["id"], manifeste["annee"], strict=True))
     scenes = scenes[scenes["dalle"].isin(annee_de)].copy()
     for ligne in scenes.itertuples():
@@ -161,7 +185,7 @@ def executer(
     ch = Chemins(conf.travail)
     table = _fusionner(ch.manifeste, manifeste[COLONNES_MANIFESTE], "id", ["id"])
     # La version des données porte sur toute la zone : elle est la même pour chaque dalle.
-    table["version_donnees"] = manifeste["version_donnees"].iloc[0] if len(manifeste) else ""
+    table["version_donnees"] = version
     _ecrire_parquet(ch.manifeste, table)
     _ecrire_parquet(
         ch.scenes,
@@ -183,6 +207,7 @@ def lire_manifeste(
             raise EntreeManquante(f"dalles absentes du manifeste : {absentes} (relancer ingest)")
         table = table[table["id"].isin(dalles)]
     if annees:
+        controler_annees({int(a) for a in annees}, set(table["annee"]))
         table = table[table["annee"].isin([int(a) for a in annees])]
     return [
         Dalle(r.id, int(r.annee), str(r.date_vol), str(r.version_donnees))

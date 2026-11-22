@@ -9,16 +9,28 @@ from __future__ import annotations
 
 import re
 
+from rasterio.crs import CRS
 from rasterio.transform import Affine
+
+from nemeton_canopee.erreurs import DonneeRefusee
 
 MOTIF_DALLE = re.compile(r"^(\d{4})-(\d{4})$")
 
 
+def controler_identifiant(dalle: str) -> re.Match:
+    """Refuse (code 3) un identifiant qui n'a pas la forme IGN `XXXX-YYYY`."""
+    m = MOTIF_DALLE.match(str(dalle))
+    if not m:
+        raise DonneeRefusee(
+            f"identifiant de dalle invalide : {dalle!r} (règle : nomenclature IGN XXXX-YYYY, "
+            "coin nord-ouest en km)"
+        )
+    return m
+
+
 def emprise(dalle: str, taille_m: int) -> tuple[int, int, int, int]:
     """(xmin, ymin, xmax, ymax) de la dalle, en m Lambert-93."""
-    m = MOTIF_DALLE.match(dalle)
-    if not m:
-        raise ValueError(f"identifiant de dalle invalide : {dalle!r} (attendu XXXX-YYYY)")
+    m = controler_identifiant(dalle)
     x, y = int(m.group(1)) * 1000, int(m.group(2)) * 1000
     return x, y - taille_m, x + taille_m, y
 
@@ -48,3 +60,11 @@ def se_touchent(a: str, b: str, taille_m: int) -> bool:
     ax0, ay0, ax1, ay1 = emprise(a, taille_m)
     bx0, by0, bx1, by1 = emprise(b, taille_m)
     return ax0 <= bx1 and bx0 <= ax1 and ay0 <= by1 and by0 <= ay1
+
+
+def controler_crs(lu: CRS | None, attendu: str, nom: str) -> None:
+    """Refuse (code 3) une donnée dont la projection n'est pas celle de la conf (`grille.crs`)."""
+    if lu is None or CRS.from_user_input(lu) != CRS.from_user_input(attendu):
+        raise DonneeRefusee(
+            f"{nom} en CRS {lu} refusé (règle : CRS de la grille {attendu}, conf grille.crs)"
+        )

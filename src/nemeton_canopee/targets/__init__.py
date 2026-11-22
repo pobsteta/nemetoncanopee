@@ -59,6 +59,7 @@ def executer(conf: Configuration, dalles: Sequence[str] | None = None) -> None:
         foret, _, _ = lire_bande(exiger_fichier(ch.foret(dalle.id), "prepare"))
         chemin_mnh = exiger_fichier(conf.zone.chemin("mnh", dalle=dalle.id), "ingest")
         with rasterio.open(chemin_mnh) as src:
+            grille.controler_crs(src.crs, conf.grille["crs"], f"MNH de {dalle.id}")
             attendue = tuple(float(v) for v in grille.emprise(dalle.id, taille))
             facteur = pas / src.res[0]
             if tuple(src.bounds) != attendue or facteur != int(facteur):

@@ -13,7 +13,8 @@ from typing import Any
 
 import yaml
 
-from nemeton_canopee.erreurs import EntreeManquante
+from nemeton_canopee import grille
+from nemeton_canopee.erreurs import DonneeRefusee, EntreeManquante
 
 VARIABLE_CONF = "CANOPEE_CONF"
 
@@ -89,7 +90,12 @@ def charger_zone(chemin: Path) -> Zone:
     source = d["source"]
     if source.get("mode") != "local":
         # Seul le mode local (jeu embarqué) existe au jalon 1 : aucun accès réseau.
-        raise EntreeManquante(f"mode de source non pris en charge : {source.get('mode')!r}")
+        raise DonneeRefusee(
+            f"mode de source {source.get('mode')!r} refusé dans {chemin} "
+            "(règle : seul le mode « local » existe au jalon 1, sans réseau)"
+        )
+    for dalle in d["dalles"]:
+        grille.controler_identifiant(str(dalle))
     return Zone(
         nom=str(d["nom"]),
         mode=source["mode"],

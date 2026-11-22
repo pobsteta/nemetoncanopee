@@ -159,6 +159,11 @@ def statistiques_zonales(
     """Une ligne par polygone, année et couche, aux colonnes de `COLONNES`."""
     if not isinstance(polygones, gpd.GeoDataFrame):
         polygones = gpd.read_file(polygones)
+    if polygones.crs is None:
+        raise DonneeRefusee(
+            "polygones sans CRS refusés (règle : système de coordonnées explicite, "
+            "Lambert-93 attendu)"
+        )
     if champ_id not in polygones.columns:
         raise EntreeManquante(f"champ {champ_id!r} absent des polygones")
     lignes = []
@@ -168,7 +173,7 @@ def statistiques_zonales(
             if not tuiles:
                 raise EntreeManquante(f"aucune couche {couche} {annee} dans le catalogue")
             crs = tuiles[0].crs
-            geometries = polygones.to_crs(crs) if polygones.crs else polygones.set_crs(crs)
+            geometries = polygones.to_crs(crs)
             aire_cellule = abs(tuiles[0].pas[0] * tuiles[0].pas[1])
             for ident, geom in zip(polygones[champ_id], geometries.geometry, strict=True):
                 touchees = [t for t in tuiles if box(*t.emprise).intersection(geom).area > 0]
