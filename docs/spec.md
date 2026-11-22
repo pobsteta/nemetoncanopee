@@ -62,6 +62,21 @@ Conventions de raster : hauteur en uint16 (cm), **nodata = 65535** (0 est une ha
 valide). Extensions STAC : `projection`, `raster` (unité, nodata), `file`, `processing` ;
 leurs schémas JSON sont **embarqués dans le dépôt** pour valider sans réseau.
 
+Décisions du 22/11 (orchestrateur, par délégation ; journal) :
+
+- **Grille** : les cellules de 10 m ont leurs bords sur les multiples de 10 m en
+  Lambert-93 (donc sur les bords de dalle au km). Une cellule [x, x+10) × [y, y+10) agrège
+  les pixels du MNH à 0,5 m dont le **centre** tombe dedans (les centres IGN sont sur des
+  coordonnées entières : décalage de 0,25 m par rapport à l'emprise nominale,
+  `docs/referentiels.md`).
+- **Hauteurs négatives** du MNH (jusqu'à −0,29 m mesuré) : bornées à 0 avant le passage en
+  uint16 ; le nodata IGN (−9999) devient 65535.
+- **Versions des extensions STAC** : celles que pystac connaît (projection v2.0.0,
+  raster v1.1.0, file v2.1.0), plus processing v1.2.0, enregistrée à partir du schéma
+  embarqué.
+- **Sentinel-1** : absent du jeu d'essai du jalon 1 (modèle trivial, accès anonyme non
+  garanti) ; Sentinel-2 L2A seulement, Earth Search.
+
 ## 3. Hors périmètre
 
 - Détection d'arbres individuels, interface web, outre-mer (brief).

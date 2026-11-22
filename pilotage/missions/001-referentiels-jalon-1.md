@@ -4,7 +4,7 @@
 
 **En une phrase (quoi, et pourquoi) :** Réunir, sourcés, les référentiels dont le squelette a besoin (grille et nomenclature des dalles LiDAR HD, lecture de la date de vol, schémas des extensions STAC, mentions de licence) et proposer 4 dalles de 1 km pour le jeu d'essai, pour que personne n'invente un code ou un format.
 
-**Redite par l'agent :** _à compléter par l'agent avant d'agir._
+**Redite par l'agent :** « Réunir, avec leur source et leur date de consultation, les référentiels du jalon 1 et proposer 4 dalles d'essai en BFC, pour que les missions 002 à 004 n'inventent ni code ni format. » (acquereur, 22/11)
 
 ## Les trois questions (règle de staffing)
 
