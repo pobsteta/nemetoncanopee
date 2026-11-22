@@ -27,7 +27,7 @@
   ne se défait pas (fusion dans `main`, qui peut publier une release ; demande de convention
   à l'IGN) ; les questions de valeur hors du brief (licences, ADR 0003 ; choix de la
   biomasse, ADR 0002).
-- **Inscrite au journal le :** 2026-11-22
+- **Inscrite au journal le :** 2026-11-22 · **terminée le 2026-11-22** (fin du jalon 1)
 
 ## Le vivier (catalogue, pas une équipe)
 
