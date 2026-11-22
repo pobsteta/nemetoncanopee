@@ -1,0 +1,36 @@
+# Zone de l'échantillon du Jura (mission 008) : 6 blocs de 4 x 4 dalles de 1 km, fabriqués hors dépôt
+# par scripts/fabriquer_echantillon.py dans /data/echantillon_jura (ignoré par git, non fourni
+# aux tests). Même arborescence et mêmes conventions que conf/zones/jeu_essai.yaml.
+nom: echantillon-jura  # préfixe de la version des données
+source:
+  mode: local  # lecture du dossier fabriqué, sans réseau
+  racine: /data/echantillon_jura
+fichiers:  # relatifs à la racine de la source
+  manifeste: manifeste_dalles.parquet
+  scenes: sentinel2_scenes.csv
+  decoupage: decoupage.yaml
+  mnh: "lidar/{dalle}_MNH_2m.tif"
+  foret: "foret/{dalle}_bdforet_v2.gpkg"
+mnh_unite: cm  # MNH agrégé à 2 m (maximum), uint16 en cm, nodata 65535, comme le jeu d'essai
+annees: [2022]  # année de vol des 96 dalles (WFS IGN) ; une dalle n'est traitée que pour son année
+foret_formations: tout  # PROVISOIRE : tous les polygones BD Forêt (décision 4, réexamen jalon 3)
+# FORMS-T v1, hauteur de l'année de vol, déjà à 10 m, en cm, nodata 65535 (docs/referentiels.md § 11)
+references:
+  - nom: forms_t_v1
+    libelle: FORMS-T v1
+    chemin: "references/forms_t_v1/{dalle}_hauteur_{annee}.tif"
+    unite: cm
+dalles: [  # blocs de conf/echantillon_jura.yaml ; un test vérifie qu'ils sont identiques
+  # bloc chaux_a (apprentissage) : chênaie de plaine (forêt de Chaux), 210-260 m
+  "0894-6665", "0894-6666", "0894-6667", "0894-6668", "0895-6665", "0895-6666", "0895-6667", "0895-6668", "0896-6665", "0896-6666", "0896-6667", "0896-6668", "0897-6665", "0897-6666", "0897-6667", "0897-6668",
+  # bloc chaux_b (test) : chênaie de plaine (forêt de Chaux), 240-280 m
+  "0908-6671", "0908-6672", "0908-6673", "0908-6674", "0909-6671", "0909-6672", "0909-6673", "0909-6674", "0910-6671", "0910-6672", "0910-6673", "0910-6674", "0911-6671", "0911-6672", "0911-6673", "0911-6674",
+  # bloc sapiniere_a (apprentissage) : sapinière-hêtraie de moyenne montagne, 740-1120 m
+  "0916-6609", "0916-6610", "0916-6611", "0916-6612", "0917-6609", "0917-6610", "0917-6611", "0917-6612", "0918-6609", "0918-6610", "0918-6611", "0918-6612", "0919-6609", "0919-6610", "0919-6611", "0919-6612",
+  # bloc joux (test) : sapinière à grands arbres (forêt de la Joux), 630-870 m
+  "0926-6643", "0926-6644", "0926-6645", "0926-6646", "0927-6643", "0927-6644", "0927-6645", "0927-6646", "0928-6643", "0928-6644", "0928-6645", "0928-6646", "0929-6643", "0929-6644", "0929-6645", "0929-6646",
+  # bloc altitude_a (apprentissage) : forêt d'altitude, sapin-épicéa et hêtre, 860-1090 m
+  "0938-6633", "0938-6634", "0938-6635", "0938-6636", "0939-6633", "0939-6634", "0939-6635", "0939-6636", "0940-6633", "0940-6634", "0940-6635", "0940-6636", "0941-6633", "0941-6634", "0941-6635", "0941-6636",
+  # bloc altitude_b (test) : forêt d'altitude du Haut-Jura, sapin-épicéa, 970-1290 m
+  "0934-6607", "0934-6608", "0934-6609", "0934-6610", "0935-6607", "0935-6608", "0935-6609", "0935-6610", "0936-6607", "0936-6608", "0936-6609", "0936-6610", "0937-6607", "0937-6608", "0937-6609", "0937-6610",
+]

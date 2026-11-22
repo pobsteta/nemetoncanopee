@@ -1,0 +1,36 @@
+# Paramètres de fabrication de l'échantillon du Jura (mission 008), lus par
+# scripts/fabriquer_echantillon.py. Les sources, la grille, les paramètres Sentinel-2 et
+# FORMS-T sont ceux du jeu d'essai (héritage) ; ce fichier ajoute les blocs et leurs rôles.
+heritage: jeu_essai.yaml
+sortie: /data/echantillon_jura  # hors dépôt, ignoré par git
+budget_octets: 21474836480  # 20 Gio (mission 008) ; mesuré en fin de fabrication
+travailleurs: 4  # dalles fabriquées en parallèle (4 CPU)
+tentatives: 3  # essais par dalle en cas d'échec réseau
+taille_bloc_dalles: 4  # un bloc = 4 x 4 dalles de 1 km
+distance_min_blocs_m: 10000  # entre blocs (découpage d'évaluation, CLAUDE.md)
+mnh_min_valide: 0.5  # part minimale de cellules MNH valides sur une dalle ("MNH publié")
+seuil_grands_arbres_m: 30.0  # hauteur au-delà de laquelle on parle de grands arbres
+forms_t_annees: [2018, 2024]  # FORMS-T v1 n'existe que pour ces années de vol
+
+# Plus tolérant que le jeu d'essai : en montagne, peu de scènes sont claires.
+s2_nuage_scene_max: 40.0  # % eo:cloud_cover de la scène ; le critère strict reste 2 % sur la dalle
+s2_candidats_max: 60
+
+statut_decoupage: >-
+  PROVISOIRE : proposition du dev (mission 008), à trancher par l'orchestrateur (délégation) puis Pascal
+taille_bloc_m: 10000
+justification_roles: >-
+  Trois types de forêt, chacun avec un bloc d'apprentissage et un bloc de test (le modèle est
+  jugé sur un type qu'il a vu ailleurs, jamais sur les mêmes dalles ni les mêmes blocs de 10 km).
+  Le bloc de la Joux (test) porte les plus grands sapins ; le bloc d'altitude de test est le plus
+  élevé de l'échantillon.
+
+# Coin nord-ouest du bloc en km Lambert-93 (comme l'identifiant de dalle) ; année de vol 2022 pour
+# les 96 dalles (WFS IGN), BD Forêt V2 majoritaire sur chaque bloc.
+blocs:
+  - {nom: chaux_a, role: apprentissage, nw_km: [894, 6668], type: "chênaie de plaine (forêt de Chaux), 210-260 m"}
+  - {nom: chaux_b, role: test, nw_km: [908, 6674], type: "chênaie de plaine (forêt de Chaux), 240-280 m"}
+  - {nom: sapiniere_a, role: apprentissage, nw_km: [916, 6612], type: "sapinière-hêtraie de moyenne montagne, 740-1120 m"}
+  - {nom: joux, role: test, nw_km: [926, 6646], type: "sapinière à grands arbres (forêt de la Joux), 630-870 m"}
+  - {nom: altitude_a, role: apprentissage, nw_km: [938, 6636], type: "forêt d'altitude, sapin-épicéa et hêtre, 860-1090 m"}
+  - {nom: altitude_b, role: test, nw_km: [934, 6610], type: "forêt d'altitude du Haut-Jura, sapin-épicéa, 970-1290 m"}
