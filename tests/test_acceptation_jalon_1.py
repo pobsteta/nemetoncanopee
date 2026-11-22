@@ -441,8 +441,9 @@ def test_zonal_valeur_main_synthetique(tmp_path):
     moyenne = 600 / 2,5 = 240 cm. part_couverte = 2,5 x 100 m² / 300 m² = 5/6.
     """
     import geopandas as gpd
-    from nemeton_canopee.zonal import statistiques_zonales
     from shapely.geometry import box
+
+    from nemeton_canopee.zonal import statistiques_zonales
 
     valeurs = np.array([[100, 200, 300], [400, NODATA, 600], [700, 800, 900]])
     cat = catalogue_synthetique(tmp_path, valeurs)
@@ -471,8 +472,9 @@ def test_zonal_valeur_main_carre_20m(chaine):
     """(b) Carré de 20 m sur 4 cellules de 10 m, toutes prédites : tout vaut 2626 cm."""
     exiger_chaine(chaine)
     import geopandas as gpd
-    from nemeton_canopee.zonal import statistiques_zonales
     from shapely.geometry import box
+
+    from nemeton_canopee.zonal import statistiques_zonales
 
     polys = gpd.GeoDataFrame({"id": [1]}, geometry=[box(*CARRE_20M)], crs=2154)
     cat = chaine.travail / "export" / "stac" / "catalog.json"
