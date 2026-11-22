@@ -25,7 +25,7 @@ dependencies = [
 
 [project.optional-dependencies]
 ml = [
-  "lightgbm>=4.3",  # modèle gbm (mission 009, ADR 0004 option C)
+  "lightgbm==4.7.0",  # modèle gbm (mission 009) ; épinglé : empreinte de non-régression (013)
   # Modèle unet (mission 010, ADR 0004 option A), CPU seulement. Roue CPU (sans CUDA) :
   # pip install torch --index-url https://download.pytorch.org/whl/cpu avant l'extra.
   "torch>=2.2",

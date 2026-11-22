@@ -1,6 +1,10 @@
 # Modèle C de l'ADR 0004 (mission 009) : LightGBM sur descripteurs par cellule de 10 m.
 # Toutes les valeurs marquées PROVISOIRE sont réglées sur les blocs d'apprentissage seulement,
 # mesure en mission 011. La graine est celle de conf/chaine.yaml.
+# Mission 013 : options absentes ici, donc désactivées (ce fichier reste celui de la mesure 011,
+# prédictions identiques à l'octet). Pour les activer, ajouter les clés de
+# conf/modele/gbm_ortho.yaml : `descripteurs.trouees` (Sentinel-2 seul), `descripteurs.ortho`
+# (BD ORTHO, mission 012) et `apprentissage.poids_peuplements_bas` (actif: true).
 nom: gbm
 arrondi: demi_haut  # prédiction (cm, réelle) -> entier : 2625,5 cm -> 2626 cm
 

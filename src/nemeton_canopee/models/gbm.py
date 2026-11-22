@@ -5,9 +5,11 @@
 - Arrêt anticipé sur des **blocs de validation** tirés (graine) parmi les blocs spatiaux des
   dalles d'apprentissage (`apprentissage.validation.taille_bloc_m`) ; un bloc ne sert jamais
   à la fois à l'ajustement et à la validation, et aucune cellule de test n'y entre.
-- Poids d'échantillon pour les grandes hauteurs (`apprentissage.poids_grands_arbres`), sur
-  le modèle de hauteur ; les quantiles ne sont pondérés que si `quantiles_ponderes` est vrai
-  (faux par défaut : un quantile pondéré n'est plus le quantile de la distribution).
+- Poids d'échantillon pour les grandes hauteurs (`apprentissage.poids_grands_arbres`) et, en
+  option (mission 013, `apprentissage.poids_peuplements_bas.actif`, faux par défaut), pour
+  les hauteurs basses, sur le modèle de hauteur ; les quantiles ne sont pondérés que si
+  `quantiles_ponderes` est vrai (faux par défaut : un quantile pondéré n'est plus le
+  quantile de la distribution).
 - Trois modèles : la hauteur (objectif de la conf, L1 par défaut) et les quantiles 0,1 et 0,9
   pour l'incertitude ; chacun s'écrit en texte LightGBM.
 - Rejouable : graine de la conf, `deterministic`, nombre de fils fixé dans la conf.
@@ -112,7 +114,7 @@ def table_apprentissage(
     taille_bloc = float(conf.modele["apprentissage"]["validation"]["taille_bloc_m"])
     lus = []
     for d in dalles:
-        desc = descripteurs.calculer(conf, ch, d.id, d.annee)
+        desc = descripteurs.calculer(conf, ch, d.id, d.annee, d.date_vol)
         cible = _lire(exiger_fichier(ch.cible(d.annee, d.id), "targets"))
         foret = _lire(exiger_fichier(ch.foret(d.id), "prepare"))
         ok = (cible != conf.nodata) & (foret == 1) & desc.clair
@@ -149,6 +151,14 @@ def _lire(chemin) -> np.ndarray:
 def poids(y: np.ndarray, regle: Mapping[str, Any]) -> np.ndarray:
     """Poids d'échantillon : `poids` au-dessus de `seuil_cm` (strictement), 1 ailleurs."""
     return np.where(y > float(regle["seuil_cm"]), float(regle["poids"]), 1.0)
+
+
+def poids_bas(y: np.ndarray, regle: Mapping[str, Any] | None) -> np.ndarray:
+    """Poids des peuplements bas (mission 013) : `poids` sous `seuil_cm` (strictement) si la
+    règle est active, 1 ailleurs ; règle absente ou `actif: false` = 1 partout."""
+    if not regle or not regle.get("actif", False):
+        return np.ones_like(y, dtype="float64")
+    return np.where(y < float(regle["seuil_cm"]), float(regle["poids"]), 1.0)
 
 
 def _params(conf: Configuration, **remplace: Any) -> dict[str, Any]:
@@ -220,6 +230,7 @@ def entrainer(
         dalles_test,
     )
     w = poids(table.y, reglage["poids_grands_arbres"])
+    w = w * poids_bas(table.y, reglage.get("poids_peuplements_bas"))
     w_quantiles = w if reglage.get("quantiles_ponderes", False) else np.ones_like(w)
     fichiers: dict[str, str] = {}
     tours: dict[str, int] = {}
@@ -281,7 +292,7 @@ def predire(
         if hashlib.sha256(texte.encode("utf-8")).hexdigest() != empreinte:
             raise DonneeRefusee(f"modèle {version} : {fichier} modifié (empreinte différente)")
         boosters[fichier.removesuffix(".txt")] = lgb.Booster(model_str=texte)
-    desc = descripteurs.calculer(conf, ch, dalle.id, dalle.annee)
+    desc = descripteurs.calculer(conf, ch, dalle.id, dalle.annee, dalle.date_vol)
     if [*desc.noms, ESSENCE] != list(modele["descripteurs"]):
         raise DonneeRefusee("descripteurs différents de ceux de l'entraînement (relancer train)")
     ess = encoder_essence(desc.essence, modele["vocabulaire_essence"])

@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import lightgbm  # extra dev : jamais de skip si absent
 import numpy as np
 import pytest
 import rasterio
@@ -20,15 +21,14 @@ from nemeton_canopee import descripteurs
 from nemeton_canopee.erreurs import DonneeRefusee
 from nemeton_canopee.models import gbm
 
-pytest.importorskip("lightgbm")
-
 TEST = ["0939-6654", "0939-6655"]
 APPRENTISSAGE = ["0901-6665", "0902-6665"]
 NODATA = 65535
 
 
-def conf_gbm(dossier: Path) -> Path:
-    """Conf dérivée : modèle gbm, zone du jeu d'essai avec le MNT déclaré, chemins absolus."""
+def conf_gbm(dossier: Path, modele: str = "gbm.yaml") -> Path:
+    """Conf dérivée : modèle gbm (ou sa variante `modele`), zone du jeu d'essai avec le MNT
+    déclaré, chemins absolus."""
     dossier.mkdir(parents=True, exist_ok=True)
     chaine = yaml.safe_load(CONF.read_text(encoding="utf-8"))
     zone = yaml.safe_load((CONF.parent / chaine["zone"]).read_text(encoding="utf-8"))
@@ -36,7 +36,7 @@ def conf_gbm(dossier: Path) -> Path:
     assert zone["fichiers"]["mnt"] == "lidar/{dalle}_MNT_10m.tif"  # déclaré dans le dépôt
     (dossier / "zone.yaml").write_text(yaml.safe_dump(zone, allow_unicode=True), "utf-8")
     chaine["zone"] = "zone.yaml"
-    chaine["modele"] = str(CONF.parent / "modele" / "gbm.yaml")
+    chaine["modele"] = str(CONF.parent / "modele" / modele)
     chaine["stac"]["schemas"] = str(CONF.parent / chaine["stac"]["schemas"])
     chemin = dossier / "chaine.yaml"
     chemin.write_text(yaml.safe_dump(chaine, allow_unicode=True), encoding="utf-8")
@@ -340,3 +340,240 @@ def test_zone_porte_mnt_et_unite():
     zone = charger_zone(CONF.parent / "zones" / "jeu_essai.yaml")
     assert zone.mnt_unite == "m"
     assert zone.chemin("mnt", dalle=DALLES[0]).is_file()
+
+
+# --- Mission 013 : non-régression de gbm, descripteurs trouées et ortho, variante gbm_ortho --
+
+# Empreintes de la chaîne gbm (conf/modele/gbm.yaml) sur le jeu d'essai, calculées AVANT la
+# mission 013 (22/11/2026, lightgbm 4.7.0) : version du modèle (sha256 de modele.json) et sha256
+# des pixels (uint16) des couches brutes d'infer.
+LIGHTGBM_EMPREINTE = "4.7.0"
+VERSION_GBM_AVANT_013 = "gbm-469e8cdf93e9"
+PIXELS_GBM_AVANT_013 = {  # (dalle, couche) -> sha256 des pixels de {dalle}_{couche}_brute.tif
+    ("0901-6665", "hauteur"): "ebe94995ed73957340c57423567da8a53d0ab0de2ca837cd27b6daf67adec1dd",
+    (
+        "0901-6665",
+        "hauteur_incertitude",
+    ): "01df2465ab0e6379e670a25bf1e408b39f564473969d878d5da8a149285aa05d",
+    ("0902-6665", "hauteur"): "cf48f0c9fa8cd5337e57d283d74e33ac78506a6752ad26d7321f7d19787f5cd9",
+    (
+        "0902-6665",
+        "hauteur_incertitude",
+    ): "3539af6234814dfaf7e65bd5f1d90bae2443a231db49a3f076bf8fc0a83d6929",
+    ("0939-6654", "hauteur"): "788e76f356086b2b754a9d869ed908b5cfab9a8b9c2570fd74dcdc1478eef9e0",
+    (
+        "0939-6654",
+        "hauteur_incertitude",
+    ): "67174e438fedee1a7730f067ee4c1d6b4e42627fc84c9e01677c563408045062",
+    ("0939-6655", "hauteur"): "af4250289ae68fd8deb8d95916b4d9e6b6798f8ec676b2d56d534092845872b9",
+    (
+        "0939-6655",
+        "hauteur_incertitude",
+    ): "815e046d17be73455b52407dab726539e9a63293f499ccbf83e7dd0ce8ffe84c",
+}
+NOUVEAUX_TROUEES = [
+    "NDVI_contraste_v5",
+    "B08_contraste_v5",
+    "B11_contraste_v5",
+    "NDVI_min_v3",
+    "NDVI_part_bas_v5",
+]
+
+
+def test_gbm_identique_a_l_octet_a_avant_013(deux_passes):
+    """gbm.yaml sans option : même modèle et mêmes prédictions qu'avant la mission 013."""
+    import hashlib
+
+    # lightgbm épinglé dans pyproject.toml (extra ml) : une autre version change l'empreinte.
+    assert lightgbm.__version__ == LIGHTGBM_EMPREINTE, "lightgbm non épinglé (pyproject.toml)"
+    _, ((travail, _), _) = deux_passes
+    (modele,) = (travail / "modeles").glob("gbm-*/modele.json")
+    assert modele.parent.name == VERSION_GBM_AVANT_013
+    for (dalle, couche), attendu in PIXELS_GBM_AVANT_013.items():
+        with rasterio.open(travail / "infer" / "2022" / f"{dalle}_{couche}_brute.tif") as src:
+            assert hashlib.sha256(src.read(1).tobytes()).hexdigest() == attendu, (dalle, couche)
+
+
+def test_gbm_yaml_sans_option_013_et_variante_identique_sinon():
+    gbm_conf = yaml.safe_load((CONF.parent / "modele" / "gbm.yaml").read_text("utf-8"))
+    assert "trouees" not in gbm_conf["descripteurs"] and "ortho" not in gbm_conf["descripteurs"]
+    assert "poids_peuplements_bas" not in gbm_conf["apprentissage"]
+    ortho = yaml.safe_load((CONF.parent / "modele" / "gbm_ortho.yaml").read_text("utf-8"))
+    assert ortho["apprentissage"]["poids_peuplements_bas"]["actif"] is False
+    assert ortho["descripteurs"]["ortho"]["age"] is True
+    del ortho["descripteurs"]["trouees"], ortho["descripteurs"]["ortho"]
+    del ortho["apprentissage"]["poids_peuplements_bas"]
+    assert ortho == gbm_conf  # mêmes hyperparamètres, même validation, rien réglé ailleurs
+
+
+def test_poids_peuplements_bas():
+    y = np.array([999.0, 1000.0, 3001.0])
+    assert gbm.poids_bas(y, None).tolist() == [1.0, 1.0, 1.0]
+    assert gbm.poids_bas(y, {"actif": False, "seuil_cm": 1000, "poids": 2.0}).tolist() == [1.0] * 3
+    regle = {"actif": True, "seuil_cm": 1000, "poids": 2.0}
+    assert gbm.poids_bas(y, regle).tolist() == [2.0, 1.0, 1.0]
+
+
+def test_trouees_a_la_main():
+    x = np.full((5, 5), 0.9)
+    x[2, 2] = 0.4  # trouée au centre
+    x[0, 0] = np.nan  # cellule nuageuse
+    params = {
+        "contraste": {"variables": ["NDVI"], "cote": 5},
+        "minimum": [{"variable": "NDVI", "cote": 3}],
+        "part_basse": [{"variable": "NDVI", "cote": 5, "seuil": 0.75}],
+    }
+    t = descripteurs.trouees({"NDVI": x}, params)
+    assert list(t) == ["NDVI_contraste_v5", "NDVI_min_v3", "NDVI_part_bas_v5"]
+    # Centre : 24 cellules valides, 23 à 0,9 et 1 à 0,4 -> moyenne 21,1 / 24.
+    assert t["NDVI_contraste_v5"][2, 2] == pytest.approx(0.4 - 21.1 / 24)
+    assert t["NDVI_min_v3"][1, 1] == pytest.approx(0.4)
+    assert t["NDVI_min_v3"][0, 0] == pytest.approx(0.9)  # coin : NaN ignoré, pas de débord
+    assert t["NDVI_min_v3"][0, 4] == pytest.approx(0.9)
+    assert t["NDVI_part_bas_v5"][2, 2] == pytest.approx(1 / 24)
+    assert t["NDVI_part_bas_v5"][0, 4] == pytest.approx(1 / 9)  # coin : fenêtre de 3 x 3
+    vide = descripteurs.trouees({"NDVI": np.full((2, 2), np.nan)}, params)
+    assert all(np.isnan(v).all() for v in vide.values())
+    with pytest.raises(DonneeRefusee, match="absente"):
+        descripteurs.trouees({"B04": x}, params)
+
+
+def test_age_ortho_a_la_main():
+    # 2022-07-27 -> 2023-07-27 : 365 j, puis 31 j (-> 27/08) et 8 j (-> 04/09) : 404 j.
+    assert descripteurs.age_ortho_jours("2023-09-04", "2022-07-27") == 404
+    # Vol du 20/09 au 25/10/2022 : 35 j, milieu le 07/10 ; -> 07/10/2023 : 365 j, moins 34 j.
+    assert descripteurs.age_ortho_jours("2023-09-03", "2022-09-20/2022-10-25") == 331
+    assert descripteurs.age_ortho_jours("2022-07-01", "2022-07-27") == -26  # ortho antérieure
+
+
+@pytest.fixture(scope="module")
+def deux_passes_ortho(tmp_path_factory):
+    """Deux passes complètes de la chaîne avec la variante gbm_ortho."""
+    import geopandas as gpd
+    from conftest import CARRE_20M
+    from shapely.geometry import box
+
+    base = tmp_path_factory.mktemp("gbm_ortho")
+    polygones = base / "polygones.gpkg"
+    gpd.GeoDataFrame({"id": [1]}, geometry=[box(*CARRE_20M)], crs="EPSG:2154").to_file(
+        polygones, driver="GPKG"
+    )
+    conf = conf_gbm(base / "conf", "gbm_ortho.yaml")
+    passes = []
+    for i in (1, 2):
+        travail = base / f"travail{i}"
+        passes.append((travail, executer(conf, travail, polygones)))
+    return conf, passes
+
+
+def test_chaine_complete_gbm_ortho(deux_passes_ortho, capsys):
+    _, passes = deux_passes_ortho
+    for travail, codes in passes:
+        assert all(c == 0 for c, _ in codes.values()), codes
+        assert list(codes) == ETAPES
+        (modele,) = (travail / "modeles").glob("gbm-*/modele.json")
+        noms = json.loads(modele.read_text(encoding="utf-8"))["descripteurs"]
+        for nom in [*NOUVEAUX_TROUEES, "ortho_part_non_vegetal", "ortho_lum_std_v3_moy"]:
+            assert nom in noms
+        assert descripteurs.AGE_ORTHO in noms
+        assert noms[-1] == gbm.ESSENCE
+    rapport = json.loads((passes[0][0] / "validate" / "rapport.json").read_text("utf-8"))
+    with capsys.disabled():
+        print(f"\n[gbm_ortho, jeu d'essai, 2 dalles de test] MAE {rapport['mae_m']:.2f} m")
+
+
+def test_gbm_ortho_rejouable_a_l_octet(deux_passes_ortho):
+    _, ((t1, _), (t2, _)) = deux_passes_ortho
+    fichiers = sorted(
+        p.relative_to(t1)
+        for p in t1.rglob("*")
+        if p.is_file() and p.parts[len(t1.parts)] in {"modeles", "infer", "smooth", "export"}
+    )
+    assert any(p.suffix == ".txt" for p in fichiers)
+    for relatif in fichiers:
+        assert (t1 / relatif).read_bytes() == (t2 / relatif).read_bytes(), relatif
+
+
+def test_descripteurs_gbm_ortho_sur_une_cellule(deux_passes_ortho):
+    """Cellule (50, 50) de 0901-6665 : ortho, voisinage 3 x 3, âge et trouées refaits à la main."""
+    from nemeton_canopee.chemins import Chemins
+    from nemeton_canopee.conf import charger
+    from nemeton_canopee.ingest import lire_manifeste
+
+    conf_chemin, ((travail, _), _) = deux_passes_ortho
+    conf, ch = charger(conf_chemin, travail), Chemins(travail)
+    (dalle,) = [d for d in lire_manifeste(ch) if d.id == "0901-6665"]
+    assert dalle.date_vol == "2022-07-27"
+    desc = descripteurs.calculer(conf, ch, dalle.id, dalle.annee, dalle.date_vol)
+    v = dict(zip(desc.noms, desc.valeurs, strict=True))
+    i, j = 50, 50
+    fichier = RACINE / "tests" / "data" / "ortho" / "0901-6665_ortho_10m.tif"
+    with rasterio.open(fichier) as src:
+        noms = list(src.descriptions)
+        nv = src.read(noms.index("part_non_vegetal") + 1).astype("float64")
+        gradient = src.read(noms.index("gradient_moy") + 1).astype("float64")
+        assert src.tags()["date_prise_de_vue"] == "2023-09-04"
+    assert (nv[i - 1 : i + 2, j - 1 : j + 2] != -9999).all()
+    assert v["ortho_part_non_vegetal"][i, j] == nv[i, j]
+    assert v["ortho_gradient_moy"][i, j] == gradient[i, j]
+    attendu = sum(nv[a, b] for a in (i - 1, i, i + 1) for b in (j - 1, j, j + 1)) / 9
+    assert v["ortho_part_non_vegetal_v3_moy"][i, j] == pytest.approx(attendu)
+    assert (v[descripteurs.AGE_ORTHO] == 404).all()  # 2023-09-04 - 2022-07-27
+    ndvi = v["NDVI_p50"]
+    fenetre = ndvi[i - 2 : i + 3, j - 2 : j + 3]
+    assert np.isfinite(fenetre).all()
+    assert v["NDVI_contraste_v5"][i, j] == pytest.approx(ndvi[i, j] - fenetre.mean())
+    assert v["NDVI_min_v3"][i, j] == ndvi[i - 1 : i + 2, j - 1 : j + 2].min()
+    assert v["NDVI_part_bas_v5"][i, j] == pytest.approx((fenetre < 0.75).sum() / 25)
+    b11 = v["B11_p50"]
+    assert v["B11_contraste_v5"][i, j] == pytest.approx(
+        b11[i, j] - b11[i - 2 : i + 3, j - 2 : j + 3].mean()
+    )
+
+
+def _conf_ortho_copiee(tmp_path, tags: dict):
+    """Conf gbm_ortho dont la zone lit une copie de l'ortho de la 1re dalle, tags modifiés."""
+    from nemeton_canopee.conf import charger
+
+    chemin = conf_gbm(tmp_path / "conf", "gbm_ortho.yaml")
+    zone_f = chemin.parent / "zone.yaml"
+    zone = yaml.safe_load(zone_f.read_text(encoding="utf-8"))
+    (tmp_path / "ortho").mkdir()
+    source = RACINE / "tests" / "data" / "ortho" / f"{DALLES[0]}_ortho_10m.tif"
+    with rasterio.open(source) as src:
+        profil, valeurs = src.profile, src.read()
+        noms, anciens = src.descriptions, src.tags()
+    with rasterio.open(tmp_path / "ortho" / source.name, "w", **profil) as dst:
+        dst.write(valeurs)
+        dst.descriptions = noms
+        dst.update_tags(**{k: v for k, v in {**anciens, **tags}.items() if v is not None})
+    zone["fichiers"]["ortho"] = str(tmp_path / "ortho" / "{dalle}_ortho_10m.tif")
+    zone_f.write_text(yaml.safe_dump(zone, allow_unicode=True), "utf-8")
+    return charger(chemin, tmp_path / "t")
+
+
+def test_ortho_age_contredit_par_le_fichier_refuse(tmp_path):
+    conf = _conf_ortho_copiee(tmp_path, {"ecart_ortho_vol_lidar_jours": "400"})
+    with pytest.raises(DonneeRefusee, match="écart au vol"):
+        descripteurs.descripteurs_ortho(conf, DALLES[0], "2022-07-27")
+    assert (
+        descripteurs.descripteurs_ortho(conf, DALLES[0], "2022-07-31")["ortho_age_jours"] == 400
+    ).all()
+
+
+def test_ortho_sans_date_refusee(tmp_path):
+    conf = _conf_ortho_copiee(tmp_path, {"date_prise_de_vue": ""})
+    with pytest.raises(DonneeRefusee, match="âge inconnu"):
+        descripteurs.descripteurs_ortho(conf, DALLES[0], "2022-07-27")
+
+
+def test_zone_sans_ortho_refusee(tmp_path):
+    from nemeton_canopee.conf import charger
+    from nemeton_canopee.erreurs import EntreeManquante
+
+    chemin = conf_gbm(tmp_path / "conf", "gbm_ortho.yaml")
+    zone = yaml.safe_load((chemin.parent / "zone.yaml").read_text(encoding="utf-8"))
+    del zone["fichiers"]["ortho"]
+    (chemin.parent / "zone.yaml").write_text(yaml.safe_dump(zone, allow_unicode=True), "utf-8")
+    with pytest.raises(EntreeManquante, match="ortho"):
+        descripteurs.lire_ortho(charger(chemin, tmp_path / "t"), DALLES[0])
