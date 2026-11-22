@@ -7,10 +7,13 @@
 
 ## La décision en une phrase
 
-À trancher par Pascal parmi les options ci-dessous. Proposition de l'orchestrateur :
-l'option B (gradient boosting par pixel sur des descripteurs Sentinel annuels et le
-relief), entraînée sur CPU, comme modèle du jalon 3 ; le U-Net reste une variante à
-essayer si un GPU devient disponible.
+À trancher par Pascal parmi les options ci-dessous. Proposition de l'orchestrateur, revue après la critique du `contradicteur`
+(journal du 22/11) : **mesurer d'abord, choisir ensuite**. En première tâche du jalon 3,
+sur les mêmes blocs d'une partie du Jura, entraîner l'option C (gradient boosting avec
+descripteurs de voisinage) et une époque d'un petit U-Net sur CPU (A) ; comparer MAE
+globale, MAE par classe de hauteur (dont > 30 m) et temps de calcul ; garder celle qui bat
+FORMS-T v1 (3,46 m, avec intervalle par bootstrap) ; si aucune ne le bat, Pascal décide
+de la suite (D, GPU loué, ou cible revue).
 
 ## Contexte
 
@@ -36,6 +39,20 @@ environ 5 000 km², dont environ la moitié de forêt (ordre de grandeur, à mes
 | **N**ovateur | Toutes les idées ? | A à D examinées ; THREASURE-Net écarté sans GPU | — | — |
 | **C**oût | Coût complet ? | aucun matériel ; temps de calcul CPU inconnu (à mesurer en première tâche) | inconnu | à trancher par Pascal |
 | **É**cologique | Réutilisation ? | descripteurs réutilisables pour le volume (jalon 4) ; énergie bien moindre qu'un entraînement GPU | — | à trancher par Pascal |
+
+## Critique du contradicteur (22/11), à prendre en compte
+
+1. La littérature ne donne pas l'avantage au boosting par pixel (Morin et al., MAE 4,3 m ;
+   FORMS U-Net 2,94 m, ESSD 2023 ; Potapov et al. 2021, 6,36 m) ; mais ces travaux sont
+   supervisés par GEDI, la cible LiDAR HD laisse une chance. D'où la mesure côte à côte.
+2. Le coût CPU de A n'est pas mesuré : il l'est en première tâche (~6 000 patchs de 64×64).
+3. Hauteurs > 30 m : poids d'échantillon et MAE par classe de hauteur.
+4. Validation par blocs pour l'arrêt anticipé et les hyperparamètres ; intervalle de
+   confiance par bootstrap sur les dalles pour 3,46 m.
+5. Sentinel-1 non accessible anonymement ; incertitude entre scènes perdue par des
+   descripteurs annuels (à garder : un modèle par scène, ou quantiles) ; stockage du Jura
+   non chiffré (MNH 0,5 m ≈ 80 Go bruts, hypothèse) et non précisé par Pascal.
+6. Question de contrôle : MAE au pixel, ou hauteur fiable au peuplement pour Nemeton ?
 
 ## Valeurs sacrifiées
 
