@@ -40,6 +40,14 @@ environ 5 000 km², dont environ la moitié de forêt (ordre de grandeur, à mes
 | **C**oût | Coût complet ? | aucun matériel ; temps de calcul CPU inconnu (à mesurer en première tâche) | inconnu | oui (délégation, 22/11) |
 | **É**cologique | Réutilisation ? | descripteurs réutilisables pour le volume (jalon 4) ; énergie bien moindre qu'un entraînement GPU | — | oui (délégation, 22/11) |
 
+## Résultat de la mesure (mission 011, 22/11)
+
+Rapport : `docs/mesures/2026-11-adr-0004.md`. Sur 3 blocs de test du Jura, aucune option
+ne bat FORMS-T v1 au peuplement : à l'hectare, C (gbm) 2,05 m [1,86–2,25] contre 1,89 m
+[1,79–2,01], égalité ; par polygone, 2,23 contre 1,67 m. A (U-Net CPU) est derrière sur
+tous les critères. C bat FORMS-T au-dessus de 30 m. **La suite revient à Pascal** (règle
+de cette ADR).
+
 ## Critique du contradicteur (22/11), à prendre en compte
 
 1. La littérature ne donne pas l'avantage au boosting par pixel (Morin et al., MAE 4,3 m ;

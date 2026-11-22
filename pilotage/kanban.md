@@ -6,7 +6,7 @@
 > colonne ; on change ce numéro chaque fois qu'elle change de colonne.
 > **Une carte qui ne bouge pas est souvent la mauvaise nouvelle à dire tout de suite.**
 
-**Dernier cycle :** 3 _(augmenté de 1 à la fin de chaque `/boucle`, même quand elle n'a
+**Dernier cycle :** 5 _(augmenté de 1 à la fin de chaque `/boucle`, même quand elle n'a
 rien lancé. Une carte est immobile quand dernier cycle − N ≥ 2.)_
 
 _Modèle de carte :_
@@ -25,6 +25,14 @@ _Modèle de carte :_
 ## Planifié
 
 ## Terminé
+- [008-echantillon-jura](missions/008-echantillon-jura.md) · depuis le cycle 5
+  - Homme : `dev` · Mission : échantillon du Jura, 96 dalles · Moyens : réseau, /data/
+- [009-modele-gbm](missions/009-modele-gbm.md) · depuis le cycle 5
+  - Homme : `dev` (opus) · Mission : modèle LightGBM · Moyens : jeu d'essai
+- [010-modele-unet-cpu](missions/010-modele-unet-cpu.md) · depuis le cycle 5
+  - Homme : `dev` (opus) · Mission : petit U-Net CPU · Moyens : jeu d'essai
+- [011-mesure-adr-0004](missions/011-mesure-adr-0004.md) · depuis le cycle 5
+  - Homme : `analyste` · Mission : mesure côte à côte · Moyens : 008-010
 - [005-test-export-atomique](missions/005-test-export-atomique.md) · depuis le cycle 3
   - Homme : `testeur` · Mission : atomicité de l'export · Moyens : 004
 - [006-references-acces](missions/006-references-acces.md) · depuis le cycle 3
@@ -73,3 +81,4 @@ l'inscrit avec ce qu'elle nous apprend._
 
 - cycle 2 · livraison : jalon 1, squelette de bout en bout (9 commandes canopee, COG de hauteur, catalogue STAC, rapport, statistiques zonales) sur 4 dalles de Chaux et Levier, sans réseau, en ~2 s · pour Pascal, puis nemeton · ce qu'elle apporte : la première chaîne qui produit une carte et une statistique par parcelle (la précédente : aucune) ; modèle trivial, MAE 7,53 m, à battre au jalon 3
 - cycle 3 · livraison : tableau de référence du jalon 2 sur le jeu d'essai (FORMS-T v1 : MAE 3,46 m, biais −0,46 m ; modèle trivial : 7,53 m, +0,98 m ; mêmes cellules) et export atomique testé · pour Pascal · ce qu'elle apporte : la cible chiffrée à battre au jalon 3, mesurée sur nos dalles et non plus reprise de l'article
+- cycle 5 · mauvaise nouvelle : aucun modèle sans GPU ne bat FORMS-T v1 au peuplement sur le Jura (gbm 2,05 m contre 1,89 m à l'hectare, égalité statistique ; 2,23 contre 1,67 par polygone) · pour Pascal · ce qu'elle nous apprend : gbm est au niveau à l'hectare et meilleur au-dessus de 30 m ; 67 % de son retard vient des peuplements bas et trouées surestimés, une cause précise à traiter ; le U-Net CPU n'est pas la voie
