@@ -1,7 +1,7 @@
 # ADR 0004 — modèle de hauteur sans GPU
 
 - **Date :** 2026-11-22
-- **Statut :** proposée — à critiquer par le `contradicteur`, puis à trancher par Pascal
+- **Statut :** acceptée le 2026-11-22 par Claude (orchestrateur, par délégation de Pascal : « Fais ce qu'il y a de mieux ») : mesure côte à côte de C et A avant de choisir
 - **Proposée par :** Claude (orchestrateur)
 - **Tranchée par :** Pascal
 
@@ -33,12 +33,12 @@ environ 5 000 km², dont environ la moitié de forêt (ordre de grandeur, à mes
 
 | Lettre | Question | Réponse (une ligne) | Ce que ça coûte | Prêts à payer ? |
 |---|---|---|---|---|
-| **F**rugale | La plus simple qui tienne ? | CPU, une bibliothèque déjà prévue, pas de PyTorch | peut-être une MAE moins bonne qu'un U-Net | à trancher par Pascal |
-| **R**esponsable | Qui fait quoi ? | `dev` (descripteurs, modèle), `testeur`, `analyste` (erreurs par classe) ; Pascal juge le gain | — | à trancher par Pascal |
-| **A**nticiper | Si l'imprévu arrive ? | Si C ne bat pas 3,46 m : U-Net réduit sur CPU (A) ou GPU loué (D), à décider alors | un jalon de plus | à trancher par Pascal |
+| **F**rugale | La plus simple qui tienne ? | CPU, une bibliothèque déjà prévue, pas de PyTorch | peut-être une MAE moins bonne qu'un U-Net | oui (délégation, 22/11) |
+| **R**esponsable | Qui fait quoi ? | `dev` (descripteurs, modèle), `testeur`, `analyste` (erreurs par classe) ; Pascal juge le gain | — | oui (délégation, 22/11) |
+| **A**nticiper | Si l'imprévu arrive ? | Si C ne bat pas 3,46 m : U-Net réduit sur CPU (A) ou GPU loué (D), à décider alors | un jalon de plus | oui (délégation, 22/11) |
 | **N**ovateur | Toutes les idées ? | A à D examinées ; THREASURE-Net écarté sans GPU | — | — |
-| **C**oût | Coût complet ? | aucun matériel ; temps de calcul CPU inconnu (à mesurer en première tâche) | inconnu | à trancher par Pascal |
-| **É**cologique | Réutilisation ? | descripteurs réutilisables pour le volume (jalon 4) ; énergie bien moindre qu'un entraînement GPU | — | à trancher par Pascal |
+| **C**oût | Coût complet ? | aucun matériel ; temps de calcul CPU inconnu (à mesurer en première tâche) | inconnu | oui (délégation, 22/11) |
+| **É**cologique | Réutilisation ? | descripteurs réutilisables pour le volume (jalon 4) ; énergie bien moindre qu'un entraînement GPU | — | oui (délégation, 22/11) |
 
 ## Critique du contradicteur (22/11), à prendre en compte
 

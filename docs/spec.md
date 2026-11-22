@@ -109,6 +109,14 @@ Terminé quand, sur le jeu de 4 dalles, sans réseau, en moins de 10 minutes sur
 7. un test chronomètre la chaîne complète et échoue au-delà de 10 minutes ;
 8. `.claude/test-command` passe (ruff, pytest, couverture).
 
+### Critères du modèle de hauteur (décidé le 22/11, par délégation)
+
+1. **Principal** : MAE de hauteur agrégée au peuplement (moyenne par polygone BD Forêt
+   et par cellule de 1 ha), comparée à FORMS-T v1 sur les mêmes cellules, avec un
+   intervalle de confiance par bootstrap sur les dalles.
+2. **Secondaires** : MAE au pixel de 10 m ; MAE et biais par classe de hauteur (< 10,
+   10–20, 20–30, > 30 m) ; temps d'entraînement et d'inférence sur CPU.
+
 ### Jalons 2 à 7
 
 Les critères chiffrés sont ceux du brief (« Validation et critères d'acceptation »), avec
