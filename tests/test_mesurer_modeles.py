@@ -124,3 +124,61 @@ def test_mesurer_bout_en_bout(mm):
     assert list(res["causes"]["altitude"]) == ["800-1000 m"]
     assert "A · 20-30 m" in res["causes"]["bloc_classe"]
     assert "## Critère principal" in mm.markdown(res)
+
+
+def test_exces_sur_reference_et_sous_classes(mm):
+    bc = {
+        "A · < 10 m": {"a": {"n": 10, "mae_m": 5.0}, "forms_t_v1": {"n": 10, "mae_m": 3.0}},
+        "A · 20-30 m": {"a": {"n": 100, "mae_m": 2.0}, "forms_t_v1": {"n": 100, "mae_m": 2.5}},
+        "B · 10-20 m": {"a": {"n": 0, "mae_m": None}, "forms_t_v1": {"n": 0, "mae_m": None}},
+    }
+    ex = mm.exces_sur_reference(bc, "a")
+    assert ex == {"A · < 10 m": pytest.approx(20.0), "A · 20-30 m": pytest.approx(-50.0)}
+    assert mm.exces_sous(ex, ["< 10 m", "10-20 m"]) == pytest.approx(20.0)
+    assert mm.exces_sous(ex, ["< 10 m", "20-30 m"]) == pytest.approx(-30.0)
+
+
+def test_paires_appariees_et_compatibilite(mm):
+    rng = np.random.default_rng(0)
+    dalles = [_dalle(f"d{i}", "A" if i < 2 else "B", 100 * (i + 1), rng) for i in range(4)]
+    lab = np.ones((20, 20), dtype="int32")
+    polys = {d["dalle"]: (lab, ["Hêtre"]) for d in dalles}
+    sans = mm.mesurer(dalles, polys, REGLAGES, NODATA)
+    assert "paires" not in sans["principal"]["hectare"]["total"]  # sortie 011 inchangée
+    avec = mm.mesurer(dalles, polys, {**REGLAGES, "paires": [("forms_t_v1", "parfait")]}, NODATA)
+    p = avec["principal"]["hectare"]["total"]["paires"]["forms_t_v1 − parfait"]
+    assert p["ecart_m"] == pytest.approx(2.5)
+    assert p["ic95"][0] > 0  # la référence décalée fait pire que le produit parfait
+    for unite in ("polygone", "hectare"):  # mêmes chiffres qu'avant pour le reste
+        assert (
+            avec["principal"][unite]["total"]["parfait"]
+            == sans["principal"][unite]["total"]["parfait"]
+        )
+    md = mm.markdown(avec)
+    assert "Écarts appariés entre produits" in md and "## Excès sur FORMS-T" not in md
+    assert mm.markdown(sans) == mm.markdown(sans, exces=False)  # sortie 011 sans option
+    md = mm.markdown(avec, exces=True)
+    assert "## Excès sur FORMS-T" in md and "| **sous 20 m** |" in md
+
+
+def test_main_option_paire(mm, monkeypatch, tmp_path):
+    vu = {}
+
+    class Conf:
+        nodata = NODATA
+
+    import nemeton_canopee.conf as conf
+
+    monkeypatch.setattr(conf, "charger", lambda c: Conf())
+    monkeypatch.setattr(mm, "lire_test", lambda confs, q: [])
+    monkeypatch.setattr(mm, "mesurer", lambda d, p, r, n: vu.setdefault("r", r) and {})
+    monkeypatch.setattr(mm, "markdown", lambda res, exces=False: vu.update(x=exces) or "")
+    sortie = tmp_path / "m.json"
+    assert mm.main(["--modele", "a=x", "--paire", "a-b", "--sortie", str(sortie)]) == 0
+    assert vu["r"]["paires"] == [("a", "b")] and vu["x"] is False
+    vu.clear()
+    assert mm.main(["--modele", "a=x", "--exces", "--sortie", str(sortie)]) == 0
+    assert vu["x"] is True
+    vu.clear()
+    assert mm.main(["--modele", "a=x", "--sortie", str(sortie)]) == 0
+    assert "paires" not in vu["r"]

@@ -24,6 +24,11 @@ Critères secondaires : MAE et biais au pixel ; par classe de hauteur cible ; co
 l'intervalle p10-p90 et part des cellules à incertitude nulle (modèles qui en donnent) ;
 ventilations par bloc, essence BD Forêt et tranche d'altitude pour chercher les causes.
 Biais = produit − cible, en m.
+
+Mission 014 (ajouts compatibles) : `--paire A-B` donne l'intervalle de l'écart apparié entre
+deux produits quelconques (mêmes tirages), par exemple gbm_ortho − gbm pour séparer les effets ;
+`--exces` ajoute la section « Excès sur FORMS-T », qui chiffre, par bloc x classe,
+n x (MAE produit − MAE FORMS-T) en milliers de m·cellule (Pareto de la cause n° 1 de la mesure 011).
 """
 
 from __future__ import annotations
@@ -123,6 +128,24 @@ def couverture(cible: np.ndarray, bas: np.ndarray, haut: np.ndarray) -> float:
     if cible.size == 0:
         return float("nan")
     return float(((cible >= bas) & (cible <= haut)).mean())
+
+
+def exces_sur_reference(
+    bloc_classe: Mapping[str, Mapping[str, Any]], produit: str, reference: str = REFERENCE
+) -> dict[str, float]:
+    """Excès d'erreur du produit sur la référence par groupe : n x (MAE produit − MAE
+    référence), en m·cellule (positif : le produit fait pire). Groupes vides ignorés."""
+    sortie = {}
+    for g, v in bloc_classe.items():
+        a, r = v[produit], v[reference]
+        if a["n"]:
+            sortie[g] = a["n"] * (a["mae_m"] - r["mae_m"])
+    return sortie
+
+
+def exces_sous(exces: Mapping[str, float], classes: Sequence[str]) -> float:
+    """Somme des excès des groupes « bloc · classe » dont la classe est dans `classes`."""
+    return float(sum(v for g, v in exces.items() if g.split(" · ", 1)[1] in classes))
 
 
 # --- Lecture des données -------------------------------------------------------------------
@@ -282,6 +305,12 @@ def mesurer(
                     "ic95": [float(x) for x in boot["ic"][i]],
                     "ecart_forms_t_ic95": [float(x) for x in ic_diff[i]],
                 }
+            for a, b in reglages.get("paires", []):
+                d_ab = boot["tirages"][noms.index(a)] - boot["tirages"][noms.index(b)]
+                ligne.setdefault("paires", {})[f"{a} − {b}"] = {
+                    "ecart_m": ligne[a]["mae_m"] - ligne[b]["mae_m"],
+                    "ic95": [float(x) for x in np.nanpercentile(d_ab, [2.5, 97.5])],
+                }
             resultat["principal"][unite][portee] = ligne
 
     noms_c = noms_classes(bornes_h)
@@ -360,8 +389,8 @@ def _f(x, d=2) -> str:
     return "—" if x is None or (isinstance(x, float) and np.isnan(x)) else f"{x:.{d}f}"
 
 
-def markdown(res: Mapping[str, Any]) -> str:
-    """Tableaux du rapport (principal, secondaires, causes)."""
+def markdown(res: Mapping[str, Any], exces: bool = False) -> str:
+    """Tableaux du rapport (principal, secondaires, causes ; excès sur FORMS-T si `exces`)."""
     noms = res["produits"]
     out = ["## Critère principal : MAE au peuplement (m), IC 95 % bootstrap sur les dalles", ""]
     for unite, lib in (("polygone", "polygone BD Forêt"), ("hectare", "cellule de 1 ha")):
@@ -392,6 +421,22 @@ def markdown(res: Mapping[str, Any]) -> str:
                 + " |"
             )
         out.append("")
+        paires = [k for k in next(iter(res["principal"][unite].values())).get("paires", {})]
+        if paires:
+            out += [
+                f"Écarts appariés entre produits, par {lib} (m) [IC 95 %] :",
+                "",
+                "| Portée | " + " | ".join(paires) + " |",
+                "|---|" + "---:|" * len(paires),
+            ]
+            for portee, li in res["principal"][unite].items():
+                cel = [
+                    f"{_f(li['paires'][k]['ecart_m'])} [{_f(li['paires'][k]['ic95'][0])}–"
+                    f"{_f(li['paires'][k]['ic95'][1])}]"
+                    for k in paires
+                ]
+                out.append(f"| {portee} | " + " | ".join(cel) + " |")
+            out.append("")
     out += ["## Au pixel : MAE / biais (m)", "", "| Portée | n | " + " | ".join(noms) + " |"]
     out.append("|---|---:|" + "---|" * len(noms))
     for portee, r in res["secondaire"].items():
@@ -438,6 +483,31 @@ def markdown(res: Mapping[str, Any]) -> str:
             out.append(
                 f"| {g} | {n0} | {_f(v.get('hauteur_moyenne_m'))} | " + " | ".join(cel) + " |"
             )
+    autres = [n for n in noms if n != REFERENCE]
+    if exces and REFERENCE in noms and autres:
+        bc = res["causes"]["bloc_classe"]
+        ex = {n: exces_sur_reference(bc, n) for n in autres}
+        out += [
+            "",
+            "## Excès sur FORMS-T : n × (MAE produit − MAE FORMS-T), k m·cellule",
+            "",
+            "| Groupe | " + " | ".join(autres) + " |",
+            "|---|" + "---:|" * len(autres),
+        ]
+        for g in ex[autres[0]]:
+            out.append(f"| {g} | " + " | ".join(_f(ex[n][g] / 1e3, 1) for n in autres) + " |")
+        noms_c = noms_classes(res["reglages"]["classes_m"])
+        for lib, cl in (("sous 20 m", noms_c[:2]), ("total net", noms_c)):
+            out.append(
+                f"| **{lib}** | "
+                + " | ".join(_f(exces_sous(ex[n], cl) / 1e3, 1) for n in autres)
+                + " |"
+            )
+        out.append(
+            "| **brut (positifs)** | "
+            + " | ".join(_f(sum(v for v in ex[n].values() if v > 0) / 1e3, 1) for n in autres)
+            + " |"
+        )
     return "\n".join(out) + "\n"
 
 
@@ -454,6 +524,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     p.add_argument("--graine", type=int, default=42)
     p.add_argument("--tranche-altitude-m", type=int, default=200)
     p.add_argument("--n-min-ventilation", type=int, default=500)
+    p.add_argument("--exces", action="store_true", help="section Excès sur FORMS-T (014)")
+    p.add_argument(
+        "--paire", action="append", default=[], metavar="A-B", help="écart apparié A − B"
+    )
     a = p.parse_args(argv)
     from nemeton_canopee.conf import charger
 
@@ -468,6 +542,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         "tranche_altitude_m": a.tranche_altitude_m,
         "n_min_ventilation": a.n_min_ventilation,
     }
+    if a.paire:
+        reglages["paires"] = [tuple(x.split("-", 1)) for x in a.paire]
     conf0 = next(iter(confs.values()))
     dalles = lire_test(confs, [q for q in a.quantiles if q in confs])
     polys = {
@@ -479,7 +555,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     sortie = Path(a.sortie)
     sortie.parent.mkdir(parents=True, exist_ok=True)
     sortie.write_text(json.dumps(res, indent=1, ensure_ascii=False), encoding="utf-8")
-    sortie.with_suffix(".md").write_text(markdown(res), encoding="utf-8")
+    sortie.with_suffix(".md").write_text(markdown(res, a.exces), encoding="utf-8")
     print(sortie.with_suffix(".md").read_text(encoding="utf-8"))
     return 0
 
