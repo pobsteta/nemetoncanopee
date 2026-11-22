@@ -1,5 +1,5 @@
 version: 1
-statut: 'PROVISOIRE : choix proposé, à confirmer par Pascal ; test à figer au jalon 1'
+statut: 'figé le 2026-11-22 (orchestrateur, par délégation de Pascal ; journal) : A = apprentissage, B = test'
 taille_bloc_m: 10000
 bloc: indice (xmin // taille_bloc_m, ymin // taille_bloc_m) de l'emprise de la dalle
 apprentissage:
