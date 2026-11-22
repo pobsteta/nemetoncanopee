@@ -62,3 +62,6 @@ Non mobilisés au jalon 1 : `contradicteur` (hors critique des ADR), `archiviste
 | [009 — modèle C : LightGBM](missions/009-modele-gbm.md) | `dev` | opus | donner | oui · oui · oui | 4 |
 | [010 — option A : petit U-Net CPU](missions/010-modele-unet-cpu.md) | `dev` | opus | donner | oui · oui · oui (après 009) | 5 |
 | [011 — mesure côte à côte (ADR 0004)](missions/011-mesure-adr-0004.md) | `analyste` | opus | donner | oui · oui · oui (après 008-010) | 5 |
+| [012 — texture de l'ortho et blocs en plus](missions/012-ortho-et-blocs.md) | `dev` | sonnet | donner | oui · oui · oui | 6 |
+| [013 — LightGBM : ortho et peuplements bas](missions/013-gbm-trouees.md) | `dev` | opus | donner | oui · oui · oui (après 012) | 6 |
+| [014 — nouvelle mesure face à FORMS-T](missions/014-mesure-gbm-ortho.md) | `analyste` | opus | donner | oui · oui · oui (après 012, 013) | 7 |

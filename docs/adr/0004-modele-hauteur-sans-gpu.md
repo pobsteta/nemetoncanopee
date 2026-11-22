@@ -46,7 +46,8 @@ Rapport : `docs/mesures/2026-11-adr-0004.md`. Sur 3 blocs de test du Jura, aucun
 ne bat FORMS-T v1 au peuplement : à l'hectare, C (gbm) 2,05 m [1,86–2,25] contre 1,89 m
 [1,79–2,01], égalité ; par polygone, 2,23 contre 1,67 m. A (U-Net CPU) est derrière sur
 tous les critères. C bat FORMS-T au-dessus de 30 m. **La suite revient à Pascal** (règle
-de cette ADR).
+de cette ADR). **Pascal a choisi le 22/11 de poursuivre C (LightGBM)** en visant les
+peuplements bas et les trouées (missions 012 à 014).
 
 ## Critique du contradicteur (22/11), à prendre en compte
 
