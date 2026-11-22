@@ -23,3 +23,4 @@
 > `AAAA-MM-JJ · Claude (orchestrateur, par délégation) · mission · décidé : … · pourquoi : … · ce que Pascal peut défaire : …`
 
 2026-11-22 · Claude (orchestrateur) · — · méthode installée (/demarrer) : CLAUDE.md, .claude/settings.json (plugin imperatrice), pilotage/ (équipe, kanban, journal, missions), docs/adr/. docs/brief.md (rédigé par Pascal le 2026-11-21) et .claude/test-command laissés tels quels. Reste à remplir : rubrique « Ma réponse d'abord » absente du brief ; spec, ADR, équipe.
+2026-11-22 · Pascal · brief · ma réponse d'abord : « Je m'en passe, A terme il sera un projet pour nemeton » ; recopiée dans docs/brief.md. Brief déjà rédigé par Pascal le 2026-11-21 : on passe à la critique du contradicteur.

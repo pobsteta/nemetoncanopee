@@ -2,6 +2,12 @@
 
 21 novembre 2026 · Pascal Obstetar
 
+## Ma réponse d'abord (fiche n° 15)
+
+> « Je m'en passe, A terme il sera un projet pour nemeton »
+>
+> — Pascal, le 22 novembre 2026, dit avant toute proposition de Claude, recopié mot pour mot.
+
 ## Contexte et objectif
 
 nemetoncanopee produit des cartes annuelles de hauteur, de volume et de biomasse forestière, fiables à l'échelle du peuplement, pour alimenter Nemeton.
