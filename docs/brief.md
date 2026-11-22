@@ -79,7 +79,7 @@ Livrables associés :
 
 Le MNH LiDAR HD est publié un à deux ans après le vol : l'année en cours n'a pas de cible LiDAR, seulement une prédiction *(arbitrage du 22/11)*.
 
-Zone pilote : un département de Bourgogne-Franche-Comté, puis la région, puis la France métropolitaine. C'est une hypothèse à confirmer.
+Zone pilote : **le Jura (39)** (Pascal, 22/11), puis la région Bourgogne-Franche-Comté (à confirmer), puis la France métropolitaine.
 
 Hors périmètre de cette version : la détection d'arbres individuels, l'interface web, l'outre-mer.
 
@@ -237,9 +237,9 @@ Le premier jalon suit l'approche du squelette fonctionnel déjà retenue pour la
 
 Quatre questions sont à trancher avant le jalon 2 ; elles changent le dimensionnement.
 
-- [ ] Zone pilote : quel département, et la région Bourgogne-Franche-Comté est-elle bien la cible intermédiaire ?
+- [x] Zone pilote : **le Jura (39)** (Pascal, 22/11). La région Bourgogne-Franche-Comté comme cible intermédiaire reste à confirmer.
 - [ ] Placettes IFN : un accès aux coordonnées exactes est-il possible par convention avec l'IGN ? Demande à adresser par Pascal (inventaire-forestier@ign.fr) avant le jalon 2 ; sans elle, l'allométrie reste la voie *(arbitrage du 22/11)*.
-- [ ] Calcul : quel GPU et quel stockage sont disponibles ? Les seules couches de hauteur FORMS-T v1 pèsent environ 6 Go par année pour la France.
+- [ ] Calcul : **pas de GPU** (Pascal, 22/11) ; le modèle s'entraîne sur CPU (ADR 0004). Stockage disponible : à préciser. Question initiale : quel GPU et quel stockage sont disponibles ? Les seules couches de hauteur FORMS-T v1 pèsent environ 6 Go par année pour la France.
 - [ ] Licence : quelle licence pour le code et les cartes ?
 
 | Risque | Conséquence | Parade |
