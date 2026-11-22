@@ -8,7 +8,9 @@ fichiers:  # relatifs à la racine de la source
   scenes: sentinel2_scenes.csv
   decoupage: decoupage.yaml
   mnh: "lidar/{dalle}_MNH_2m.tif"
+  mnt: "lidar/{dalle}_MNT_10m.tif"  # relief du modèle gbm (mission 009)
   foret: "foret/{dalle}_bdforet_v2.gpkg"
+mnt_unite: m  # unité du MNT si le fichier n'a pas de tag `unite` (mission 009)
 mnh_unite: cm  # unité des valeurs du MNH de la zone (jeu d'essai : uint16 en cm, nodata 65535)
 dalles: ["0901-6665", "0902-6665", "0939-6654", "0939-6655"]
 annees: [2022]

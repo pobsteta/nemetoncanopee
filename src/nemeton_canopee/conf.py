@@ -53,6 +53,7 @@ class Zone:
     foret_formations: str
     mnh_unite: str
     references: tuple[dict[str, Any], ...] = ()
+    mnt_unite: str | None = None  # unité du MNT (`fichiers.mnt`) si le fichier n'a pas de tag
 
     def chemin(self, cle: str, **champs: str) -> Path:
         """Chemin d'un fichier d'entrée de la zone (`cle` de `fichiers`, gabarit `{dalle}`)."""
@@ -107,6 +108,7 @@ def charger_zone(chemin: Path) -> Zone:
         foret_formations=str(d.get("foret_formations", "tout")),
         mnh_unite=str(d["mnh_unite"]),
         references=tuple(dict(r) for r in (d.get("references") or [])),
+        mnt_unite=None if d.get("mnt_unite") is None else str(d["mnt_unite"]),
     )
 
 

@@ -24,7 +24,11 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+ml = [
+  "lightgbm>=4.3",  # modèle gbm (mission 009, ADR 0004 option C)
+]
 dev = [
+  "nemeton-canopee[ml]",  # la CI n'installe que `.[dev]` : les tests du modèle gbm en ont besoin
   "build",
   "genbadge[coverage]",
   "pytest",

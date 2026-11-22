@@ -54,6 +54,10 @@ class Chemins:
     def brute(self, annee: int, dalle: str) -> Path:
         return self.racine / "infer" / str(annee) / f"{dalle}_hauteur_brute.tif"
 
+    def incertitude(self, annee: int, dalle: str) -> Path:
+        """Couche brute d'incertitude du modèle gbm (p90 - p10, cm), mission 009."""
+        return self.racine / "infer" / str(annee) / f"{dalle}_hauteur_incertitude_brute.tif"
+
     def lissee(self, annee: int, dalle: str) -> Path:
         return self.racine / "smooth" / str(annee) / f"{dalle}_hauteur_lissee.tif"
 
