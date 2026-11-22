@@ -59,3 +59,35 @@ references:
       Schwartz, M. et al. (2025). FORMS-T v1 [jeu de données]. Zenodo,
       https://doi.org/10.5281/zenodo.15489231 ; article associé : Remote Sensing of
       Environment, https://doi.org/10.1016/j.rse.2025.114959
+
+# Descripteurs de la BD ORTHO 20 cm (mission 012), à 10 m, calculés à la volée : l'ortho (RVB et
+# IRC, WMS-R, 5000 x 5000 px par dalle) n'est jamais écrite. Seuils PROVISOIRES (réexamen au
+# jalon 3). Voir docs/echantillon_jura.md pour la date de prise de vue (graphe de mosaïquage).
+# Extraction seule : python scripts/fabriquer_jeu_essai.py --seulement ortho
+ortho:
+  couche_rvb: HR.ORTHOIMAGERY.ORTHOPHOTOS  # BD ORTHO 20 cm RVB, millésime courant (= .2023 dans le Jura ; millésime 2023 PROVISOIRE, en attente de Pascal)
+  couche_irc: ORTHOIMAGERY.ORTHOPHOTOS.IRC  # BD ORTHO IRC 20 cm : R = proche infrarouge, G = rouge, B = vert
+  couche_graphe: "ORTHOIMAGERY.ORTHOPHOTOS.GRAPHE-MOSAIQUAGE:graphe_bdortho"  # WFS : date_vol par polygone
+  echelle_graphe: 20  # graphe de la BD ORTHO 20 cm (champ `echelle`)
+  pas_m: 0.2  # pas de l'ortho source
+  decoupes: 1  # GetMap par côté de dalle : 1 = une requête de 5000 x 5000 px (le serveur accepte 5010) ; 2 = par quarts
+  cellule_m: 10.0  # pas des descripteurs (cellule de 50 x 50 px)
+  seuil_ndvi_non_vegetal: 0.10  # PROVISOIRE : NDVI (PIR - R) / (PIR + R) sur les comptes numériques, sous ce seuil = non végétal
+  seuil_ombre_luminance: 48.0  # PROVISOIRE : luminance 0,299 R + 0,587 V + 0,114 B (0-255) sous ce seuil = ombre
+  valide_min: 0.5  # part minimale de pixels valides dans la cellule, sinon nodata
+  nodata: -9999.0
+  fichier: "ortho/{dalle}_ortho_10m.tif"
+  bandes:
+    - rouge_moy  # IRC, bande rouge (compte numérique 0-255)
+    - rouge_std
+    - pir_moy  # IRC, bande proche infrarouge (0-255)
+    - pir_std
+    - ndvi_moy  # (PIR - R) / (PIR + R), sans unité, calculé par pixel puis moyenné
+    - ndvi_std
+    - part_non_vegetal  # part de pixels de 0,2 m avec NDVI < seuil (0-1)
+    - part_ombre  # part de pixels de 0,2 m avec luminance < seuil (0-1)
+    - lum_moy  # luminance RVB moyenne (0-255)
+    - lum_std  # texture : écart-type de la luminance dans la cellule (0-255)
+    - gradient_moy  # texture : moyenne de la norme du gradient de luminance (compte par pixel de 0,2 m)
+    - part_valide  # part de pixels valides dans la cellule (0-1)
+  licence: "Licence Ouverte 2.0 (Etalab) ; source : IGN, BD ORTHO"

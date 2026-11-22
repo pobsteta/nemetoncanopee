@@ -11,10 +11,14 @@ Mission 002. Seul script du dépôt qui accède au réseau : les tests lisent en
 - références à battre (mission 007) : hauteur FORMS-T v1 de l'année de vol (Zenodo,
   lecture par fenêtre `/vsicurl/`, sans compte).
 
-Usage : python scripts/fabriquer_jeu_essai.py [--sortie tests/data] [--seulement references]
+Usage : python scripts/fabriquer_jeu_essai.py [--sortie tests/data] [--seulement references|ortho]
 
 `--seulement references` n'extrait que les références (lit le manifeste déjà présent pour
 l'année de vol, ajoute leurs entrées à `PROVENANCE` sans toucher aux autres fichiers).
+
+`--seulement ortho` (mission 012) ajoute les descripteurs de la BD ORTHO 20 cm à 10 m
+(`ortho/{dalle}_ortho_10m.tif`, calculés à la volée, l'ortho n'est pas conservée) sans toucher
+aux autres fichiers ; seule `PROVENANCE` reçoit des entrées en plus.
 
 Les paramètres sont regroupés ci-dessous. Les choix marqués PROVISOIRE sont écrits dans
 `PROVENANCE` (valeurs à geler avant la fusion de la mission 003).
@@ -71,6 +75,16 @@ def _lire(url: str, donnees: bytes | None = None, entetes: dict | None = None) -
             derniere = e
             time.sleep(2 * (essai + 1))
     raise RuntimeError(f"échec réseau : {url[:200]} : {derniere}")
+
+
+def _lire_json(url: str, essais: int = 5) -> dict:
+    """GET d'un JSON ; le WFS IGN renvoie par moments une page qui n'en est pas un."""
+    for essai in range(essais):
+        brut = _lire(url)
+        if brut[:1] in (b"{", b"["):
+            return json.loads(brut)
+        time.sleep(3 * (essai + 1))
+    raise RuntimeError(f"réponse non JSON après {essais} essais : {url[:200]}")
 
 
 def _url(base: str, **params: str) -> str:
@@ -532,6 +546,282 @@ def meta_du_manifeste(sortie: Path) -> dict:
     }
 
 
+# --------------------------------------------------------------------------- BD ORTHO (mission 012)
+
+
+def telecharger_ortho(
+    conf: SimpleNamespace, couche: str, dalle: str
+) -> tuple[np.ndarray, list[str]]:
+    """GetMap de la BD ORTHO 20 cm sur une dalle : tableau (3, 5000, 5000) uint8 et URL(s).
+
+    `ortho.decoupes` = nombre de requêtes par côté (1 : une seule de 5000 x 5000 px, que le
+    serveur accepte ; 2 : quatre quarts si la taille est limitée). Emprise exacte de la dalle,
+    sans demi-pixel (les bords de pixel IGN tombent sur la grille de 0,2 m).
+    """
+    o = SimpleNamespace(**conf.ortho)
+    xmin, ymin, xmax, ymax = emprise(dalle)
+    n = int(round(1000 / o.pas_m))
+    k = int(o.decoupes)
+    assert n % k == 0, (n, k)
+    m, pas = n // k, 1000.0 / k
+    out = np.zeros((3, n, n), dtype="uint8")
+    urls = []
+    for i in range(k):  # i : ligne (du nord au sud), j : colonne (d'ouest en est)
+        for j in range(k):
+            x0, y1 = xmin + j * pas, ymax - i * pas
+            url = _url(
+                conf.wms,
+                SERVICE="WMS",
+                VERSION="1.3.0",
+                EXCEPTIONS="text/xml",
+                REQUEST="GetMap",
+                LAYERS=couche,
+                FORMAT="image/geotiff",
+                STYLES="",
+                CRS=conf.crs,
+                BBOX=f"{x0},{y1 - pas},{x0 + pas},{y1}",
+                WIDTH=str(m),
+                HEIGHT=str(m),
+            )
+            with rasterio.MemoryFile(_lire(url)) as mf, mf.open() as src:
+                assert src.shape == (m, m) and src.count >= 3, (src.shape, src.count)
+                verifier_crs_source(src.crs, conf.crs)
+                t = src.transform
+                assert abs(t.c - x0) < 1e-6 and abs(t.f - y1) < 1e-6, t
+                assert abs(t.a - o.pas_m) < 1e-9 and abs(-t.e - o.pas_m) < 1e-9, t
+                out[:, i * m : (i + 1) * m, j * m : (j + 1) * m] = src.read([1, 2, 3])
+            urls.append(url)
+    return out, urls
+
+
+def date_ortho(conf: SimpleNamespace, dalle: str) -> dict:
+    """Date de prise de vue de la BD ORTHO sur la dalle, d'après le graphe de mosaïquage (WFS IGN).
+
+    Le graphe donne, par polygone (département et campagne `pva`), la date de vol de l'ortho
+    publiée. `date` : date du polygone au centre de la dalle (la plus ancienne s'il y en a
+    plusieurs) ; `date_min` et `date_max` : dates des polygones qui touchent la dalle.
+    """
+    o = SimpleNamespace(**conf.ortho)
+    xmin, ymin, xmax, ymax = emprise(dalle)
+    cx, cy = (xmin + xmax) / 2, (ymin + ymax) / 2
+    poly = f"POLYGON(({xmin} {ymin},{xmax} {ymin},{xmax} {ymax},{xmin} {ymax},{xmin} {ymin}))"
+
+    def requete(geom: str) -> tuple[list[dict], str]:
+        url = _url(
+            conf.wfs,
+            SERVICE="WFS",
+            VERSION="2.0.0",
+            REQUEST="GetFeature",
+            TYPENAMES=o.couche_graphe,
+            OUTPUTFORMAT="application/json",
+            PROPERTYNAME="dep,pva,res,echelle,date_vol",
+            CQL_FILTER=f"INTERSECTS(geom,SRID=2154;{geom}) AND echelle={o.echelle_graphe}",
+        )
+        return [f["properties"] for f in _lire_json(url)["features"]], url
+
+    centre, url = requete(f"POINT({cx} {cy})")
+    dans_dalle, _ = requete(poly)
+    if not centre or not dans_dalle:
+        raise RuntimeError(f"dalle {dalle} absente du graphe de mosaïquage BD ORTHO")
+
+    def dates(ps: list[dict]) -> list[str]:
+        return sorted(p["date_vol"].rstrip("Z") for p in ps)
+
+    return {
+        "date": dates(centre)[0],
+        "date_min": dates(dans_dalle)[0],
+        "date_max": dates(dans_dalle)[-1],
+        "campagnes": sorted({int(p["pva"]) for p in dans_dalle}),
+        "departements": sorted({str(p["dep"]) for p in dans_dalle}),
+        "requete": url,
+    }
+
+
+def _par_cellules(x: np.ndarray, k: int) -> np.ndarray:
+    """(H, W) -> (H/k, k, W/k, k) : les axes 1 et 3 parcourent les pixels d'une cellule."""
+    h, w = x.shape
+    return x.reshape(h // k, k, w // k, k)
+
+
+def descripteurs_ortho(
+    rvb: np.ndarray, irc: np.ndarray, o: dict | SimpleNamespace, k: int | None = None
+) -> np.ndarray:
+    """Descripteurs par cellule de k x k pixels (50 = 10 m) : tableau (bandes, H/k, W/k) float32.
+
+    `rvb` et `irc` : (3, H, W) uint8 (IRC : R = proche infrarouge, G = rouge, B = vert). Pixel
+    invalide : blanc pur (255, 255, 255) dans l'une des deux images (hors couverture) ou
+    PIR + R = 0. Cellule invalide (moins de `valide_min` de pixels valides) : `nodata`.
+    Ordre des bandes : `o.bandes`. Calcul par bandes de lignes de cellules (peu de mémoire).
+    """
+    o = o if isinstance(o, SimpleNamespace) else SimpleNamespace(**o)
+    k = k or int(round(o.cellule_m / o.pas_m))
+    _, h, w = rvb.shape
+    assert irc.shape == rvb.shape and h % k == 0 and w % k == 0, (rvb.shape, irc.shape, k)
+    nh, nw = h // k, w // k
+    sortie = np.full((len(o.bandes), nh, nw), o.nodata, dtype="float32")
+    lignes = 10  # lignes de cellules par bande
+    for c0 in range(0, nh, lignes):
+        c1 = min(c0 + lignes, nh)
+        p0, p1 = c0 * k, c1 * k
+        a, b = max(p0 - 1, 0), min(p1 + 1, h)  # une ligne de plus de chaque côté : gradient exact
+        v = rvb[:, a:b].astype("float32")
+        i = irc[:, a:b].astype("float32")
+        lum = 0.299 * v[0] + 0.587 * v[1] + 0.114 * v[2]
+        gy, gx = np.gradient(lum)
+        grad = np.hypot(gx, gy)
+        valide = ~((rvb[:, a:b] == 255).all(0) | (irc[:, a:b] == 255).all(0))
+        pir, rouge = i[0], i[1]
+        somme = pir + rouge
+        valide &= somme > 0
+        ndvi = np.where(valide, (pir - rouge) / np.where(somme > 0, somme, 1), 0).astype("float32")
+        c = slice(p0 - a, p1 - a)
+        valide, pir, rouge, ndvi, lum, grad = (x[c] for x in (valide, pir, rouge, ndvi, lum, grad))
+        n = _par_cellules(valide, k).sum(axis=(1, 3))
+        ok = n >= o.valide_min * k * k
+        nn = np.maximum(n, 1)
+
+        def moy(x: np.ndarray, valide=valide, nn=nn) -> np.ndarray:
+            return _par_cellules(np.where(valide, x, 0), k).sum(axis=(1, 3), dtype="float64") / nn
+
+        def ecart(x: np.ndarray, m: np.ndarray, valide=valide, nn=nn) -> np.ndarray:
+            x2 = _par_cellules(np.where(valide, x.astype("float64") ** 2, 0), k)
+            return np.sqrt(np.maximum(x2.sum(axis=(1, 3)) / nn - m**2, 0))
+
+        m_r, m_p, m_n, m_l = moy(rouge), moy(pir), moy(ndvi), moy(lum)
+        valeurs = {
+            "rouge_moy": m_r,
+            "rouge_std": ecart(rouge, m_r),
+            "pir_moy": m_p,
+            "pir_std": ecart(pir, m_p),
+            "ndvi_moy": m_n,
+            "ndvi_std": ecart(ndvi, m_n),
+            "part_non_vegetal": moy((ndvi < o.seuil_ndvi_non_vegetal).astype("float32")),
+            "part_ombre": moy((lum < o.seuil_ombre_luminance).astype("float32")),
+            "lum_moy": m_l,
+            "lum_std": ecart(lum, m_l),
+            "gradient_moy": moy(grad),
+            "part_valide": n / float(k * k),
+        }
+        for idx, nom in enumerate(o.bandes):
+            bande = valeurs[nom].astype("float32")
+            sortie[idx, c0:c1] = np.where(ok | (nom == "part_valide"), bande, o.nodata)
+    return sortie
+
+
+def ecart_jours(date_ortho_iso: str, vol_debut: str, vol_fin: str) -> int:
+    """Écart (jours) entre la prise de vue de l'ortho et le milieu du vol LiDAR (ortho - vol)."""
+    d = date.fromisoformat(date_ortho_iso[:10])
+    a, b = date.fromisoformat(vol_debut[:10]), date.fromisoformat(vol_fin[:10])
+    return (d - (a + (b - a) / 2)).days
+
+
+def fabriquer_ortho(
+    conf: SimpleNamespace, dalle: str, sortie: Path, prov: dict, meta: dict
+) -> dict:
+    """Descripteurs ortho 10 m d'une dalle (l'ortho n'est jamais écrite) ; renvoie un résumé."""
+    o = SimpleNamespace(**conf.ortho)
+    t0 = time.time()
+    rvb, urls_rvb = telecharger_ortho(conf, o.couche_rvb, dalle)
+    irc, urls_irc = telecharger_ortho(conf, o.couche_irc, dalle)
+    cor = float(np.corrcoef(rvb[0, ::7, ::7].ravel(), irc[1, ::7, ::7].ravel())[0, 1])
+    if cor < 0.9:  # le rouge du RVB et celui de l'IRC doivent concorder (même vol, mêmes pixels)
+        raise RuntimeError(f"{dalle} : rouge RVB et rouge IRC non concordants (r = {cor:.2f})")
+    d = descripteurs_ortho(rvb, irc, o)
+    del rvb, irc
+    dt = date_ortho(conf, dalle)
+    ecart = ecart_jours(dt["date"], meta["date_vol_debut"], meta["date_vol_fin"])
+    f = o.fichier.format(dalle=dalle)
+    tags = {
+        "bandes": ",".join(o.bandes),
+        "unite": "rouge, pir, lum, lum_std : compte numérique 0-255 ; ndvi : sans unité ; "
+        "part_* : fraction 0-1 ; gradient_moy : compte numérique par pixel de 0,2 m",
+        "source": "IGN, BD ORTHO 20 cm RVB et IRC (WMS-R) ; " + conf.licence_ign,
+        "couches": f"{o.couche_rvb} ; {o.couche_irc}",
+        "date_prise_de_vue": dt["date"],
+        "date_prise_de_vue_min": dt["date_min"],
+        "date_prise_de_vue_max": dt["date_max"],
+        "campagnes_pva": ",".join(map(str, dt["campagnes"])),
+        "departements": ",".join(dt["departements"]),
+        "source_date": "IGN, graphe de mosaïquage BD ORTHO (WFS " + o.couche_graphe + ")",
+        "vol_lidar_debut": meta["date_vol_debut"][:10],
+        "vol_lidar_fin": meta["date_vol_fin"][:10],
+        "ecart_ortho_vol_lidar_jours": ecart,
+        "seuil_ndvi_non_vegetal": o.seuil_ndvi_non_vegetal,
+        "seuil_ombre_luminance": o.seuil_ombre_luminance,
+        "traitement": "PROVISOIRE : statistiques par cellule de 10 m (50 x 50 px de 0,2 m) ; "
+        "ortho non conservée ; seuils provisoires",
+    }
+    ecrire_raster(conf, sortie / f, d, dalle, o.cellule_m, o.nodata, tags)
+    prov[f] = {
+        "source": "IGN, BD ORTHO 20 cm RVB et IRC (WMS-R, couches "
+        + f"{o.couche_rvb} et {o.couche_irc}) ; date de prise de vue : graphe de mosaïquage "
+        + f"(WFS, couche {o.couche_graphe}), {dt['date']} (campagne {dt['campagnes']})",
+        "requete": " ; ".join(urls_rvb + urls_irc) + " ; " + dt["requete"],
+        "date": date.today().isoformat(),
+        "licence": o.licence,
+        "traitement": (
+            f"PROVISOIRE : calculé à la volée sur l'ortho 0,2 m (non conservée), par cellule de "
+            f"{o.cellule_m:g} m : {', '.join(o.bandes)} ; NDVI = (PIR - R) / (PIR + R) ; "
+            f"non végétal = NDVI < {o.seuil_ndvi_non_vegetal} ; ombre = luminance < "
+            f"{o.seuil_ombre_luminance} ; float32, nodata {o.nodata:g} ; date de prise de vue "
+            f"{dt['date']} ({dt['date_min']} à {dt['date_max']}), écart au vol LiDAR "
+            f"{ecart:+d} jours (milieu du vol)"
+        ),
+    }
+    return {"dalle": dalle, "date": dt["date"], "ecart_jours": ecart, "duree_s": time.time() - t0}
+
+
+def bornes_ortho(nom: str) -> tuple[float, float]:
+    """Plage attendue d'une bande ortho (contrôle intégré)."""
+    if nom.startswith("part_") or nom == "ndvi_std":
+        return 0.0, 1.0
+    if nom == "ndvi_moy":
+        return -1.0, 1.0
+    return 0.0, 255.0
+
+
+def controler_ortho(conf: SimpleNamespace, chemin: Path, dalle: str) -> list[str]:
+    """Erreurs d'un fichier ortho 10 m : CRS, emprise, pas, bandes, tags, date, plages."""
+    o = SimpleNamespace(**conf.ortho)
+    f = chemin.name
+    if not chemin.is_file():
+        return [f"{f} absent"]
+    erreurs = []
+    attendu = tuple(float(v) for v in emprise(dalle))
+    with rasterio.open(chemin) as src:
+        if pyproj.CRS.from_user_input(src.crs.to_wkt()) != pyproj.CRS.from_user_input(conf.crs):
+            erreurs.append(f"{f} : CRS {src.crs} différent de {conf.crs}")
+        if tuple(round(v, 6) for v in src.bounds) != attendu:
+            erreurs.append(f"{f} : emprise {tuple(src.bounds)} != {attendu}")
+        if src.res != (o.cellule_m, o.cellule_m):
+            erreurs.append(f"{f} : pas {src.res} != {o.cellule_m}")
+        tags = src.tags()
+        if src.count != len(o.bandes) or tags.get("bandes") != ",".join(o.bandes):
+            erreurs.append(f"{f} : bandes {tags.get('bandes')} != {','.join(o.bandes)}")
+        if src.dtypes[0] != "float32" or src.nodata != o.nodata:
+            erreurs.append(f"{f} : type {src.dtypes[0]} ou nodata {src.nodata} inattendu")
+        for cle in ("date_prise_de_vue", "vol_lidar_debut", "ecart_ortho_vol_lidar_jours"):
+            if not tags.get(cle):
+                erreurs.append(f"{f} : tag {cle} absent")
+        try:
+            date.fromisoformat(tags.get("date_prise_de_vue", ""))
+        except ValueError:
+            erreurs.append(f"{f} : date_prise_de_vue {tags.get('date_prise_de_vue')!r} illisible")
+        a = src.read()
+    if a.shape[0] != len(o.bandes):
+        return erreurs
+    valide = a[o.bandes.index("part_valide")] >= o.valide_min
+    if not valide.any():
+        erreurs.append(f"{f} : aucune cellule valide")
+        return erreurs
+    for i, nom in enumerate(o.bandes):
+        v = a[i][valide]
+        bas, haut = bornes_ortho(nom)
+        if not np.isfinite(v).all() or v.min() < bas - 1e-4 or v.max() > haut + 1e-4:
+            erreurs.append(f"{f} : {nom} hors de [{bas}, {haut}] ({v.min():.3f} à {v.max():.3f})")
+    return erreurs
+
+
 # --------------------------------------------------------------------------- manifeste, découpage
 
 
@@ -675,8 +965,9 @@ def main() -> None:
     ap.add_argument("--conf", type=Path, default=CONF_DEFAUT)
     ap.add_argument(
         "--seulement",
-        choices=["references"],
-        help="n'extraire que les références (le reste du jeu doit déjà exister)",
+        choices=["references", "ortho"],
+        help="n'extraire que les références ou les descripteurs ortho (le reste du jeu doit "
+        "déjà exister)",
     )
     args = ap.parse_args()
     conf = charger_conf(args.conf)
@@ -686,6 +977,22 @@ def main() -> None:
     if args.seulement == "references":
         prov = lire_provenance(sortie)
         fabriquer_references(conf, sortie, prov, meta_du_manifeste(sortie))
+        ecrire_provenance(conf, sortie, prov)
+        total = sum(p.stat().st_size for p in sortie.rglob("*") if p.is_file())
+        print(f"total : {total / 1e6:.2f} Mo")
+        return
+
+    if args.seulement == "ortho":
+        prov = lire_provenance(sortie)
+        meta = meta_du_manifeste(sortie)
+        for d in conf.dalles:
+            r = fabriquer_ortho(conf, d, sortie, prov, meta[d])
+            print(
+                f"dalle {d} : ortho du {r['date']} ({r['ecart_jours']:+d} j), {r['duree_s']:.0f} s"
+            )
+            erreurs = controler_ortho(conf, sortie / conf.ortho["fichier"].format(dalle=d), d)
+            if erreurs:
+                raise SystemExit("contrôle en échec : " + " ; ".join(erreurs))
         ecrire_provenance(conf, sortie, prov)
         total = sum(p.stat().st_size for p in sortie.rglob("*") if p.is_file())
         print(f"total : {total / 1e6:.2f} Mo")

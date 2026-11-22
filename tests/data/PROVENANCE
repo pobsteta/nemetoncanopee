@@ -94,6 +94,62 @@ fichiers:
     date: '2026-11-22'
     licence: 'Licence Ouverte 2.0 (Etalab) ; source : IGN'
     traitement: GeoParquet, EPSG:2154 ; emprise nominale de 1 km déduite de l'identifiant
+  ortho/0901-6665_ortho_10m.tif:
+    source: 'IGN, BD ORTHO 20 cm RVB et IRC (WMS-R, couches HR.ORTHOIMAGERY.ORTHOPHOTOS et ORTHOIMAGERY.ORTHOPHOTOS.IRC)
+      ; date de prise de vue : graphe de mosaïquage (WFS, couche ORTHOIMAGERY.ORTHOPHOTOS.GRAPHE-MOSAIQUAGE:graphe_bdortho),
+      2023-09-04 (campagne [2023])'
+    requete: https://data.geopf.fr/wms-r?SERVICE=WMS&VERSION=1.3.0&EXCEPTIONS=text%2Fxml&REQUEST=GetMap&LAYERS=HR.ORTHOIMAGERY.ORTHOPHOTOS&FORMAT=image%2Fgeotiff&STYLES=&CRS=EPSG:2154&BBOX=901000.0,6664000.0,902000.0,6665000.0&WIDTH=5000&HEIGHT=5000
+      ; https://data.geopf.fr/wms-r?SERVICE=WMS&VERSION=1.3.0&EXCEPTIONS=text%2Fxml&REQUEST=GetMap&LAYERS=ORTHOIMAGERY.ORTHOPHOTOS.IRC&FORMAT=image%2Fgeotiff&STYLES=&CRS=EPSG:2154&BBOX=901000.0,6664000.0,902000.0,6665000.0&WIDTH=5000&HEIGHT=5000
+      ; https://data.geopf.fr/wfs/ows?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=ORTHOIMAGERY.ORTHOPHOTOS.GRAPHE-MOSAIQUAGE:graphe_bdortho&OUTPUTFORMAT=application%2Fjson&PROPERTYNAME=dep,pva,res,echelle,date_vol&CQL_FILTER=INTERSECTS(geom,SRID%3D2154%3BPOINT(901500.0+6664500.0))+AND+echelle%3D20
+    date: '2026-11-22'
+    licence: 'Licence Ouverte 2.0 (Etalab) ; source : IGN, BD ORTHO'
+    traitement: 'PROVISOIRE : calculé à la volée sur l''ortho 0,2 m (non conservée), par cellule de 10
+      m : rouge_moy, rouge_std, pir_moy, pir_std, ndvi_moy, ndvi_std, part_non_vegetal, part_ombre, lum_moy,
+      lum_std, gradient_moy, part_valide ; NDVI = (PIR - R) / (PIR + R) ; non végétal = NDVI < 0.1 ; ombre
+      = luminance < 48.0 ; float32, nodata -9999 ; date de prise de vue 2023-09-04 (2023-09-04 à 2023-09-04),
+      écart au vol LiDAR +404 jours (milieu du vol)'
+  ortho/0902-6665_ortho_10m.tif:
+    source: 'IGN, BD ORTHO 20 cm RVB et IRC (WMS-R, couches HR.ORTHOIMAGERY.ORTHOPHOTOS et ORTHOIMAGERY.ORTHOPHOTOS.IRC)
+      ; date de prise de vue : graphe de mosaïquage (WFS, couche ORTHOIMAGERY.ORTHOPHOTOS.GRAPHE-MOSAIQUAGE:graphe_bdortho),
+      2023-09-04 (campagne [2023])'
+    requete: https://data.geopf.fr/wms-r?SERVICE=WMS&VERSION=1.3.0&EXCEPTIONS=text%2Fxml&REQUEST=GetMap&LAYERS=HR.ORTHOIMAGERY.ORTHOPHOTOS&FORMAT=image%2Fgeotiff&STYLES=&CRS=EPSG:2154&BBOX=902000.0,6664000.0,903000.0,6665000.0&WIDTH=5000&HEIGHT=5000
+      ; https://data.geopf.fr/wms-r?SERVICE=WMS&VERSION=1.3.0&EXCEPTIONS=text%2Fxml&REQUEST=GetMap&LAYERS=ORTHOIMAGERY.ORTHOPHOTOS.IRC&FORMAT=image%2Fgeotiff&STYLES=&CRS=EPSG:2154&BBOX=902000.0,6664000.0,903000.0,6665000.0&WIDTH=5000&HEIGHT=5000
+      ; https://data.geopf.fr/wfs/ows?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=ORTHOIMAGERY.ORTHOPHOTOS.GRAPHE-MOSAIQUAGE:graphe_bdortho&OUTPUTFORMAT=application%2Fjson&PROPERTYNAME=dep,pva,res,echelle,date_vol&CQL_FILTER=INTERSECTS(geom,SRID%3D2154%3BPOINT(902500.0+6664500.0))+AND+echelle%3D20
+    date: '2026-11-22'
+    licence: 'Licence Ouverte 2.0 (Etalab) ; source : IGN, BD ORTHO'
+    traitement: 'PROVISOIRE : calculé à la volée sur l''ortho 0,2 m (non conservée), par cellule de 10
+      m : rouge_moy, rouge_std, pir_moy, pir_std, ndvi_moy, ndvi_std, part_non_vegetal, part_ombre, lum_moy,
+      lum_std, gradient_moy, part_valide ; NDVI = (PIR - R) / (PIR + R) ; non végétal = NDVI < 0.1 ; ombre
+      = luminance < 48.0 ; float32, nodata -9999 ; date de prise de vue 2023-09-04 (2023-09-04 à 2023-09-04),
+      écart au vol LiDAR +404 jours (milieu du vol)'
+  ortho/0939-6654_ortho_10m.tif:
+    source: 'IGN, BD ORTHO 20 cm RVB et IRC (WMS-R, couches HR.ORTHOIMAGERY.ORTHOPHOTOS et ORTHOIMAGERY.ORTHOPHOTOS.IRC)
+      ; date de prise de vue : graphe de mosaïquage (WFS, couche ORTHOIMAGERY.ORTHOPHOTOS.GRAPHE-MOSAIQUAGE:graphe_bdortho),
+      2023-09-06 (campagne [2023])'
+    requete: https://data.geopf.fr/wms-r?SERVICE=WMS&VERSION=1.3.0&EXCEPTIONS=text%2Fxml&REQUEST=GetMap&LAYERS=HR.ORTHOIMAGERY.ORTHOPHOTOS&FORMAT=image%2Fgeotiff&STYLES=&CRS=EPSG:2154&BBOX=939000.0,6653000.0,940000.0,6654000.0&WIDTH=5000&HEIGHT=5000
+      ; https://data.geopf.fr/wms-r?SERVICE=WMS&VERSION=1.3.0&EXCEPTIONS=text%2Fxml&REQUEST=GetMap&LAYERS=ORTHOIMAGERY.ORTHOPHOTOS.IRC&FORMAT=image%2Fgeotiff&STYLES=&CRS=EPSG:2154&BBOX=939000.0,6653000.0,940000.0,6654000.0&WIDTH=5000&HEIGHT=5000
+      ; https://data.geopf.fr/wfs/ows?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=ORTHOIMAGERY.ORTHOPHOTOS.GRAPHE-MOSAIQUAGE:graphe_bdortho&OUTPUTFORMAT=application%2Fjson&PROPERTYNAME=dep,pva,res,echelle,date_vol&CQL_FILTER=INTERSECTS(geom,SRID%3D2154%3BPOINT(939500.0+6653500.0))+AND+echelle%3D20
+    date: '2026-11-22'
+    licence: 'Licence Ouverte 2.0 (Etalab) ; source : IGN, BD ORTHO'
+    traitement: 'PROVISOIRE : calculé à la volée sur l''ortho 0,2 m (non conservée), par cellule de 10
+      m : rouge_moy, rouge_std, pir_moy, pir_std, ndvi_moy, ndvi_std, part_non_vegetal, part_ombre, lum_moy,
+      lum_std, gradient_moy, part_valide ; NDVI = (PIR - R) / (PIR + R) ; non végétal = NDVI < 0.1 ; ombre
+      = luminance < 48.0 ; float32, nodata -9999 ; date de prise de vue 2023-09-06 (2023-09-06 à 2023-09-06),
+      écart au vol LiDAR +324 jours (milieu du vol)'
+  ortho/0939-6655_ortho_10m.tif:
+    source: 'IGN, BD ORTHO 20 cm RVB et IRC (WMS-R, couches HR.ORTHOIMAGERY.ORTHOPHOTOS et ORTHOIMAGERY.ORTHOPHOTOS.IRC)
+      ; date de prise de vue : graphe de mosaïquage (WFS, couche ORTHOIMAGERY.ORTHOPHOTOS.GRAPHE-MOSAIQUAGE:graphe_bdortho),
+      2023-09-06 (campagne [2023])'
+    requete: https://data.geopf.fr/wms-r?SERVICE=WMS&VERSION=1.3.0&EXCEPTIONS=text%2Fxml&REQUEST=GetMap&LAYERS=HR.ORTHOIMAGERY.ORTHOPHOTOS&FORMAT=image%2Fgeotiff&STYLES=&CRS=EPSG:2154&BBOX=939000.0,6654000.0,940000.0,6655000.0&WIDTH=5000&HEIGHT=5000
+      ; https://data.geopf.fr/wms-r?SERVICE=WMS&VERSION=1.3.0&EXCEPTIONS=text%2Fxml&REQUEST=GetMap&LAYERS=ORTHOIMAGERY.ORTHOPHOTOS.IRC&FORMAT=image%2Fgeotiff&STYLES=&CRS=EPSG:2154&BBOX=939000.0,6654000.0,940000.0,6655000.0&WIDTH=5000&HEIGHT=5000
+      ; https://data.geopf.fr/wfs/ows?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=ORTHOIMAGERY.ORTHOPHOTOS.GRAPHE-MOSAIQUAGE:graphe_bdortho&OUTPUTFORMAT=application%2Fjson&PROPERTYNAME=dep,pva,res,echelle,date_vol&CQL_FILTER=INTERSECTS(geom,SRID%3D2154%3BPOINT(939500.0+6654500.0))+AND+echelle%3D20
+    date: '2026-11-22'
+    licence: 'Licence Ouverte 2.0 (Etalab) ; source : IGN, BD ORTHO'
+    traitement: 'PROVISOIRE : calculé à la volée sur l''ortho 0,2 m (non conservée), par cellule de 10
+      m : rouge_moy, rouge_std, pir_moy, pir_std, ndvi_moy, ndvi_std, part_non_vegetal, part_ombre, lum_moy,
+      lum_std, gradient_moy, part_valide ; NDVI = (PIR - R) / (PIR + R) ; non végétal = NDVI < 0.1 ; ombre
+      = luminance < 48.0 ; float32, nodata -9999 ; date de prise de vue 2023-09-06 (2023-09-06 à 2023-09-06),
+      écart au vol LiDAR +324 jours (milieu du vol)'
   references/forms_t_v1/0901-6665_hauteur_2022.tif:
     source: FORMS-T v1, hauteur à 10 m (Zenodo 15489231, fichier Height_2022.tif), DOI 10.5281/zenodo.15489231,
       v1 (Zenodo, publié le 2025-06-06)

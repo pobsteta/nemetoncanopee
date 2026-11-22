@@ -9,6 +9,7 @@ fichiers:  # relatifs à la racine de la source
   decoupage: decoupage.yaml
   mnh: "lidar/{dalle}_MNH_2m.tif"
   mnt: "lidar/{dalle}_MNT_10m.tif"  # relief du modèle gbm (mission 009)
+  ortho: "ortho/{dalle}_ortho_10m.tif"  # descripteurs BD ORTHO à 10 m (mission 012), 12 bandes float32
   foret: "foret/{dalle}_bdforet_v2.gpkg"
 mnt_unite: m  # unité du MNT si le fichier n'a pas de tag `unite` (mission 009)
 mnh_unite: cm  # unité des valeurs du MNH de la zone (jeu d'essai : uint16 en cm, nodata 65535)

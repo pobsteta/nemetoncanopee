@@ -3,7 +3,8 @@
 
 Réutilise `scripts/fabriquer_jeu_essai.py` (mêmes sources, mêmes conventions, même arborescence
 que `tests/data/`) : MNH réduit à la volée (maximum à 2 m, le brut de 0,5 m n'est jamais écrit),
-MNT 10 m, scènes Sentinel-2 de l'année de vol, polygones BD Forêt, FORMS-T v1 de l'année de vol.
+MNT 10 m, scènes Sentinel-2 de l'année de vol, polygones BD Forêt, FORMS-T v1 de l'année de vol,
+descripteurs de la BD ORTHO 20 cm à 10 m (mission 012, calculés à la volée, ortho non conservée).
 Ajoute : blocs et rôles lus dans `conf/echantillon_jura.yaml`, fabrication en parallèle et
 reprenable (un fragment par dalle dans `.etat/`), journal `fabrication.log`, `decoupage.yaml`
 par blocs, manifeste lisible `MANIFESTE.md` et contrôle intégré du résultat.
@@ -249,6 +250,27 @@ def fabriquer_reference_dalle(
     return prov
 
 
+def fabriquer_ortho_dalle(
+    conf: SimpleNamespace, dalle: str, etat: dict, sortie: Path, journal: Callable
+) -> dict:
+    """Descripteurs ortho 10 m de la dalle (mission 012) ; renvoie les entrées de PROVENANCE."""
+    f = conf.ortho["fichier"].format(dalle=dalle)
+    if (sortie / f).is_file() and f in etat.get("prov_ortho", {}):
+        return etat["prov_ortho"]
+    prov: dict = {}
+    r = base.fabriquer_ortho(conf, dalle, sortie, prov, etat["meta"])
+    erreurs = base.controler_ortho(conf, sortie / f, dalle)
+    if erreurs:
+        raise RuntimeError("; ".join(erreurs))
+    etat["prov_ortho"] = prov
+    etat["ortho"] = {"date": r["date"], "ecart_jours": r["ecart_jours"]}
+    chemin_fragment(sortie, dalle).write_text(
+        json.dumps(etat, ensure_ascii=False, indent=1), encoding="utf-8"
+    )
+    journal(f"{dalle} ortho du {r['date']} ({r['ecart_jours']:+d} j) en {r['duree_s']:.0f} s")
+    return prov
+
+
 # --------------------------------------------------------------------------- assemblage
 
 
@@ -382,14 +404,19 @@ def rapport_markdown(conf: SimpleNamespace, etats: dict, octets: int) -> str:
         )
     for b in conf.blocs:
         L += ["", f"### Bloc {b['nom']} ({b['role']})", ""]
-        L += ["| Dalle | Vol (début -> fin) | Forêt (ha) | Essence dominante | MNH max | MNH p99 |"]
-        L += ["|---|---|---|---|---|---|"]
+        L += [
+            "| Dalle | Vol (début -> fin) | Ortho (prise de vue, écart au vol) | Forêt (ha) "
+            "| Essence dominante | MNH max | MNH p99 |"
+        ]
+        L += ["|---|---|---|---|---|---|---|"]
         for d in dalles_du_bloc(b["nw_km"], conf.taille_bloc_dalles):
             e = etats[d]
             ess = max(e["essences"].items(), key=lambda kv: kv[1]) if e["essences"] else ("-", 0)
+            ortho = e.get("ortho")
+            o = f"{ortho['date']} ({ortho['ecart_jours']:+d} j)" if ortho else "-"
             L.append(
                 f"| {d} | {e['meta']['date_vol_debut'][:10]} -> {e['meta']['date_vol_fin'][:10]} "
-                f"| {e['foret_ha']:.0f} | {ess[0]} {ess[1]:.0f} ha "
+                f"| {o} | {e['foret_ha']:.0f} | {ess[0]} {ess[1]:.0f} ha "
                 f"| {e['stats']['max_m']} | {e['stats']['p99_m']} |"
             )
     return "\n".join(L) + "\n"
@@ -460,6 +487,8 @@ def controler_echantillon(conf: SimpleNamespace, sortie: Path) -> list[str]:
                         erreurs.append(f"{f} : emprise {tuple(src.bounds)} != {attendu}")
                     if src.res != (pas, pas):
                         erreurs.append(f"{f} : pas {src.res} != {pas}")
+        if hasattr(conf, "ortho"):
+            erreurs += base.controler_ortho(conf, sortie / conf.ortho["fichier"].format(dalle=d), d)
         ds = scenes.loc[scenes["dalle"] == d]
         if ds.empty:
             erreurs.append(f"{d} : aucune scène Sentinel-2")
@@ -519,6 +548,22 @@ def main() -> None:
     with ThreadPoolExecutor(2) as ex:  # Zenodo limite le débit : peu de lectures simultanées
         list(ex.map(ref, voulues))
 
+    journal(f"références faites ; descripteurs ortho ({conf.travailleurs_ortho} fils)")
+
+    def ortho(d: str) -> dict:
+        return avec_reprises(
+            lambda: fabriquer_ortho_dalle(conf, d, etats[d], sortie, journal),
+            conf.tentatives,
+            journal,
+            f"{d} ortho",
+            pause=30.0,
+        )
+
+    with ThreadPoolExecutor(
+        conf.travailleurs_ortho
+    ) as ex:  # le serveur IGN rend l'ortho dalle par dalle
+        list(ex.map(ortho, voulues))
+
     if args.dalles:
         journal("fabrication partielle (--dalles) : pas d'assemblage")
         return
@@ -531,6 +576,7 @@ def main() -> None:
     for d in conf.dalles:
         prov.update(etats[d]["prov"])
         prov.update(etats[d].get("prov_references", {}))
+        prov.update(etats[d].get("prov_ortho", {}))
         scenes += etats[d]["scenes"]
     base.ecrire_manifeste(conf, sortie, meta, prov)
     ecrire_decoupage(conf, sortie, etats, prov)

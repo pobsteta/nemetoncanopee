@@ -1,9 +1,11 @@
 """Contrôles du jeu d'essai `tests/data/` (mission 002), sans réseau."""
 
 import csv
+from datetime import date
 from pathlib import Path
 
 import geopandas as gpd
+import numpy as np
 import pytest
 import rasterio
 import yaml
@@ -189,3 +191,102 @@ def test_reference_forms_t_provenance_et_licence():
         assert e["date"] and e["licence"].startswith("CC BY 4.0")
         assert "Schwartz" in e["citation"] and "10.5281/zenodo.15489231" in e["citation"]
         assert "65535" in e["traitement"] and "aucun rééchantillonnage" in e["traitement"]
+
+
+# --------------------------------------------------------------------------------------
+# Descripteurs de la BD ORTHO à 10 m (mission 012) : l'ortho brute n'est pas dans le jeu
+# --------------------------------------------------------------------------------------
+
+BANDES_ORTHO = [
+    "rouge_moy",
+    "rouge_std",
+    "pir_moy",
+    "pir_std",
+    "ndvi_moy",
+    "ndvi_std",
+    "part_non_vegetal",
+    "part_ombre",
+    "lum_moy",
+    "lum_std",
+    "gradient_moy",
+    "part_valide",
+]
+
+
+def orthos() -> list[Path]:
+    return sorted(DATA.glob("ortho/*_ortho_10m.tif"))
+
+
+def test_ortho_une_par_dalle_et_pas_d_ortho_brute():
+    assert [p.name[:9] for p in orthos()] == DALLES
+    for p in orthos():
+        with rasterio.open(p) as r:
+            assert r.res == (10.0, 10.0) and (r.width, r.height) == (100, 100), p.name  # pas 0,2 m
+            assert r.crs == CRS.from_epsg(2154) and r.dtypes[0] == "float32"
+            assert r.count == len(BANDES_ORTHO)
+    # aucun raster plus fin que 2 m (MNH) : l'ortho de 20 cm n'est pas conservée
+    for p in rasters():
+        with rasterio.open(p) as r:
+            assert r.res[0] >= 2.0, p.name
+
+
+@pytest.mark.parametrize("chemin", orthos(), ids=lambda p: p.name)
+def test_ortho_bandes_tags_et_valeurs(chemin):
+    dalle = chemin.name[:9]
+    x, y = (int(v) for v in dalle.split("-"))
+    with rasterio.open(chemin) as r:
+        a, tags, nodata = r.read(), r.tags(), r.nodata
+        assert (r.bounds.left, r.bounds.top) == (x * 1000, y * 1000)
+        descr = list(r.descriptions)
+    assert tags["bandes"].split(",") == BANDES_ORTHO and descr == BANDES_ORTHO
+    assert nodata == -9999.0
+    v = {nom: a[i] for i, nom in enumerate(BANDES_ORTHO)}
+    valide = v["part_valide"] >= 0.5
+    assert valide.mean() > 0.9  # le jeu est en forêt, couvert par l'ortho
+    for nom, bande in v.items():
+        b = bande[valide]
+        assert np.isfinite(b).all(), nom
+        if nom.startswith("part_"):
+            assert 0.0 <= b.min() and b.max() <= 1.0, nom
+    assert (v["ndvi_moy"][valide] > -1).all() and (v["ndvi_moy"][valide] < 1).all()
+    assert v["pir_moy"][valide].mean() > v["rouge_moy"][valide].mean()  # végétation : PIR > rouge
+    assert v["lum_std"][valide].mean() > 0 and v["gradient_moy"][valide].mean() > 0
+
+
+@pytest.mark.parametrize("chemin", orthos(), ids=lambda p: p.name)
+def test_ortho_date_de_prise_de_vue_et_provenance(chemin):
+    dalle = chemin.name[:9]
+    with rasterio.open(chemin) as r:
+        tags = r.tags()
+    d = date.fromisoformat(tags["date_prise_de_vue"])
+    assert date.fromisoformat(tags["date_prise_de_vue_min"]) <= d
+    assert d <= date.fromisoformat(tags["date_prise_de_vue_max"])
+    assert 2013 <= d.year <= 2026 and tags["campagnes_pva"]
+    man = gpd.read_parquet(DATA / "manifeste_dalles.parquet").set_index("id")
+    debut, fin = man.loc[dalle, "date_vol_debut"][:10], man.loc[dalle, "date_vol_fin"][:10]
+    assert tags["vol_lidar_debut"] == debut and tags["vol_lidar_fin"] == fin
+    milieu = date.fromisoformat(debut) + (date.fromisoformat(fin) - date.fromisoformat(debut)) / 2
+    assert int(tags["ecart_ortho_vol_lidar_jours"]) == (d - milieu).days
+    assert "IGN" in tags["source"] and "graphe de mosaïquage" in tags["source_date"]
+    assert "PROVISOIRE" in tags["traitement"] and float(tags["seuil_ndvi_non_vegetal"]) > 0
+    prov = yaml.safe_load((DATA / "PROVENANCE").read_text(encoding="utf-8"))["fichiers"]
+    e = prov[chemin.relative_to(DATA).as_posix()]
+    assert e["licence"].startswith("Licence Ouverte 2.0") and "BD ORTHO" in e["source"]
+    assert tags["date_prise_de_vue"] in e["source"] and tags["date_prise_de_vue"] in e["traitement"]
+    assert "non conservée" in e["traitement"] and "HR.ORTHOIMAGERY.ORTHOPHOTOS" in e["requete"]
+    assert "ORTHOIMAGERY.ORTHOPHOTOS.IRC" in e["requete"] and "GRAPHE-MOSAIQUAGE" in e["requete"]
+
+
+def test_ortho_controle_integre_du_script():
+    import importlib.util
+    from pathlib import Path as P
+
+    racine = P(__file__).resolve().parents[1]
+    spec = importlib.util.spec_from_file_location(
+        "fabriquer_jeu_essai_ortho", racine / "scripts" / "fabriquer_jeu_essai.py"
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    conf = module.charger_conf(racine / "conf" / "jeu_essai.yaml")
+    for p in orthos():
+        assert module.controler_ortho(conf, p, p.name[:9]) == [], p.name
