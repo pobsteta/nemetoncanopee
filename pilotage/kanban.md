@@ -20,6 +20,23 @@ _Modèle de carte :_
 
 ## Bac à sable
 
+- [001-referentiels-jalon-1](missions/001-referentiels-jalon-1.md) · depuis le cycle 0
+  - Homme : `acquereur`
+  - Mission : référentiels sourcés du jalon 1, premier cycle
+  - Moyens : web (IGN, data.gouv.fr, stac-extensions), liste de contrôle
+- [002-jeu-essai](missions/002-jeu-essai.md) · depuis le cycle 0
+  - Homme : `dev`
+  - Mission : script et jeu d'essai de 4 dalles < 20 Mo, premier cycle
+  - Moyens : 001, géoplateforme IGN, STAC Sentinel ; dalles à choisir par Pascal
+- [003-tests-acceptation-jalon-1](missions/003-tests-acceptation-jalon-1.md) · depuis le cycle 0
+  - Homme : `testeur`
+  - Mission : un test par critère du jalon 1, deuxième cycle
+  - Moyens : spec, 001, 002
+- [004-squelette-pipeline](missions/004-squelette-pipeline.md) · depuis le cycle 0
+  - Homme : `dev` (opus), plan d'abord
+  - Mission : neuf commandes de bout en bout, modèle trivial, deuxième cycle
+  - Moyens : brief, spec, ADR 0001, 001, 002, 003
+
 ## Validé
 
 ## Planifié

@@ -1,7 +1,7 @@
 # Spécification — nemetoncanopee
 
 22 novembre 2026 · rédigée par Claude (orchestrateur) à partir de `docs/brief.md` et des
-arbitrages de Pascal du 22 novembre · **statut : proposée, à valider par Pascal**
+arbitrages de Pascal du 22 novembre · **statut : validée par Pascal le 22 novembre 2026**, avec les propositions S1 à S4 du `contradicteur` (journal du 22/11)
 
 Le brief reste la source du *pourquoi* ; cette spec dit *quoi* et *comment on saura que
 c'est juste*. Un lien plutôt qu'une copie : les tableaux de données, de couches et de
@@ -52,7 +52,15 @@ Chaque étape lit et écrit des fichiers sur disque ; une étape échouée se re
 | Configuration | YAML dans `conf/` | — | chaque coefficient avec sa source publiée |
 
 Le jeu d'essai embarqué (`tests/data/`) : 4 dalles de 1 km, extraits Sentinel figés,
-MNH et MNT LiDAR HD réduits, masque BD Forêt, sans réseau.
+MNH et MNT LiDAR HD réduits, masque BD Forêt, sans réseau. Il est **fabriqué par un script
+versionné** (un seul accès réseau, au moment de la fabrication), pèse **moins de 20 Mo** au
+total, et chaque fichier a sa provenance et sa licence dans un fichier `PROVENANCE` (Licence
+Ouverte 2.0 pour l'IGN ; « Contains modified Copernicus Sentinel data [année] » pour
+Sentinel).
+
+Conventions de raster : hauteur en uint16 (cm), **nodata = 65535** (0 est une hauteur
+valide). Extensions STAC : `projection`, `raster` (unité, nodata), `file`, `processing` ;
+leurs schémas JSON sont **embarqués dans le dépôt** pour valider sans réseau.
 
 ## 3. Hors périmètre
 
@@ -70,16 +78,21 @@ Terminé quand, sur le jeu de 4 dalles, sans réseau, en moins de 10 minutes sur
 1. les commandes `ingest` (en mode lecture du jeu embarqué), `prepare`, `targets`,
    `train` (modèle trivial : hauteur = médiane de la cible du jeu d'apprentissage),
    `infer`, `smooth`, `validate`, `export` et `zonal` s'enchaînent sans erreur ;
-2. `export` écrit au moins un COG de hauteur, uint16 en cm, Lambert-93 (EPSG:2154),
-   aligné sur la grille des dalles, avec version du modèle, version des données et graine
-   dans ses métadonnées ;
-3. `export` écrit un catalogue STAC valide (validé par `pystac`) qui décrit ce COG ;
+2. `export` écrit au moins un COG de hauteur, uint16 en cm, nodata 65535, Lambert-93
+   (EPSG:2154), aligné sur la grille des dalles, avec version du modèle, version des
+   données et graine dans ses métadonnées ; un validateur de COG (rio-cogeo) le confirme ;
+3. `export` écrit un catalogue STAC qui décrit ce COG, validé par `pystac` contre les
+   schémas embarqués, sans réseau, avec la mention Copernicus ;
 4. `validate` écrit un rapport (Markdown) avec la MAE de hauteur sur les blocs de test ;
 5. `zonal` rend, pour un polygone d'essai, une statistique dont la valeur est vérifiée à
    la main dans le test ;
-6. le découpage apprentissage/test est par blocs spatiaux, figé dans un fichier versionné,
-   et un test vérifie qu'aucune dalle de test n'est voisine d'une dalle d'apprentissage ;
-7. `.claude/test-command` passe (ruff, pytest, couverture).
+6. le découpage apprentissage/test est figé dans un fichier versionné : 2 dalles
+   d'apprentissage et 2 de test, dans des blocs distincts ; un test vérifie la
+   *mécanique* (aucune dalle de test ne touche une dalle d'apprentissage, par un bord ou un
+   coin). La taille réelle des blocs (10 km) sera justifiée par un corrélogramme sur la
+   zone pilote, pas au jalon 1 ;
+7. un test chronomètre la chaîne complète et échoue au-delà de 10 minutes ;
+8. `.claude/test-command` passe (ruff, pytest, couverture).
 
 ### Jalons 2 à 7
 
@@ -104,7 +117,7 @@ sans convention IGN, critères IFN agrégés à la sylvoécorégion.
 Proposées en ADR au crible FRANCE dans `docs/adr/`, critiquées par le `contradicteur`
 avant que Pascal tranche :
 
-- ADR 0001 — stack du squelette (Python, dépendances minimales, PyTorch optionnel, YAML) ;
+- ADR 0001 — stack du squelette : **acceptée par Pascal le 22/11** ;
 - ADR 0002 — définition du volume et source des coefficients de biomasse ;
 - ADR 0003 — licence du code et des cartes (à trancher par Pascal ; question ouverte du brief).
 

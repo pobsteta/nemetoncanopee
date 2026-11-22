@@ -204,7 +204,7 @@ nemetoncanopee/
     validate/      # métriques, rapport
     export/        # COG, STAC
     zonal/         # statistiques par parcelle ou peuplement, appelées par nemeton
-    cli.py         # canopee ingest | prepare | train | infer | smooth | validate | export | zonal
+    cli.py         # canopee ingest | prepare | targets | train | infer | smooth | validate | export | zonal
   tests/           # un jeu de 4 dalles de 1 km embarqué
   docs/adr/        # décisions d'architecture
 ```
@@ -221,7 +221,7 @@ Conventions :
 
 Sept jalons, dans cet ordre ; chacun se termine par un critère vérifiable avant de passer au suivant.
 
-1. **Squelette de bout en bout** : les sept étapes tournent sur 4 dalles avec un modèle trivial. Terminé quand `canopee` produit un COG et un rapport.
+1. **Squelette de bout en bout** : les sept étapes tournent sur 4 dalles avec un modèle trivial (critères détaillés dans `docs/spec.md`, validée par Pascal le 22/11). Terminé quand `canopee` produit un COG et un rapport.
 2. **Référence** : FORMS-T v1 téléchargé et évalué sur le jeu de test figé du département pilote. Terminé quand le tableau de référence est dans le rapport.
 3. **Hauteur supervisée LiDAR HD** : U-Net entraîné sur le département pilote. Terminé quand la MAE de hauteur bat la référence.
 4. **Volume et biomasse** : modèle sur placettes IFN ou allométrie de repli. Terminé quand les deux MAE battent la référence.

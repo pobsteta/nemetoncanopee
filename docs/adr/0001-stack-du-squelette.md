@@ -1,14 +1,15 @@
 # ADR 0001 — stack du squelette
 
 - **Date :** 2026-11-22
-- **Statut :** proposée
+- **Statut :** acceptée par Pascal le 2026-11-22, avec les propositions A1 à A3 du `contradicteur`
 - **Proposée par :** Claude (orchestrateur)
 - **Tranchée par :** Pascal
 
 ## La décision en une phrase
 
-Le squelette (jalon 1) est en Python 3.11+, avec numpy, rasterio, pyproj, shapely,
-geopandas, pystac et PyYAML pour seules dépendances obligatoires. PyTorch, Lightning,
+Le squelette (jalon 1) est en Python 3.11+, avec numpy, rasterio, rio-cogeo, pyproj,
+shapely, geopandas, pyarrow, pystac[validation] (jsonschema), exactextract et PyYAML pour
+seules dépendances obligatoires. PyTorch, Lightning,
 LightGBM, dask et odc-stac sont des dépendances optionnelles (`[ml]`, `[cloud]`), ajoutées
 au jalon qui en a besoin.
 
@@ -24,16 +25,26 @@ Options envisagées : (a) toute la stack du brief dès le jalon 1 ; (b) le minim
 ci-dessus, le reste en extras ; (c) R et terra pour tout (écarté : le brief retient
 Python, et nemeton charge le paquet).
 
+## Amendements du 22/11 (critique du contradicteur, retenue par Pascal)
+
+- **A1** : `pystac[validation]` (jsonschema), `rio-cogeo` (validation des COG) et `pyarrow`
+  (GeoParquet) ajoutés.
+- **A2** : statistiques zonales par `exactextract` (pondération par fraction de pixel
+  couverte), pour concorder avec `exactextractr` qu'utilise nemeton
+  ([DESCRIPTION](https://github.com/pobsteta/nemeton/blob/main/DESCRIPTION)). Si ses
+  liaisons Python ne s'installent pas proprement, l'écart est documenté et remonte à Pascal.
+- **A3** : extensions STAC `projection`, `raster`, `file`, `processing`, schémas embarqués.
+
 ## Le crible FRANCE
 
 | Lettre | Question | Réponse (une ligne) | Ce que ça coûte | Prêts à payer ? |
 |---|---|---|---|---|
-| **F**rugale | La plus simple qui tienne ? | Option (b) : sept bibliothèques libres, toutes stables | Le modèle trivial du jalon 1 se code en numpy | à trancher par Pascal |
-| **R**esponsable | Qui fait quoi ? | Le `dev` code, le `testeur` tient le jeu sans réseau, Pascal tranche les ajouts de dépendance | Chaque nouvel extra repasse par une ADR | à trancher par Pascal |
-| **A**nticiper | Si l'imprévu arrive ? | Les extras isolent PyTorch : le cœur reste installable sur un poste sans GPU | Deux chemins d'installation à documenter | à trancher par Pascal |
+| **F**rugale | La plus simple qui tienne ? | Option (b) : sept bibliothèques libres, toutes stables | Le modèle trivial du jalon 1 se code en numpy | oui (Pascal, 22/11) |
+| **R**esponsable | Qui fait quoi ? | Le `dev` code, le `testeur` tient le jeu sans réseau, Pascal tranche les ajouts de dépendance | Chaque nouvel extra repasse par une ADR | oui (Pascal, 22/11) |
+| **A**nticiper | Si l'imprévu arrive ? | Les extras isolent PyTorch : le cœur reste installable sur un poste sans GPU | Deux chemins d'installation à documenter | oui (Pascal, 22/11) |
 | **N**ovateur | Toutes les idées ? | (a), (b), (c) examinées ; Hydra réexaminé au jalon 3 | — | — |
-| **C**oût | Coût complet ? | CI légère (pas de PyTorch à installer à chaque PR) | inconnu en temps de CI | à trancher par Pascal |
-| **É**cologique | Réutilisation ? | Bibliothèques du monde géospatial Python ; GDAL sous rasterio | Dépendance à GDAL (binaires des roues rasterio) | à trancher par Pascal |
+| **C**oût | Coût complet ? | CI légère (pas de PyTorch à installer à chaque PR) | inconnu en temps de CI | oui (Pascal, 22/11) |
+| **É**cologique | Réutilisation ? | Bibliothèques du monde géospatial Python ; GDAL sous rasterio | Dépendance à GDAL (binaires des roues rasterio) | oui (Pascal, 22/11) |
 
 ## Valeurs sacrifiées
 
