@@ -59,12 +59,16 @@ Tirées de `docs/brief.md` (21 novembre 2026), qui reste la source ; à complét
   de son année de vol ; la date d'acquisition est stockée par dalle.
 - **Découpage d'évaluation** : blocs spatiaux de 10 km, jamais de dalles voisines entre
   apprentissage et test ; jeu de test figé dès le jalon 1.
-- **Référence à battre** : FORMS-T v1 (Zenodo 15489231), réévalué sur le jeu de test du
-  projet.
+- **Références de comparaison** : FORMS-T v1 (Zenodo 15489231) et FORMSpoT (THEIA,
+  2014-2024), réévalués sur le jeu de test du projet. Blocs de test exclus de tout
+  pré-entraînement (Open-Canopy compris).
+- **Volume et biomasse** : définition du volume et coefficients repris des conventions
+  IGN, IPCC 2006 et CITEPA (ADR à venir) ; allométrie par défaut, placettes IFN sous
+  convention seulement.
 - **Aucun chemin ni seuil en dur** : tout passe par `conf/`. Coefficients de biomasse
   (infradensité, facteur d'expansion) en configuration, chacun avec sa source publiée.
 - **Tests** : chaque module a ses tests sur le jeu de 4 dalles embarqué ; la chaîne complète
-  s'y exécute en moins de 10 minutes sur CPU. Graine fixée ; versions du modèle et des
+  s'y exécute en moins de 10 minutes sur CPU, sans réseau (extraits Sentinel figés). Graine fixée ; versions du modèle et des
   données écrites dans les métadonnées de chaque COG.
 
 ## Règles techniques communes
