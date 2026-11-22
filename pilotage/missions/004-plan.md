@@ -142,3 +142,4 @@ conservé ; rejouabilité (deux passes → fichiers identiques).
 5. `decoupage.yaml` : **figé maintenant** (mention « PROVISOIRE » retirée), par la mission 003.
 6. Unité de `zonal` : le cm, comme la couche ; nemeton convertit s'il le souhaite.
 7. Épingler exactextract à la version testée.
+8. Réserves du testeur (003), tranchées le 22/11 : `rapport.json` a pour clés `mae_m` (MAE poolée sur toutes les cellules de test, en m), `biais_m`, et `dalles: {id: {n, mae_m, biais_m}}` ; une scène hors de l'année de vol fait échouer `ingest` ou `prepare` avec un code non nul (pas de filtrage silencieux) ; aucune horodate « maintenant » dans les sorties (dates STAC = date de vol / dates des scènes), pour la rejouabilité à l'octet.
