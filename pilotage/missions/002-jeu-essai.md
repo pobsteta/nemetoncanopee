@@ -12,7 +12,7 @@
 |---|---|---|
 | Peut-il redire la mission en une phrase, avec son but ? | oui | |
 | Sait-il comment faire ? | oui une fois 001 rendue (grille, nomenclature, dates de vol) | dépend de 001 |
-| A-t-il les moyens ? | **à confirmer** : quelles 4 dalles ? La zone pilote n'est pas tranchée (question ouverte du brief) | Pascal choisit 4 dalles contiguës deux à deux, ou l'agent en propose dans un département de Bourgogne-Franche-Comté |
+| A-t-il les moyens ? | oui : 4 dalles retenues le 22/11 (0901-6665, 0902-6665, 0939-6654, 0939-6655 ; `docs/referentiels.md`), accès IGN et Earth Search vérifiés | |
 
 **Temps de la main :** donner.
 
@@ -30,7 +30,7 @@ _Rempli par Pascal seul, avant de lire le travail de l'agent. L'orchestrateur ne
 
 ## Harnais
 
-- **Peut (périmètre) :** `scripts/fabriquer_jeu_essai.py`, `tests/data/` (données, `PROVENANCE`, `decoupage.yaml` : 2 dalles d'apprentissage, 2 de test, blocs distincts).
+- **Peut (périmètre) :** `scripts/fabriquer_jeu_essai.py`, `tests/test_jeu_essai.py`, la liste `dependencies` de `pyproject.toml` (dépendances de l'ADR 0001, nécessaires à la CI), `tests/data/` (données, `PROVENANCE`, `decoupage.yaml` : 2 dalles d'apprentissage, 2 de test, blocs distincts).
 - **Câblé (ne peut pas) :** pas de commit ni de push sur `main`, pas de push forcé, pas de « terminé » sans tests verts (`.claude/test-command`), `pilotage/journal.md` en ajout seul (hooks du plugin `imperatrice`).
 - **Ne doit pas (écrit) :** dépasser 20 Mo ; versionner un fichier sans provenance ; écrire dans `/data/`.
 - **Sources autorisées :** `docs/referentiels.md` (001) ; IGN géoplateforme (MNH, MNT LiDAR HD, BD ORTHO, BD Forêt V2) ; STAC Copernicus Data Space ou Earth Search (Sentinel-2 L2A, Sentinel-1 GRD).
