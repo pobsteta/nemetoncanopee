@@ -27,7 +27,7 @@
   ne se défait pas (fusion dans `main`, qui peut publier une release ; demande de convention
   à l'IGN) ; les questions de valeur hors du brief (licences, ADR 0003 ; choix de la
   biomasse, ADR 0002).
-- **Inscrite au journal le :** 2026-11-22 · **terminée le 2026-11-22** (fin du jalon 1)
+- **Inscrite au journal le :** 2026-11-22 · terminée le 2026-11-22 (fin du jalon 1) · **renouvelée le 2026-11-22** sur « Continue » de Pascal, jusqu'à la fin du jalon 2 sur le jeu d'essai ; zone pilote et moyens de calcul réservés à Pascal
 
 ## Le vivier (catalogue, pas une équipe)
 
@@ -55,3 +55,6 @@ Ordre : 001 → 002 → (003 + 004, fusion groupée). Au plus 2 PR ouvertes à l
 découpage, sous le plafond de 3. Le `relecteur` relit chaque PR avant Pascal.
 Non mobilisés au jalon 1 : `contradicteur` (hors critique des ADR), `archiviste`,
 `analyste`, `afficheur`.
+| [005 — test d'atomicité de l'export](missions/005-test-export-atomique.md) | `testeur` | sonnet | donner | oui · oui · oui | 3 |
+| [006 — accès aux références FORMS-T v1 et FORMSpoT](missions/006-references-acces.md) | `acquereur` | sonnet | donner | oui · oui · oui | 3 |
+| [007 — références sur le jeu d'essai et dans le rapport](missions/007-references-evaluation.md) | `dev` | opus | donner | oui · oui (après 006) · oui | 3 |
