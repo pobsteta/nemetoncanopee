@@ -4,8 +4,8 @@
 > tout démarrage. Règle de staffing : un agent par mission qui passe les trois
 > questions, jamais un agent « par principe ».
 
-- **Statut :** proposée
-- **Validée par :** _…_
+- **Statut :** validée
+- **Validée par :** Claude (orchestrateur, par délégation), 2026-11-22
 
 ## Plafond humain
 
@@ -17,11 +17,17 @@
 > Ce que Pascal demande à l'orchestrateur de trancher à sa place (skill `methode`,
 > « La délégation »). Vide : aucune délégation, Pascal tranche tout.
 
-- **Portée :** _aucune_
-- **Jusqu'à :** _…_
-- **Réservé à Pascal :** _…_ (toujours, même si rien n'est écrit : sa réponse d'abord ;
-  rendre la main ; ce qui touche l'extérieur et ne se défait pas)
-- **Inscrite au journal le :** _…_
+- **Demande de Pascal, mot pour mot :** « Peux-tu coder jusqu'à la fin sans que j'ai a intervenir ? » (22 novembre 2026)
+- **Portée :** « tout » : porte n° 2 (cette équipe), choix des 4 dalles du jeu d'essai,
+  plans des missions en « prendre », verdicts de relecture, arbitrages techniques du jalon 1.
+- **Jusqu'à :** la fin du jalon 1 (portée la plus étroite, faute de précision : les jalons
+  2 à 7 demandent du calcul et des décisions que ce dépôt n'a pas encore).
+- **Réservé à Pascal :** rien de plus n'a été dit. Toujours réservé : sa réponse d'abord
+  (les rubriques des fiches restent vides) ; rendre la main ; ce qui touche l'extérieur et
+  ne se défait pas (fusion dans `main`, qui peut publier une release ; demande de convention
+  à l'IGN) ; les questions de valeur hors du brief (licences, ADR 0003 ; choix de la
+  biomasse, ADR 0002).
+- **Inscrite au journal le :** 2026-11-22
 
 ## Le vivier (catalogue, pas une équipe)
 

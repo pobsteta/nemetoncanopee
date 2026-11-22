@@ -2,7 +2,7 @@
 
 ## Mission
 
-**En une phrase (quoi, et pourquoi) :** Réunir, sourcés, les référentiels dont le squelette a besoin (grille et nomenclature des dalles LiDAR HD, lecture de la date de vol, schémas des extensions STAC, mentions de licence), pour que personne n'invente un code ou un format.
+**En une phrase (quoi, et pourquoi) :** Réunir, sourcés, les référentiels dont le squelette a besoin (grille et nomenclature des dalles LiDAR HD, lecture de la date de vol, schémas des extensions STAC, mentions de licence) et proposer 4 dalles de 1 km pour le jeu d'essai, pour que personne n'invente un code ou un format.
 
 **Redite par l'agent :** _à compléter par l'agent avant d'agir._
 
@@ -26,7 +26,7 @@ _Rempli par Pascal seul, avant de lire le travail de l'agent. L'orchestrateur ne
 
 - **Agent :** `acquereur`
 - **Modèle :** sonnet
-- **Ce qui ne lui est pas demandé :** écrire du code ; choisir la zone pilote ; trancher la définition du volume (ADR 0002).
+- **Ce qui ne lui est pas demandé :** écrire du code ; choisir la zone pilote (il propose seulement 4 dalles d'essai, en forêt, en Bourgogne-Franche-Comté, avec MNH LiDAR HD publié : deux paires de dalles voisines, les deux paires à plus de 10 km l'une de l'autre ; l'orchestrateur tranche par délégation) ; trancher la définition du volume (ADR 0002).
 
 ## Harnais
 
