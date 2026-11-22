@@ -24,6 +24,10 @@ class Chemins:
     def scenes(self) -> Path:
         return self.racine / "ingest" / "scenes.parquet"
 
+    @property
+    def references(self) -> Path:
+        return self.racine / "ingest" / "references.parquet"
+
     # prepare
     def scene_preparee(self, annee: int, dalle: str, scene: str) -> Path:
         return self.racine / "prepare" / str(annee) / dalle / f"s2_{scene}.tif"

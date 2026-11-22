@@ -50,6 +50,8 @@ def test_provenance_pour_chaque_fichier():
             assert f"Contains modified Copernicus Sentinel data {annee}" in licence, nom
         elif nom == "sentinel2_scenes.csv":
             assert "Contains modified Copernicus Sentinel data" in licence, nom
+        elif nom.startswith("references/forms_t_v1/"):
+            assert "CC BY 4.0" in licence, nom
         else:
             assert "Licence Ouverte 2.0" in licence, nom
         if nom.startswith("sentinel2/"):
@@ -139,3 +141,51 @@ def test_annee_des_scenes_sentinel2_egale_annee_de_vol():
         assert ligne["date_scene"][:4] == annee, ligne["scene"]
         assert annee == man.loc[ligne["dalle"], "date_vol_fin"][:4]
         assert (DATA / ligne["fichier"]).is_file()
+
+
+# --------------------------------------------------------------------------------------
+# Références à battre (mission 007) : hauteur FORMS-T v1 de l'année de vol
+# --------------------------------------------------------------------------------------
+
+
+def references_forms_t() -> list[Path]:
+    return sorted(DATA.glob("references/forms_t_v1/*_hauteur_*.tif"))
+
+
+def test_reference_forms_t_une_par_dalle_annee_de_vol():
+    fichiers = references_forms_t()
+    assert [p.name[:9] for p in fichiers] == DALLES
+    for p in fichiers:
+        assert p.stem.endswith(f"_hauteur_{annee_vol_dalle(p.name[:9])}"), p.name
+
+
+@pytest.mark.parametrize("chemin", references_forms_t(), ids=lambda p: p.name)
+def test_reference_forms_t_convention_du_projet(chemin):
+    dalle = chemin.name[:9]
+    x, y = (int(v) for v in dalle.split("-"))
+    with rasterio.open(chemin) as r:
+        assert r.crs == CRS.from_epsg(2154)
+        assert r.dtypes[0] == "uint16" and r.nodata == 65535
+        assert r.res == (10.0, 10.0) and (r.width, r.height) == (100, 100)
+        assert (r.bounds.left, r.bounds.top) == (x * 1000, y * 1000)
+        a = r.read(1)
+        tags = r.tags()
+    valides = a[a != 65535]
+    assert valides.size > 0 and valides.max() <= 6000  # cm, 0 à 60 m
+    assert tags["unite"] == "cm" and tags["reference"] == "forms_t_v1"
+    assert tags["url"] == (
+        f"https://zenodo.org/api/records/15489231/files/Height_{annee_vol_dalle(dalle)}.tif/content"
+    )
+    assert "CC BY 4.0" in tags["licence"]
+    assert "10.5281/zenodo.15489231" in tags["citation"]
+    assert "0 -> 65535" in tags["conversion"]
+
+
+def test_reference_forms_t_provenance_et_licence():
+    prov = yaml.safe_load((DATA / "PROVENANCE").read_text(encoding="utf-8"))["fichiers"]
+    for p in references_forms_t():
+        e = prov[p.relative_to(DATA).as_posix()]
+        assert "zenodo.org/api/records/15489231" in e["requete"]
+        assert e["date"] and e["licence"].startswith("CC BY 4.0")
+        assert "Schwartz" in e["citation"] and "10.5281/zenodo.15489231" in e["citation"]
+        assert "65535" in e["traitement"] and "aucun rééchantillonnage" in e["traitement"]

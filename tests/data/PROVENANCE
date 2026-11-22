@@ -94,6 +94,54 @@ fichiers:
     date: '2026-11-22'
     licence: 'Licence Ouverte 2.0 (Etalab) ; source : IGN'
     traitement: GeoParquet, EPSG:2154 ; emprise nominale de 1 km déduite de l'identifiant
+  references/forms_t_v1/0901-6665_hauteur_2022.tif:
+    source: FORMS-T v1, hauteur à 10 m (Zenodo 15489231, fichier Height_2022.tif), DOI 10.5281/zenodo.15489231,
+      v1 (Zenodo, publié le 2025-06-06)
+    requete: /vsicurl/https://zenodo.org/api/records/15489231/files/Height_2022.tif/content ; fenêtre
+      col 82527, ligne 45008, 100 x 100 px
+    date: '2026-11-22'
+    licence: CC BY 4.0 (Zenodo 15489231, license.id cc-by-4.0)
+    citation: 'Schwartz, M. et al. (2025). FORMS-T v1 [jeu de données]. Zenodo, https://doi.org/10.5281/zenodo.15489231
+      ; article associé : Remote Sensing of Environment, https://doi.org/10.1016/j.rse.2025.114959'
+    traitement: fenêtre de la dalle lue telle quelle (pas 10 m aligné sur le km, aucun rééchantillonnage)
+      ; int16 en cm -> uint16 en cm ; nodata source 0 -> 65535 (0 est une hauteur valide dans le projet)
+      ; valeurs négatives -> nodata ; année = année de vol
+  references/forms_t_v1/0902-6665_hauteur_2022.tif:
+    source: FORMS-T v1, hauteur à 10 m (Zenodo 15489231, fichier Height_2022.tif), DOI 10.5281/zenodo.15489231,
+      v1 (Zenodo, publié le 2025-06-06)
+    requete: /vsicurl/https://zenodo.org/api/records/15489231/files/Height_2022.tif/content ; fenêtre
+      col 82627, ligne 45008, 100 x 100 px
+    date: '2026-11-22'
+    licence: CC BY 4.0 (Zenodo 15489231, license.id cc-by-4.0)
+    citation: 'Schwartz, M. et al. (2025). FORMS-T v1 [jeu de données]. Zenodo, https://doi.org/10.5281/zenodo.15489231
+      ; article associé : Remote Sensing of Environment, https://doi.org/10.1016/j.rse.2025.114959'
+    traitement: fenêtre de la dalle lue telle quelle (pas 10 m aligné sur le km, aucun rééchantillonnage)
+      ; int16 en cm -> uint16 en cm ; nodata source 0 -> 65535 (0 est une hauteur valide dans le projet)
+      ; valeurs négatives -> nodata ; année = année de vol
+  references/forms_t_v1/0939-6654_hauteur_2022.tif:
+    source: FORMS-T v1, hauteur à 10 m (Zenodo 15489231, fichier Height_2022.tif), DOI 10.5281/zenodo.15489231,
+      v1 (Zenodo, publié le 2025-06-06)
+    requete: /vsicurl/https://zenodo.org/api/records/15489231/files/Height_2022.tif/content ; fenêtre
+      col 86327, ligne 46108, 100 x 100 px
+    date: '2026-11-22'
+    licence: CC BY 4.0 (Zenodo 15489231, license.id cc-by-4.0)
+    citation: 'Schwartz, M. et al. (2025). FORMS-T v1 [jeu de données]. Zenodo, https://doi.org/10.5281/zenodo.15489231
+      ; article associé : Remote Sensing of Environment, https://doi.org/10.1016/j.rse.2025.114959'
+    traitement: fenêtre de la dalle lue telle quelle (pas 10 m aligné sur le km, aucun rééchantillonnage)
+      ; int16 en cm -> uint16 en cm ; nodata source 0 -> 65535 (0 est une hauteur valide dans le projet)
+      ; valeurs négatives -> nodata ; année = année de vol
+  references/forms_t_v1/0939-6655_hauteur_2022.tif:
+    source: FORMS-T v1, hauteur à 10 m (Zenodo 15489231, fichier Height_2022.tif), DOI 10.5281/zenodo.15489231,
+      v1 (Zenodo, publié le 2025-06-06)
+    requete: /vsicurl/https://zenodo.org/api/records/15489231/files/Height_2022.tif/content ; fenêtre
+      col 86327, ligne 46008, 100 x 100 px
+    date: '2026-11-22'
+    licence: CC BY 4.0 (Zenodo 15489231, license.id cc-by-4.0)
+    citation: 'Schwartz, M. et al. (2025). FORMS-T v1 [jeu de données]. Zenodo, https://doi.org/10.5281/zenodo.15489231
+      ; article associé : Remote Sensing of Environment, https://doi.org/10.1016/j.rse.2025.114959'
+    traitement: fenêtre de la dalle lue telle quelle (pas 10 m aligné sur le km, aucun rééchantillonnage)
+      ; int16 en cm -> uint16 en cm ; nodata source 0 -> 65535 (0 est une hauteur valide dans le projet)
+      ; valeurs négatives -> nodata ; année = année de vol
   sentinel2/0901-6665/S2A_31TFN_20220613_0_L2A_10m.tif:
     source: Copernicus Sentinel-2 L2A via Earth Search (Element84), scène S2A_31TFN_20220613_0_L2A
     requete: 'POST https://earth-search.aws.element84.com/v1/search {"collections": ["sentinel-2-l2a"],

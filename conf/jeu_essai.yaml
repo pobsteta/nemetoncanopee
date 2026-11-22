@@ -39,3 +39,23 @@ couche_foret: "LANDCOVER.FORESTINVENTORY.V2:formation_vegetale"
 
 licence_ign: "Licence Ouverte 2.0 (Etalab) ; source : IGN"
 licence_s2: "Contains modified Copernicus Sentinel data {annee}"
+
+# Références à battre (mission 007, docs/referentiels.md § 11). Seule FORMS-T v1, hauteur de
+# l'année de vol ; FORMSpoT reporté (licence CC-BY-NC à trancher par Pascal, décision du 22/11).
+# Extraction seule : python scripts/fabriquer_jeu_essai.py --seulement references
+references:
+  forms_t_v1:
+    url: "https://zenodo.org/api/records/15489231/files/Height_{annee}.tif/content"
+    fichier: "references/forms_t_v1/{dalle}_hauteur_{annee}.tif"
+    source: "FORMS-T v1, hauteur à 10 m (Zenodo 15489231, fichier Height_{annee}.tif)"
+    doi: "10.5281/zenodo.15489231"
+    version: "v1 (Zenodo, publié le 2025-06-06)"
+    dtype_source: int16
+    unite_source: cm
+    nodata_source: 0  # 0 = sans donnée chez FORMS-T, hauteur valide chez nous
+    pas_m: 10.0  # origine x 75 730, y 7 115 080 : fenêtre entière de 100 x 100 px par dalle
+    licence: "CC BY 4.0 (Zenodo 15489231, license.id cc-by-4.0)"
+    citation: >-
+      Schwartz, M. et al. (2025). FORMS-T v1 [jeu de données]. Zenodo,
+      https://doi.org/10.5281/zenodo.15489231 ; article associé : Remote Sensing of
+      Environment, https://doi.org/10.1016/j.rse.2025.114959

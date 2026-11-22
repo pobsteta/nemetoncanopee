@@ -5,7 +5,9 @@ l'appariement temporel : une scène Sentinel-2 datée hors de l'année de vol de
 refusée (code 3), jamais filtrée en silence (plan 004, décision 8).
 
 Sorties : `ingest/manifeste.parquet` (une ligne par dalle, avec l'année et la date de vol et
-la version des données) et `ingest/scenes.parquet` (une ligne par fichier de scène).
+la version des données), `ingest/scenes.parquet` (une ligne par fichier de scène) et
+`ingest/references.parquet` (mission 007 : une ligne par référence à battre et par dalle,
+déclarée dans la zone sous `references`, déjà sur la grille et dans l'unité du projet).
 Relancée sur quelques dalles (`--dalles`), l'étape remplace leurs lignes et garde les autres.
 """
 
@@ -50,6 +52,8 @@ COLONNES_SCENES = [
     "bandes",
     "fichier",
 ]
+COLONNES_REFERENCES = ["nom", "libelle", "dalle", "annee", "unite", "fichier", "sha256"]
+CLES_REFERENCE = ["nom", "chemin", "unite"]
 
 
 @dataclass(frozen=True)
@@ -126,6 +130,55 @@ def version_donnees(zone: Zone, scenes: pd.DataFrame) -> str:
     return f"{zone.nom}-{empreinte[:12]}"
 
 
+def references_declarees(conf: Configuration) -> list[dict]:
+    """Liste `references` du fichier de zone (vide si absente) ; nom, chemin et unité exigés.
+
+    Une référence dans une autre unité que la hauteur du projet est refusée (code 3) : elle
+    doit être ramenée à l'unité du projet avant d'entrer dans la chaîne.
+    """
+    declarees = list(conf.zone.references)
+    fichier_zone = f"la zone {conf.zone.nom}"
+    noms = set()
+    for ref in declarees:
+        manquantes = [c for c in CLES_REFERENCE if not ref.get(c)]
+        if manquantes:
+            raise EntreeManquante(
+                f"référence {ref.get('nom')!r} de {fichier_zone} : clés absentes {manquantes}"
+            )
+        if str(ref["unite"]) != str(conf.hauteur["unite"]):
+            raise DonneeRefusee(
+                f"référence {ref['nom']} en {ref['unite']} refusée (règle : une référence est "
+                f"ramenée à l'unité du projet, {conf.hauteur['unite']}, avant comparaison)"
+            )
+        if ref["nom"] in noms:
+            raise DonneeRefusee(f"référence {ref['nom']} déclarée deux fois dans {fichier_zone}")
+        noms.add(ref["nom"])
+    return declarees
+
+
+def table_references(conf: Configuration, manifeste: pd.DataFrame) -> pd.DataFrame:
+    """Une ligne par référence et par dalle ingérée : fichier de l'année de vol, empreinte."""
+    zone = conf.zone
+    lignes = []
+    for ref in references_declarees(conf):
+        for r in manifeste.itertuples():
+            chemin = zone.racine / str(ref["chemin"]).format(dalle=r.id, annee=r.annee)
+            exiger_fichier(chemin, "ingest (référence absente du jeu de la zone)")
+            lignes.append(
+                {
+                    "nom": str(ref["nom"]),
+                    "libelle": str(ref.get("libelle", ref["nom"])),
+                    "dalle": r.id,
+                    "annee": int(r.annee),
+                    "unite": str(ref["unite"]),
+                    "fichier": chemin.relative_to(zone.racine).as_posix(),
+                    "sha256": _sha256(chemin),
+                }
+            )
+    table = pd.DataFrame(lignes, columns=COLONNES_REFERENCES)
+    return table.astype({"annee": "int64"})
+
+
 def _fusionner(chemin: Path, nouvelles: pd.DataFrame, cle: str, tri: list[str]) -> pd.DataFrame:
     """Remplace dans le fichier existant les lignes des dalles de `nouvelles`, garde les autres."""
     if chemin.is_file():
@@ -179,6 +232,7 @@ def executer(
     sans_scene = sorted(set(annee_de) - set(scenes["dalle"]))
     if sans_scene:
         raise EntreeManquante(f"aucune scène Sentinel-2 pour les dalles {sans_scene}")
+    references = table_references(conf, manifeste)
     scenes["annee"] = scenes["dalle"].map(annee_de).astype("int64")
     scenes["resolution_m"] = scenes["resolution_m"].astype("int64")
 
@@ -191,6 +245,13 @@ def executer(
         ch.scenes,
         _fusionner(ch.scenes, scenes[COLONNES_SCENES], "dalle", ["dalle", "scene", "fichier"]),
     )
+    # Les lignes des dalles ingérées sont toutes remplacées, même si la zone n'a plus de référence.
+    if ch.references.is_file():
+        anciennes = pd.read_parquet(ch.references)
+        anciennes = anciennes[~anciennes["dalle"].isin(list(annee_de))]
+        references = pd.concat([anciennes, references], ignore_index=True)
+    references = references.sort_values(["nom", "dalle"], kind="stable").reset_index(drop=True)
+    _ecrire_parquet(ch.references, references)
     return sorted(annee_de)
 
 
@@ -213,6 +274,11 @@ def lire_manifeste(
         Dalle(r.id, int(r.annee), str(r.date_vol), str(r.version_donnees))
         for r in table.sort_values("id").itertuples()
     ]
+
+
+def lire_references(ch: Chemins) -> pd.DataFrame:
+    """Table des références écrite par `ingest` (une ligne par référence et par dalle)."""
+    return pd.read_parquet(exiger_fichier(ch.references, "ingest"))
 
 
 def lire_scenes(ch: Chemins) -> pd.DataFrame:

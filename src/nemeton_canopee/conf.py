@@ -52,6 +52,7 @@ class Zone:
     annees: list[int]
     foret_formations: str
     mnh_unite: str
+    references: tuple[dict[str, Any], ...] = ()
 
     def chemin(self, cle: str, **champs: str) -> Path:
         """Chemin d'un fichier d'entrée de la zone (`cle` de `fichiers`, gabarit `{dalle}`)."""
@@ -105,6 +106,7 @@ def charger_zone(chemin: Path) -> Zone:
         annees=[int(a) for a in d["annees"]],
         foret_formations=str(d.get("foret_formations", "tout")),
         mnh_unite=str(d["mnh_unite"]),
+        references=tuple(dict(r) for r in (d.get("references") or [])),
     )
 
 

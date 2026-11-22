@@ -7,9 +7,14 @@ Mission 002. Seul script du dépôt qui accède au réseau : les tests lisent en
 - MNH et MNT LiDAR HD : WMS-R IGN (GetMap GeoTIFF float32, 0,5 m), réduits ici ;
 - BD Forêt V2 : WFS IGN (polygones, GeoPackage) ;
 - date de vol : WFS IGN, couche de métadonnées LiDAR HD ;
-- Sentinel-2 L2A : Earth Search (STAC, COG anonymes), année de vol, mai à septembre.
+- Sentinel-2 L2A : Earth Search (STAC, COG anonymes), année de vol, mai à septembre ;
+- références à battre (mission 007) : hauteur FORMS-T v1 de l'année de vol (Zenodo,
+  lecture par fenêtre `/vsicurl/`, sans compte).
 
-Usage : python scripts/fabriquer_jeu_essai.py [--sortie tests/data]
+Usage : python scripts/fabriquer_jeu_essai.py [--sortie tests/data] [--seulement references]
+
+`--seulement references` n'extrait que les références (lit le manifeste déjà présent pour
+l'année de vol, ajoute leurs entrées à `PROVENANCE` sans toucher aux autres fichiers).
 
 Les paramètres sont regroupés ci-dessous. Les choix marqués PROVISOIRE sont écrits dans
 `PROVENANCE` (valeurs à geler avant la fusion de la mission 003).
@@ -38,6 +43,7 @@ import yaml
 from rasterio.enums import Resampling
 from rasterio.transform import from_origin
 from rasterio.warp import reproject
+from rasterio.windows import from_bounds
 from shapely.geometry import box
 
 # --------------------------------------------------------------------------- paramètres
@@ -429,6 +435,103 @@ def fabriquer_sentinel2(
         raise RuntimeError(f"aucune scène Sentinel-2 exploitable pour {dalle}")
 
 
+# --------------------------------------------------------------------------- références
+
+
+def convertir_reference(brut: np.ndarray, nodata_source: int, nodata: int) -> np.ndarray:
+    """Hauteur de référence en cm vers la convention du projet : uint16, nodata `nodata`.
+
+    Le nodata source (0 chez FORMS-T) devient `nodata` (65535) : 0 est une hauteur valide chez
+    nous. Une valeur négative n'est pas une hauteur : elle devient aussi `nodata`.
+    """
+    invalide = (brut == nodata_source) | (brut < 0)
+    return np.where(invalide, nodata, brut.astype("int64")).astype("uint16")
+
+
+def fabriquer_reference(
+    conf: SimpleNamespace, nom: str, dalle: str, annee: str, sortie: Path, prov: dict
+) -> None:
+    """Extrait la fenêtre de la dalle dans la référence `nom` (sans rééchantillonnage)."""
+    ref = SimpleNamespace(**conf.references[nom])
+    url = ref.url.format(annee=annee)
+    xmin, ymin, xmax, ymax = emprise(dalle)
+    with rasterio.open("/vsicurl/" + url) as src:
+        verifier_crs_source(src.crs, conf.crs)
+        assert str(src.dtypes[0]) == ref.dtype_source, src.dtypes
+        assert src.nodata == ref.nodata_source, src.nodata
+        t = src.transform
+        assert (t.a, -t.e) == (ref.pas_m, ref.pas_m), t
+        fen = from_bounds(xmin, ymin, xmax, ymax, transform=t)
+        cols, lignes = fen.col_off, fen.row_off
+        # Grille alignée : la fenêtre tombe sur des pixels entiers (aucun rééchantillonnage).
+        assert float(cols).is_integer() and float(lignes).is_integer(), fen
+        n = int(round(1000 / ref.pas_m))
+        assert (fen.width, fen.height) == (n, n), fen
+        brut = src.read(1, window=fen)
+    cm = convertir_reference(brut, ref.nodata_source, conf.nodata_hauteur)
+    f = ref.fichier.format(dalle=dalle, annee=annee)
+    ecrire_raster(
+        conf,
+        sortie / f,
+        cm,
+        dalle,
+        ref.pas_m,
+        conf.nodata_hauteur,
+        {
+            "unite": "cm",
+            "reference": nom,
+            "source": ref.source.format(annee=annee),
+            "url": url,
+            "doi": ref.doi,
+            "version": ref.version,
+            "annee": annee,
+            "licence": ref.licence,
+            "citation": ref.citation,
+            "conversion": (
+                f"{ref.dtype_source} {ref.unite_source} -> uint16 cm ; nodata "
+                f"{ref.nodata_source} -> {conf.nodata_hauteur} ; aucun rééchantillonnage"
+            ),
+        },
+    )
+    prov[f] = {
+        "source": ref.source.format(annee=annee) + f", DOI {ref.doi}, {ref.version}",
+        "requete": f"/vsicurl/{url} ; fenêtre col {int(cols)}, ligne {int(lignes)}, {n} x {n} px",
+        "date": date.today().isoformat(),
+        "licence": ref.licence,
+        "citation": ref.citation,
+        "traitement": (
+            f"fenêtre de la dalle lue telle quelle (pas {ref.pas_m:g} m aligné sur le km, aucun "
+            f"rééchantillonnage) ; {ref.dtype_source} en {ref.unite_source} -> uint16 en cm ; "
+            f"nodata source {ref.nodata_source} -> {conf.nodata_hauteur} (0 est une hauteur "
+            "valide dans le projet) ; valeurs négatives -> nodata ; année = année de vol"
+        ),
+    }
+
+
+def lire_provenance(sortie: Path) -> dict:
+    """Entrées existantes de `PROVENANCE` (vide si le fichier n'existe pas)."""
+    chemin = sortie / "PROVENANCE"
+    if not chemin.is_file():
+        return {}
+    return yaml.safe_load(chemin.read_text(encoding="utf-8"))["fichiers"]
+
+
+def fabriquer_references(conf: SimpleNamespace, sortie: Path, prov: dict, meta: dict) -> None:
+    for nom in conf.references:
+        for d in conf.dalles:
+            print(f"dalle {d} : référence {nom}")
+            fabriquer_reference(conf, nom, d, annee_vol(meta[d]), sortie, prov)
+
+
+def meta_du_manifeste(sortie: Path) -> dict:
+    """Dates de vol lues dans le manifeste déjà fabriqué (mode `--seulement references`)."""
+    man = gpd.read_parquet(sortie / "manifeste_dalles.parquet")
+    return {
+        r.id: {"date_vol_debut": r.date_vol_debut, "date_vol_fin": r.date_vol_fin}
+        for r in man.itertuples()
+    }
+
+
 # --------------------------------------------------------------------------- manifeste, découpage
 
 
@@ -570,10 +673,23 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--sortie", type=Path, default=Path("tests/data"))
     ap.add_argument("--conf", type=Path, default=CONF_DEFAUT)
+    ap.add_argument(
+        "--seulement",
+        choices=["references"],
+        help="n'extraire que les références (le reste du jeu doit déjà exister)",
+    )
     args = ap.parse_args()
     conf = charger_conf(args.conf)
     sortie: Path = args.sortie
     sortie.mkdir(parents=True, exist_ok=True)
+
+    if args.seulement == "references":
+        prov = lire_provenance(sortie)
+        fabriquer_references(conf, sortie, prov, meta_du_manifeste(sortie))
+        ecrire_provenance(conf, sortie, prov)
+        total = sum(p.stat().st_size for p in sortie.rglob("*") if p.is_file())
+        print(f"total : {total / 1e6:.2f} Mo")
+        return
 
     prov: dict = {}
     scenes: list[dict] = []
@@ -585,6 +701,7 @@ def main() -> None:
         fabriquer_lidar(conf, d, sortie, prov)
         essences[d] = fabriquer_foret(conf, d, sortie, prov)
         fabriquer_sentinel2(conf, d, annee_vol(meta[d]), sortie, prov, scenes)
+    fabriquer_references(conf, sortie, prov, meta)
     ecrire_manifeste(conf, sortie, meta, prov)
     ecrire_decoupage(conf, sortie, prov, meta, essences)
     ecrire_scenes(conf, sortie, scenes, prov, sorted({annee_vol(m) for m in meta.values()}))

@@ -27,7 +27,7 @@
   ne se défait pas (fusion dans `main`, qui peut publier une release ; demande de convention
   à l'IGN) ; les questions de valeur hors du brief (licences, ADR 0003 ; choix de la
   biomasse, ADR 0002).
-- **Inscrite au journal le :** 2026-11-22 · terminée le 2026-11-22 (fin du jalon 1) · **renouvelée le 2026-11-22** sur « Continue » de Pascal, jusqu'à la fin du jalon 2 sur le jeu d'essai ; zone pilote et moyens de calcul réservés à Pascal
+- **Inscrite au journal le :** 2026-11-22 · terminée le 2026-11-22 (fin du jalon 1) · **renouvelée le 2026-11-22** sur « Continue » de Pascal, jusqu'à la fin du jalon 2 sur le jeu d'essai ; zone pilote et moyens de calcul réservés à Pascal · **terminée le 2026-11-22** (jalon 2 sur le jeu d'essai)
 
 ## Le vivier (catalogue, pas une équipe)
 

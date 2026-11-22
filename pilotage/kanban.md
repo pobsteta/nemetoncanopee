@@ -6,7 +6,7 @@
 > colonne ; on change ce numéro chaque fois qu'elle change de colonne.
 > **Une carte qui ne bouge pas est souvent la mauvaise nouvelle à dire tout de suite.**
 
-**Dernier cycle :** 2 _(augmenté de 1 à la fin de chaque `/boucle`, même quand elle n'a
+**Dernier cycle :** 3 _(augmenté de 1 à la fin de chaque `/boucle`, même quand elle n'a
 rien lancé. Une carte est immobile quand dernier cycle − N ≥ 2.)_
 
 _Modèle de carte :_
@@ -25,6 +25,12 @@ _Modèle de carte :_
 ## Planifié
 
 ## Terminé
+- [005-test-export-atomique](missions/005-test-export-atomique.md) · depuis le cycle 3
+  - Homme : `testeur` · Mission : atomicité de l'export · Moyens : 004
+- [006-references-acces](missions/006-references-acces.md) · depuis le cycle 3
+  - Homme : `acquereur` · Mission : accès FORMS-T v1 et FORMSpoT · Moyens : web
+- [007-references-evaluation](missions/007-references-evaluation.md) · depuis le cycle 3
+  - Homme : `dev` (opus) · Mission : FORMS-T v1 dans le jeu et le rapport · Moyens : 006
 
 - [001-referentiels-jalon-1](missions/001-referentiels-jalon-1.md) · depuis le cycle 2
   - Homme : `acquereur`
@@ -66,3 +72,4 @@ l'inscrit avec ce qu'elle nous apprend._
 ```
 
 - cycle 2 · livraison : jalon 1, squelette de bout en bout (9 commandes canopee, COG de hauteur, catalogue STAC, rapport, statistiques zonales) sur 4 dalles de Chaux et Levier, sans réseau, en ~2 s · pour Pascal, puis nemeton · ce qu'elle apporte : la première chaîne qui produit une carte et une statistique par parcelle (la précédente : aucune) ; modèle trivial, MAE 7,53 m, à battre au jalon 3
+- cycle 3 · livraison : tableau de référence du jalon 2 sur le jeu d'essai (FORMS-T v1 : MAE 3,46 m, biais −0,46 m ; modèle trivial : 7,53 m, +0,98 m ; mêmes cellules) et export atomique testé · pour Pascal · ce qu'elle apporte : la cible chiffrée à battre au jalon 3, mesurée sur nos dalles et non plus reprise de l'article
