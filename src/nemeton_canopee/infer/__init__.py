@@ -3,8 +3,9 @@
 Une cellule est prédite si elle est en forêt et claire (SCL bon) dans au moins une scène
 de l'année de vol ; ailleurs elle vaut le nodata. Sortie : couche brute, uint16 en cm.
 
-Avec le modèle `gbm` (mission 009), une seconde couche brute est écrite à côté :
-`{dalle}_hauteur_incertitude_brute.tif`, p90 − p10 de la hauteur (uint16, cm), mêmes tags
+Avec les modèles `gbm` (mission 009) et `unet` (mission 010), une seconde couche brute est
+écrite à côté : `{dalle}_hauteur_incertitude_brute.tif`, p90 − p10 de la hauteur (uint16, cm)
+(quantiles LightGBM pour gbm, dispersion entre scènes pour unet), mêmes tags
 avec `CANOPEE_COUCHE` et `CANOPEE_DEFINITION` tirés de `incertitude` dans la conf du modèle.
 """
 

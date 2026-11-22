@@ -11,6 +11,8 @@ fichiers:  # relatifs à la racine de la source
   decoupage: decoupage.yaml
   mnh: "lidar/{dalle}_MNH_2m.tif"
   foret: "foret/{dalle}_bdforet_v2.gpkg"
+  mnt: "lidar/{dalle}_MNT_10m.tif"  # relief des modèles gbm et unet (missions 009, 010)
+mnt_unite: m  # unité du MNT si le fichier n'a pas de tag `unite`
 mnh_unite: cm  # MNH agrégé à 2 m (maximum), uint16 en cm, nodata 65535, comme le jeu d'essai
 annees: [2022]  # année de vol des 96 dalles (WFS IGN) ; une dalle n'est traitée que pour son année
 foret_formations: tout  # PROVISOIRE : tous les polygones BD Forêt (décision 4, réexamen jalon 3)

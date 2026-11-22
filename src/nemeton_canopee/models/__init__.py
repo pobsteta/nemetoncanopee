@@ -2,9 +2,10 @@
 d'apprentissage du découpage figé, et l'écrit dans `modeles/{version}/modele.json`.
 
 Le modèle se choisit par la conf (`modele:` de `conf/chaine.yaml`, clé `nom` du fichier) :
-`mediane` (modèle trivial du jalon 1, `modele/trivial.yaml`) ou `gbm` (LightGBM, mission 009,
+`mediane` (modèle trivial du jalon 1, `modele/trivial.yaml`), `gbm` (LightGBM, mission 009,
 `modele/gbm.yaml`), dont les modèles en texte LightGBM s'écrivent à côté de `modele.json`,
-qui porte leurs sha256.
+qui porte leurs sha256, ou `unet` (U-Net PyTorch sur CPU, mission 010, `modele/unet.yaml`),
+dont les poids s'écrivent en octets bruts à côté de `modele.json`, qui porte leur sha256.
 
 La version du modèle est `{nom}-` + 12 caractères du sha256 de `modele.json` : deux
 entraînements identiques donnent la même version. Un nouvel entraînement remplace le modèle
@@ -21,12 +22,12 @@ from typing import Any
 from nemeton_canopee import decoupage
 from nemeton_canopee.chemins import Chemins
 from nemeton_canopee.conf import Configuration
-from nemeton_canopee.ecriture import ecrire_texte, lire_bande
+from nemeton_canopee.ecriture import atomique, ecrire_texte, lire_bande
 from nemeton_canopee.erreurs import DonneeRefusee, EntreeManquante, exiger_fichier
 from nemeton_canopee.ingest import Dalle, lire_manifeste
-from nemeton_canopee.models import gbm, trivial
+from nemeton_canopee.models import gbm, trivial, unet
 
-MODELES = {"mediane": trivial, "gbm": gbm}
+MODELES = {"mediane": trivial, "gbm": gbm, "unet": unet}
 
 
 def executer(conf: Configuration) -> str:
@@ -37,9 +38,11 @@ def executer(conf: Configuration) -> str:
     ch = Chemins(conf.travail)
     dec = decoupage.lire(conf)
     dalles = lire_manifeste(ch, dec.apprentissage)
-    fichiers: dict[str, str] = {}
+    fichiers: dict[str, str | bytes] = {}
     if nom == "gbm":
         resultat, fichiers = gbm.entrainer(conf, ch, dalles, dec.test)
+    elif nom == "unet":
+        resultat, fichiers = unet.entrainer(conf, ch, dalles, dec.test)
     else:
         cibles = {
             d.id: lire_bande(exiger_fichier(ch.cible(d.annee, d.id), "targets"))[0] for d in dalles
@@ -57,7 +60,11 @@ def executer(conf: Configuration) -> str:
     contenu = json.dumps(modele, ensure_ascii=False, indent=2) + "\n"
     version = f"{nom}-{hashlib.sha256(contenu.encode('utf-8')).hexdigest()[:12]}"
     for fichier, texte in sorted(fichiers.items()):  # modele.json en dernier : il fait foi
-        ecrire_texte(ch.modele(version).parent / fichier, texte)
+        if isinstance(texte, bytes):
+            with atomique(ch.modele(version).parent / fichier) as tmp:
+                tmp.write_bytes(texte)
+        else:
+            ecrire_texte(ch.modele(version).parent / fichier, texte)
     ecrire_texte(ch.modele(version), contenu)
     for ancien in ch.modeles.glob("*/modele.json"):
         if ancien.parent.name != version:
@@ -81,7 +88,9 @@ def predire(
     dalle: Dalle,
     masque: Any,
 ) -> dict[str, Any]:
-    """Couches prédites d'une dalle : `hauteur` toujours, `incertitude` pour le modèle gbm."""
+    """Couches prédites d'une dalle : `hauteur` toujours, `incertitude` pour gbm et unet."""
     if modele["nom"] == "gbm":
         return gbm.predire(conf, ch, version, modele, dalle, masque)
+    if modele["nom"] == "unet":
+        return unet.predire(conf, ch, version, modele, dalle, masque)
     return {"hauteur": trivial.predire(modele, masque, conf.nodata)}
