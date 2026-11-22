@@ -58,3 +58,7 @@ Non mobilisés au jalon 1 : `contradicteur` (hors critique des ADR), `archiviste
 | [005 — test d'atomicité de l'export](missions/005-test-export-atomique.md) | `testeur` | sonnet | donner | oui · oui · oui | 3 |
 | [006 — accès aux références FORMS-T v1 et FORMSpoT](missions/006-references-acces.md) | `acquereur` | sonnet | donner | oui · oui · oui | 3 |
 | [007 — références sur le jeu d'essai et dans le rapport](missions/007-references-evaluation.md) | `dev` | opus | donner | oui · oui (après 006) · oui | 3 |
+| [008 — échantillon du Jura](missions/008-echantillon-jura.md) | `dev` | sonnet | donner | oui · oui · oui | 4 |
+| [009 — modèle C : LightGBM](missions/009-modele-gbm.md) | `dev` | opus | donner | oui · oui · oui | 4 |
+| [010 — option A : petit U-Net CPU](missions/010-modele-unet-cpu.md) | `dev` | opus | donner | oui · oui · oui (après 009) | 5 |
+| [011 — mesure côte à côte (ADR 0004)](missions/011-mesure-adr-0004.md) | `analyste` | opus | donner | oui · oui · oui (après 008-010) | 5 |
