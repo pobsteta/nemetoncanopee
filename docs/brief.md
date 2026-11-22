@@ -72,7 +72,7 @@ Le livrable est une chaîne de traitement reproductible qui sort cinq couches pa
 Livrables associés :
 
 - Un catalogue STAC local décrivant chaque couche et chaque millésime.
-- Une fonction de statistiques zonales par parcelle ou peuplement, appelable depuis le package R nemeton. Sans dossier `r/` ici, où vit-elle : dans nemeton (terra), ou en Python dans ce dépôt ? À trancher par Pascal.
+- Une fonction de statistiques zonales par parcelle ou peuplement, appelable depuis le package R nemeton. Elle vit ici, en Python ; nemeton charge le paquet selon ses besoins *(arbitrage du 22/11)*.
 - Un rapport de validation généré automatiquement à chaque version du modèle.
 
 Le MNH LiDAR HD est publié un à deux ans après le vol : l'année en cours n'a pas de cible LiDAR, seulement une prédiction *(arbitrage du 22/11)*.
@@ -177,7 +177,7 @@ Règles de validation :
 
 ## Stack technique et structure du dépôt
 
-Le cœur est en Python. Il n'y a pas de passerelle R dans ce dépôt : le package R nemeton lit directement les COG et le catalogue STAC avec terra *(arbitrage du 22/11)*.
+Le cœur est en Python. Il n'y a pas de passerelle R dans ce dépôt : le package R nemeton charge ce paquet selon ses besoins (statistiques zonales, par exemple) et lit les COG et le catalogue STAC *(arbitrage du 22/11)*.
 
 | Besoin | Choix |
 | --- | --- |
@@ -189,7 +189,7 @@ Le cœur est en Python. Il n'y a pas de passerelle R dans ce dépôt : le packag
 | Configuration | fichiers YAML simples ; Hydra réexaminé au jalon 3 |
 | Qualité | pytest, ruff, typage vérifié par mypy |
 | Sorties | COG + catalogue STAC |
-| Lecture par nemeton | fonctions terra lisant les COG et le STAC, dans le dépôt nemeton |
+| Lecture par nemeton | nemeton charge ce paquet selon ses besoins (statistiques zonales) et lit les COG et le STAC |
 
 ```
 nemetoncanopee/
@@ -203,7 +203,8 @@ nemetoncanopee/
     temporal/      # ruptures, lissage, ancrage
     validate/      # métriques, rapport
     export/        # COG, STAC
-    cli.py         # canopee ingest | prepare | train | infer | smooth | validate | export
+    zonal/         # statistiques par parcelle ou peuplement, appelées par nemeton
+    cli.py         # canopee ingest | prepare | train | infer | smooth | validate | export | zonal
   tests/           # un jeu de 4 dalles de 1 km embarqué
   docs/adr/        # décisions d'architecture
 ```
