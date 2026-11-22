@@ -30,10 +30,10 @@ _Rempli par Pascal seul, avant de lire le travail de l'agent. L'orchestrateur ne
 
 ## Harnais
 
-- **Peut (périmètre) :** `tests/test_*.py` (sauf `tests/data/`), `tests/conftest.py`.
+- **Peut (périmètre) :** `tests/test_*.py` (sauf `tests/test_jeu_essai.py` et `tests/data/`), `tests/conftest.py` ; dans `tests/data/decoupage.yaml`, seulement retirer la mention « PROVISOIRE » (gel décidé le 22/11).
 - **Câblé (ne peut pas) :** pas de commit ni de push sur `main`, pas de push forcé, pas de « terminé » sans tests verts (`.claude/test-command`), `pilotage/journal.md` en ajout seul (hooks du plugin `imperatrice`).
 - **Ne doit pas (écrit) :** affaiblir un critère de la spec ; marquer un test « skip » pour obtenir du vert.
-- **Sources autorisées :** `docs/spec.md` §4, `docs/referentiels.md`, `tests/data/`, ADR 0001.
+- **Sources autorisées :** `pilotage/missions/004-plan.md` (interfaces validées), `docs/spec.md` §4, `docs/referentiels.md`, `tests/data/`, ADR 0001.
 
 ## Journal
 
@@ -45,7 +45,7 @@ aucune (les valeurs viennent de la spec validée).
 
 ## Dépend de / rouge attendu jusqu'à
 
-- **Dépend de :** 002. · **Ordre de fusion :** 003 et 004 groupées. · **PR en brouillon jusqu'à :** 004 verte. · **CI rouge attendue :** tous les tests d'acceptation, rouges tant que 004 n'est pas fusionnée (« rouge justifiée »).
+- **Dépend de :** 002 et le plan validé de 004. · **Ordre de fusion :** 003 et 004 groupées (même branche, un commit chacune). · **PR en brouillon jusqu'à :** 004 verte. · **CI rouge attendue :** tous les tests d'acceptation, rouges tant que 004 n'est pas fusionnée (« rouge justifiée »).
 
 ## Tests
 
