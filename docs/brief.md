@@ -57,6 +57,8 @@ tirée de Sentinel (gratuit, revisite annuelle assurée), puis le volume et la b
 appuyés sur les essences. FORMSpoT et FORMS-T servent de références de comparaison sur
 leurs années communes.
 
+Nemeton a un usage commercial (Pascal, 22/11) : FORMSpoT, sous licence CC-BY-NC 4.0, n'est ni embarqué ni publié comme référence ; FORMS-T v1 (CC BY 4.0) reste la référence.
+
 ## Périmètre et livrables
 
 Le livrable est une chaîne de traitement reproductible qui sort cinq couches par millésime, de 2018 à l'année en cours.
