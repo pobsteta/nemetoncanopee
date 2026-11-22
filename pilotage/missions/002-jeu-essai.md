@@ -4,7 +4,7 @@
 
 **En une phrase (quoi, et pourquoi) :** Écrire le script versionné qui fabrique, une fois et avec le réseau, le jeu d'essai de 4 dalles de 1 km (moins de 20 Mo, provenance et licence par fichier), pour que toute la chaîne se teste ensuite sans réseau.
 
-**Redite par l'agent :** _à compléter par l'agent avant d'agir._
+**Redite par l'agent :** « J'écris le script versionné qui fabrique, une seule fois et avec le réseau, le jeu d'essai de 4 dalles de 1 km (moins de 20 Mo, provenance et licence par fichier), pour que les tests de la chaîne tournent ensuite sans réseau. » (dev, 22/11)
 
 ## Les trois questions (règle de staffing)
 
@@ -30,7 +30,7 @@ _Rempli par Pascal seul, avant de lire le travail de l'agent. L'orchestrateur ne
 
 ## Harnais
 
-- **Peut (périmètre) :** `scripts/fabriquer_jeu_essai.py`, `tests/test_jeu_essai.py`, la liste `dependencies` de `pyproject.toml` (dépendances de l'ADR 0001, nécessaires à la CI), `tests/data/` (données, `PROVENANCE`, `decoupage.yaml` : 2 dalles d'apprentissage, 2 de test, blocs distincts).
+- **Peut (périmètre) :** `scripts/fabriquer_jeu_essai.py`, `conf/jeu_essai.yaml`, `tests/test_jeu_essai.py`, la liste `dependencies` de `pyproject.toml` (dépendances de l'ADR 0001, nécessaires à la CI), `tests/data/` (données, `PROVENANCE`, `decoupage.yaml` : 2 dalles d'apprentissage, 2 de test, blocs distincts).
 - **Câblé (ne peut pas) :** pas de commit ni de push sur `main`, pas de push forcé, pas de « terminé » sans tests verts (`.claude/test-command`), `pilotage/journal.md` en ajout seul (hooks du plugin `imperatrice`).
 - **Ne doit pas (écrit) :** dépasser 20 Mo ; versionner un fichier sans provenance ; écrire dans `/data/`.
 - **Sources autorisées :** `docs/referentiels.md` (001) ; IGN géoplateforme (MNH, MNT LiDAR HD, BD ORTHO, BD Forêt V2) ; STAC Copernicus Data Space ou Earth Search (Sentinel-2 L2A, Sentinel-1 GRD).
@@ -47,6 +47,13 @@ _Rempli par Pascal seul, avant de lire le travail de l'agent. L'orchestrateur ne
 ## Dépend de / rouge attendu jusqu'à
 
 - **Dépend de :** 001. · **Ordre de fusion :** 001 → 002. · **PR en brouillon jusqu'à :** fusion de 001. · **CI rouge attendue :** aucune.
+
+## Remarques de relecture (aller-retour 1/3, 22/11)
+
+1. Étiquette d'échelle S2 trompeuse : écrire la formule retenue, réflectance = DN × 0,0001 (offset déjà appliqué par Earth Search, `boa_offset_applied`), provisoire, à vérifier au jalon 3.
+2. Année S2 en dur : la tirer de l'année de vol du manifeste ; tester que chaque scène est de l'année de vol de sa dalle.
+3. Seuils et paramètres du script dans `conf/jeu_essai.yaml` (règle « tout par `conf/` »).
+4. Tests : licence vérifiée selon la source du fichier ; plage des hauteurs (0 à 6000 cm) ; CRS source comparé à EPSG:2154, pas seulement l'origine.
 
 ## Tests
 
