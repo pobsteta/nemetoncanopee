@@ -10,9 +10,10 @@ requires-python = ">=3.11"
 authors = [{ name = "Pascal Obstetar" }]
 dynamic = ["version"]
 dependencies = [
-  "exactextract>=0.2",
+  "exactextract==0.3.0",  # épinglé à la version testée (plan 004, décision 7)
   "geopandas>=1.0",
   "numpy>=1.26",
+  "pandas>=2.2",
   "pyarrow>=15",
   "pyproj>=3.6",
   "pystac[validation]>=1.10",

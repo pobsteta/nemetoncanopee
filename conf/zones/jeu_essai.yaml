@@ -1,0 +1,15 @@
+# Zone du jeu d'essai embarqué (4 dalles, mission 002). Chemins relatifs à ce fichier.
+nom: jeu-essai  # préfixe de la version des données
+source:
+  mode: local  # lecture du jeu embarqué, sans réseau
+  racine: ../../tests/data
+fichiers:  # relatifs à la racine de la source
+  manifeste: manifeste_dalles.parquet
+  scenes: sentinel2_scenes.csv
+  decoupage: decoupage.yaml
+  mnh: "lidar/{dalle}_MNH_2m.tif"
+  foret: "foret/{dalle}_bdforet_v2.gpkg"
+mnh_unite: cm  # unité des valeurs du MNH de la zone (jeu d'essai : uint16 en cm, nodata 65535)
+dalles: ["0901-6665", "0902-6665", "0939-6654", "0939-6655"]
+annees: [2022]
+foret_formations: tout  # PROVISOIRE : tous les polygones BD Forêt (décision 4, réexamen jalon 3)
