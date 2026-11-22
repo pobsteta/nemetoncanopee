@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import lightgbm  # extra dev : jamais de skip si absent
+import lightgbm  # noqa: F401  (extra dev : échec franc si absent, jamais de skip)
 import numpy as np
 import pytest
 import rasterio
@@ -344,33 +344,117 @@ def test_zone_porte_mnt_et_unite():
 
 # --- Mission 013 : non-régression de gbm, descripteurs trouées et ortho, variante gbm_ortho --
 
-# Empreintes de la chaîne gbm (conf/modele/gbm.yaml) sur le jeu d'essai, calculées AVANT la
-# mission 013 (22/11/2026, lightgbm 4.7.0) : version du modèle (sha256 de modele.json) et sha256
-# des pixels (uint16) des couches brutes d'infer.
-LIGHTGBM_EMPREINTE = "4.7.0"
-VERSION_GBM_AVANT_013 = "gbm-469e8cdf93e9"
-PIXELS_GBM_AVANT_013 = {  # (dalle, couche) -> sha256 des pixels de {dalle}_{couche}_brute.tif
-    ("0901-6665", "hauteur"): "ebe94995ed73957340c57423567da8a53d0ab0de2ca837cd27b6daf67adec1dd",
-    (
-        "0901-6665",
-        "hauteur_incertitude",
-    ): "01df2465ab0e6379e670a25bf1e408b39f564473969d878d5da8a149285aa05d",
-    ("0902-6665", "hauteur"): "cf48f0c9fa8cd5337e57d283d74e33ac78506a6752ad26d7321f7d19787f5cd9",
-    (
-        "0902-6665",
-        "hauteur_incertitude",
-    ): "3539af6234814dfaf7e65bd5f1d90bae2443a231db49a3f076bf8fc0a83d6929",
-    ("0939-6654", "hauteur"): "788e76f356086b2b754a9d869ed908b5cfab9a8b9c2570fd74dcdc1478eef9e0",
-    (
-        "0939-6654",
-        "hauteur_incertitude",
-    ): "67174e438fedee1a7730f067ee4c1d6b4e42627fc84c9e01677c563408045062",
-    ("0939-6655", "hauteur"): "af4250289ae68fd8deb8d95916b4d9e6b6798f8ec676b2d56d534092845872b9",
-    (
-        "0939-6655",
-        "hauteur_incertitude",
-    ): "815e046d17be73455b52407dab726539e9a63293f499ccbf83e7dd0ce8ffe84c",
-}
+# Non-régression de gbm (conf/modele/gbm.yaml, sans option 013). Le modèle LightGBM et ses
+# prédictions ne sont pas portables à l'octet d'une machine à l'autre (CI Python 3.11 / local
+# 3.13) : on fige donc ce que gbm reçoit. (a) Noms des descripteurs, dans l'ordre, tels qu'écrits
+# dans modele.json AVANT la mission 013 (version gbm-469e8cdf93e9, 22/11/2026), sans « essence ».
+DESCRIPTEURS_GBM = [
+    "B02_p10",
+    "B02_p50",
+    "B02_p90",
+    "B03_p10",
+    "B03_p50",
+    "B03_p90",
+    "B04_p10",
+    "B04_p50",
+    "B04_p90",
+    "B05_p10",
+    "B05_p50",
+    "B05_p90",
+    "B06_p10",
+    "B06_p50",
+    "B06_p90",
+    "B07_p10",
+    "B07_p50",
+    "B07_p90",
+    "B08_p10",
+    "B08_p50",
+    "B08_p90",
+    "B8A_p10",
+    "B8A_p50",
+    "B8A_p90",
+    "B11_p10",
+    "B11_p50",
+    "B11_p90",
+    "B12_p10",
+    "B12_p50",
+    "B12_p90",
+    "NDVI_p10",
+    "NDVI_p50",
+    "NDVI_p90",
+    "NDRE_p10",
+    "NDRE_p50",
+    "NDRE_p90",
+    "NBR_p10",
+    "NBR_p50",
+    "NBR_p90",
+    "NDMI_p10",
+    "NDMI_p50",
+    "NDMI_p90",
+    "B02_v3_moy",
+    "B02_v3_et",
+    "B02_v5_moy",
+    "B02_v5_et",
+    "B03_v3_moy",
+    "B03_v3_et",
+    "B03_v5_moy",
+    "B03_v5_et",
+    "B04_v3_moy",
+    "B04_v3_et",
+    "B04_v5_moy",
+    "B04_v5_et",
+    "B05_v3_moy",
+    "B05_v3_et",
+    "B05_v5_moy",
+    "B05_v5_et",
+    "B06_v3_moy",
+    "B06_v3_et",
+    "B06_v5_moy",
+    "B06_v5_et",
+    "B07_v3_moy",
+    "B07_v3_et",
+    "B07_v5_moy",
+    "B07_v5_et",
+    "B08_v3_moy",
+    "B08_v3_et",
+    "B08_v5_moy",
+    "B08_v5_et",
+    "B8A_v3_moy",
+    "B8A_v3_et",
+    "B8A_v5_moy",
+    "B8A_v5_et",
+    "B11_v3_moy",
+    "B11_v3_et",
+    "B11_v5_moy",
+    "B11_v5_et",
+    "B12_v3_moy",
+    "B12_v3_et",
+    "B12_v5_moy",
+    "B12_v5_et",
+    "NDVI_v3_moy",
+    "NDVI_v3_et",
+    "NDVI_v5_moy",
+    "NDVI_v5_et",
+    "NDRE_v3_moy",
+    "NDRE_v3_et",
+    "NDRE_v5_moy",
+    "NDRE_v5_et",
+    "NBR_v3_moy",
+    "NBR_v3_et",
+    "NBR_v5_moy",
+    "NBR_v5_et",
+    "NDMI_v3_moy",
+    "NDMI_v3_et",
+    "NDMI_v5_moy",
+    "NDMI_v5_et",
+    "altitude_m",
+    "pente_deg",
+    "exposition_nord",
+    "exposition_est",
+]
+# (b) sha256 de la matrice des descripteurs de 0901-6665 arrondie à 1e-4 (NaN -> -9999), du
+# masque clair et de l'essence ; identique sous Python 3.11 (numpy 2.4) et 3.13 (numpy 2.5).
+EMPREINTE_DESCRIPTEURS_GBM = "3be55ff83e1073a38d762bb5271787f78003b0b7a503a4daa636c7f08bcfde75"
 NOUVEAUX_TROUEES = [
     "NDVI_contraste_v5",
     "B08_contraste_v5",
@@ -380,18 +464,34 @@ NOUVEAUX_TROUEES = [
 ]
 
 
-def test_gbm_identique_a_l_octet_a_avant_013(deux_passes):
-    """gbm.yaml sans option : même modèle et mêmes prédictions qu'avant la mission 013."""
+def empreinte_descripteurs(desc) -> str:
+    """sha256 des descripteurs arrondis à 1e-4 (NaN -> -9999, -0 -> 0), masque et essence."""
     import hashlib
 
-    # lightgbm épinglé dans pyproject.toml (extra ml) : une autre version change l'empreinte.
-    assert lightgbm.__version__ == LIGHTGBM_EMPREINTE, "lightgbm non épinglé (pyproject.toml)"
-    _, ((travail, _), _) = deux_passes
+    v = np.round(desc.valeurs.astype("float64"), 4) + 0.0
+    v = np.where(np.isfinite(v), v, -9999.0)
+    h = hashlib.sha256(v.astype("<f8").tobytes())
+    h.update(np.ascontiguousarray(desc.clair, dtype="uint8").tobytes())
+    h.update("\n".join(str(e) for e in desc.essence.ravel()).encode("utf-8"))
+    return h.hexdigest()
+
+
+def test_gbm_descripteurs_inchanges_depuis_avant_013(deux_passes):
+    """gbm.yaml n'utilise ni ortho ni trouées : mêmes noms qu'avant 013, mêmes valeurs à 1e-4."""
+    from nemeton_canopee.chemins import Chemins
+    from nemeton_canopee.conf import charger
+    from nemeton_canopee.ingest import lire_manifeste
+
+    conf_chemin, ((travail, _), _) = deux_passes
     (modele,) = (travail / "modeles").glob("gbm-*/modele.json")
-    assert modele.parent.name == VERSION_GBM_AVANT_013
-    for (dalle, couche), attendu in PIXELS_GBM_AVANT_013.items():
-        with rasterio.open(travail / "infer" / "2022" / f"{dalle}_{couche}_brute.tif") as src:
-            assert hashlib.sha256(src.read(1).tobytes()).hexdigest() == attendu, (dalle, couche)
+    noms = json.loads(modele.read_text(encoding="utf-8"))["descripteurs"]
+    assert noms == [*DESCRIPTEURS_GBM, gbm.ESSENCE]
+    conf, ch = charger(conf_chemin, travail), Chemins(travail)
+    (dalle,) = [d for d in lire_manifeste(ch) if d.id == "0901-6665"]
+    desc = descripteurs.calculer(conf, ch, dalle.id, dalle.annee, dalle.date_vol)
+    assert desc.noms == DESCRIPTEURS_GBM
+    assert not [n for n in desc.noms if n.startswith("ortho") or n in NOUVEAUX_TROUEES]
+    assert empreinte_descripteurs(desc) == EMPREINTE_DESCRIPTEURS_GBM
 
 
 def test_gbm_yaml_sans_option_013_et_variante_identique_sinon():
