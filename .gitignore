@@ -15,3 +15,5 @@ rapport-tests.xml
 # Données et modèles : jamais dans le dépôt
 /data/
 /models/
+# Variables d'environnement locales (clés d'API Theia, etc.) : jamais dans le dépôt
+.Renviron
