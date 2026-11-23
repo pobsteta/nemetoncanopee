@@ -6,7 +6,7 @@
 > colonne ; on change ce numéro chaque fois qu'elle change de colonne.
 > **Une carte qui ne bouge pas est souvent la mauvaise nouvelle à dire tout de suite.**
 
-**Dernier cycle :** 7 _(augmenté de 1 à la fin de chaque `/boucle`, même quand elle n'a
+**Dernier cycle :** 8 _(augmenté de 1 à la fin de chaque `/boucle`, même quand elle n'a
 rien lancé. Une carte est immobile quand dernier cycle − N ≥ 2.)_
 
 _Modèle de carte :_
@@ -21,6 +21,12 @@ _Modèle de carte :_
 ## Bac à sable
 
 ## Validé
+- [015-diagnostic-apprentissage](missions/015-diagnostic-apprentissage.md) · depuis le cycle 8
+  - Homme : `analyste` (opus) · Mission : validation croisée sur les blocs d'apprentissage · Moyens : 014, /data/ (bloqué : absent de cette machine)
+- [016-correction-gbm](missions/016-correction-gbm.md) · depuis le cycle 8
+  - Homme : `dev` (opus) · Mission : gbm_ortho_v2 · Moyens : 015
+- [017-remesure](missions/017-remesure.md) · depuis le cycle 8
+  - Homme : `analyste` (opus) · Mission : remesure face à FORMS-T · Moyens : 016
 
 ## Planifié
 

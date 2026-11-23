@@ -125,3 +125,5 @@
 2026-11-22 · Claude (orchestrateur) · 014 · mauvaise nouvelle : gbm_ortho ne bat toujours pas FORMS-T au peuplement ; l'ortho aide (−0,29 m par polygone), les blocs _c nuisent sur altitude_b ; suite à Pascal.
 2026-11-23 · Pascal · ADR 0004 · cap · « A2 » : corriger les deux défauts mesurés en 014 (biais d'altitude introduit par les blocs ajoutés, tours_max qui borne l'apprentissage) sans rien régler sur le test, puis remesurer · fait : missions 015 à 017 proposées.
 2026-11-23 · Pascal · /mission · « Oui » : équipe des missions 015 à 017 validée (porte n° 2).
+2026-11-23 · Claude (orchestrateur) · 015 · écart · attendu : l'échantillon du Jura et les sorties de 014 dans /data/ · vu : /data/ absent de la machine de Pascal (les missions 008 à 014 ont tourné dans une session cloud, et /data/ est hors git) · vérifié : ls /data · décision : 015 ne part pas ; question posée à Pascal sur la reconstruction de /data/.
+2026-11-23 · Claude (orchestrateur) · /boucle · cycle 8 : rien lancé, 015 bloquée faute de moyens (/data/) ; 015 à 017 portées au kanban en « Validé ».
