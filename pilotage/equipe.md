@@ -65,3 +65,6 @@ Non mobilisés au jalon 1 : `contradicteur` (hors critique des ADR), `archiviste
 | [012 — texture de l'ortho et blocs en plus](missions/012-ortho-et-blocs.md) | `dev` | sonnet | donner | oui · oui · oui | 6 |
 | [013 — LightGBM : ortho et peuplements bas](missions/013-gbm-trouees.md) | `dev` | opus | donner | oui · oui · oui (après 012) | 6 |
 | [014 — nouvelle mesure face à FORMS-T](missions/014-mesure-gbm-ortho.md) | `analyste` | opus | donner | oui · oui · oui (après 012, 013) | 7 |
+| [015 — diagnostic sur l'apprentissage](missions/015-diagnostic-apprentissage.md) | `analyste` | opus | donner | oui · oui · oui | 8 |
+| [016 — corriger l'apprentissage de gbm_ortho](missions/016-correction-gbm.md) | `dev` | opus | donner | oui · oui (après 015) · oui | 8 |
+| [017 — remesure face à FORMS-T](missions/017-remesure.md) | `analyste` | opus | donner | oui · oui · oui (après 016) | 9 |
