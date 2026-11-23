@@ -1,0 +1,638 @@
+# PROVENANCE du jeu d'essai (mission 002), généré par scripts/fabriquer_jeu_essai.py.
+# Une entrée par fichier de données : source, requête, date d'accès, licence.
+# Dates de vol : une seule source (WFS IGN), contrôle croisé TerraLab non fait.
+# Toute valeur marquée PROVISOIRE est à geler avant la fusion de la mission 003.
+fichiers:
+  decoupage.yaml:
+    source: choix du projet (script scripts/fabriquer_jeu_essai.py)
+    requete: sans objet (aucun accès réseau)
+    date: '2026-11-22'
+    licence: Licence Ouverte 2.0 (identifiants de dalles IGN)
+    traitement: paire A = apprentissage, paire B = test
+  foret/0901-6665_bdforet_v2.gpkg:
+    source: IGN, BD Forêt V2 (WFS, couche LANDCOVER.FORESTINVENTORY.V2:formation_vegetale)
+    requete: https://data.geopf.fr/wfs/ows?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=LANDCOVER.FORESTINVENTORY.V2:formation_vegetale&OUTPUTFORMAT=application%2Fjson&SRSNAME=EPSG:2154&CQL_FILTER=BBOX(geom,901000.0,6664000.0,902000.0,6665000.0,'EPSG:2154')
+    date: '2026-11-22'
+    licence: 'Licence Ouverte 2.0 (Etalab) ; source : IGN'
+    traitement: polygones découpés à l'emprise de la dalle, Lambert-93, attributs conservés
+  foret/0902-6665_bdforet_v2.gpkg:
+    source: IGN, BD Forêt V2 (WFS, couche LANDCOVER.FORESTINVENTORY.V2:formation_vegetale)
+    requete: https://data.geopf.fr/wfs/ows?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=LANDCOVER.FORESTINVENTORY.V2:formation_vegetale&OUTPUTFORMAT=application%2Fjson&SRSNAME=EPSG:2154&CQL_FILTER=BBOX(geom,902000.0,6664000.0,903000.0,6665000.0,'EPSG:2154')
+    date: '2026-11-22'
+    licence: 'Licence Ouverte 2.0 (Etalab) ; source : IGN'
+    traitement: polygones découpés à l'emprise de la dalle, Lambert-93, attributs conservés
+  foret/0939-6654_bdforet_v2.gpkg:
+    source: IGN, BD Forêt V2 (WFS, couche LANDCOVER.FORESTINVENTORY.V2:formation_vegetale)
+    requete: https://data.geopf.fr/wfs/ows?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=LANDCOVER.FORESTINVENTORY.V2:formation_vegetale&OUTPUTFORMAT=application%2Fjson&SRSNAME=EPSG:2154&CQL_FILTER=BBOX(geom,939000.0,6653000.0,940000.0,6654000.0,'EPSG:2154')
+    date: '2026-11-22'
+    licence: 'Licence Ouverte 2.0 (Etalab) ; source : IGN'
+    traitement: polygones découpés à l'emprise de la dalle, Lambert-93, attributs conservés
+  foret/0939-6655_bdforet_v2.gpkg:
+    source: IGN, BD Forêt V2 (WFS, couche LANDCOVER.FORESTINVENTORY.V2:formation_vegetale)
+    requete: https://data.geopf.fr/wfs/ows?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=LANDCOVER.FORESTINVENTORY.V2:formation_vegetale&OUTPUTFORMAT=application%2Fjson&SRSNAME=EPSG:2154&CQL_FILTER=BBOX(geom,939000.0,6654000.0,940000.0,6655000.0,'EPSG:2154')
+    date: '2026-11-22'
+    licence: 'Licence Ouverte 2.0 (Etalab) ; source : IGN'
+    traitement: polygones découpés à l'emprise de la dalle, Lambert-93, attributs conservés
+  lidar/0901-6665_MNH_2m.tif:
+    source: IGN, MNH LiDAR HD (WMS-R GetMap, couche IGNF_LIDAR-HD_MNH_ELEVATION.ELEVATIONGRIDCOVERAGE.LAMB93)
+    requete: https://data.geopf.fr/wms-r?SERVICE=WMS&VERSION=1.3.0&EXCEPTIONS=text%2Fxml&REQUEST=GetMap&LAYERS=IGNF_LIDAR-HD_MNH_ELEVATION.ELEVATIONGRIDCOVERAGE.LAMB93&FORMAT=image%2Fgeotiff&STYLES=&CRS=EPSG:2154&BBOX=900999.75,6664000.25,901999.75,6665000.25&WIDTH=2000&HEIGHT=2000
+    date: '2026-11-22'
+    licence: 'Licence Ouverte 2.0 (Etalab) ; source : IGN'
+    traitement: 'PROVISOIRE : 0,5 m -> 2 m par maximum ; hauteurs négatives bornées à 0 ; uint16 en cm
+      ; nodata IGN (-9999) -> 65535 (spec § 2)'
+  lidar/0901-6665_MNT_10m.tif:
+    source: IGN, MNT LiDAR HD (WMS-R GetMap, couche IGNF_LIDAR-HD_MNT_ELEVATION.ELEVATIONGRIDCOVERAGE.LAMB93)
+    requete: https://data.geopf.fr/wms-r?SERVICE=WMS&VERSION=1.3.0&EXCEPTIONS=text%2Fxml&REQUEST=GetMap&LAYERS=IGNF_LIDAR-HD_MNT_ELEVATION.ELEVATIONGRIDCOVERAGE.LAMB93&FORMAT=image%2Fgeotiff&STYLES=&CRS=EPSG:2154&BBOX=900999.75,6664000.25,901999.75,6665000.25&WIDTH=2000&HEIGHT=2000
+    date: '2026-11-22'
+    licence: 'Licence Ouverte 2.0 (Etalab) ; source : IGN'
+    traitement: 'PROVISOIRE : 0,5 m -> 10 m par moyenne ; float32, altitude IGN69 en m ; nodata -9999'
+  lidar/0902-6665_MNH_2m.tif:
+    source: IGN, MNH LiDAR HD (WMS-R GetMap, couche IGNF_LIDAR-HD_MNH_ELEVATION.ELEVATIONGRIDCOVERAGE.LAMB93)
+    requete: https://data.geopf.fr/wms-r?SERVICE=WMS&VERSION=1.3.0&EXCEPTIONS=text%2Fxml&REQUEST=GetMap&LAYERS=IGNF_LIDAR-HD_MNH_ELEVATION.ELEVATIONGRIDCOVERAGE.LAMB93&FORMAT=image%2Fgeotiff&STYLES=&CRS=EPSG:2154&BBOX=901999.75,6664000.25,902999.75,6665000.25&WIDTH=2000&HEIGHT=2000
+    date: '2026-11-22'
+    licence: 'Licence Ouverte 2.0 (Etalab) ; source : IGN'
+    traitement: 'PROVISOIRE : 0,5 m -> 2 m par maximum ; hauteurs négatives bornées à 0 ; uint16 en cm
+      ; nodata IGN (-9999) -> 65535 (spec § 2)'
+  lidar/0902-6665_MNT_10m.tif:
+    source: IGN, MNT LiDAR HD (WMS-R GetMap, couche IGNF_LIDAR-HD_MNT_ELEVATION.ELEVATIONGRIDCOVERAGE.LAMB93)
+    requete: https://data.geopf.fr/wms-r?SERVICE=WMS&VERSION=1.3.0&EXCEPTIONS=text%2Fxml&REQUEST=GetMap&LAYERS=IGNF_LIDAR-HD_MNT_ELEVATION.ELEVATIONGRIDCOVERAGE.LAMB93&FORMAT=image%2Fgeotiff&STYLES=&CRS=EPSG:2154&BBOX=901999.75,6664000.25,902999.75,6665000.25&WIDTH=2000&HEIGHT=2000
+    date: '2026-11-22'
+    licence: 'Licence Ouverte 2.0 (Etalab) ; source : IGN'
+    traitement: 'PROVISOIRE : 0,5 m -> 10 m par moyenne ; float32, altitude IGN69 en m ; nodata -9999'
+  lidar/0939-6654_MNH_2m.tif:
+    source: IGN, MNH LiDAR HD (WMS-R GetMap, couche IGNF_LIDAR-HD_MNH_ELEVATION.ELEVATIONGRIDCOVERAGE.LAMB93)
+    requete: https://data.geopf.fr/wms-r?SERVICE=WMS&VERSION=1.3.0&EXCEPTIONS=text%2Fxml&REQUEST=GetMap&LAYERS=IGNF_LIDAR-HD_MNH_ELEVATION.ELEVATIONGRIDCOVERAGE.LAMB93&FORMAT=image%2Fgeotiff&STYLES=&CRS=EPSG:2154&BBOX=938999.75,6653000.25,939999.75,6654000.25&WIDTH=2000&HEIGHT=2000
+    date: '2026-11-22'
+    licence: 'Licence Ouverte 2.0 (Etalab) ; source : IGN'
+    traitement: 'PROVISOIRE : 0,5 m -> 2 m par maximum ; hauteurs négatives bornées à 0 ; uint16 en cm
+      ; nodata IGN (-9999) -> 65535 (spec § 2)'
+  lidar/0939-6654_MNT_10m.tif:
+    source: IGN, MNT LiDAR HD (WMS-R GetMap, couche IGNF_LIDAR-HD_MNT_ELEVATION.ELEVATIONGRIDCOVERAGE.LAMB93)
+    requete: https://data.geopf.fr/wms-r?SERVICE=WMS&VERSION=1.3.0&EXCEPTIONS=text%2Fxml&REQUEST=GetMap&LAYERS=IGNF_LIDAR-HD_MNT_ELEVATION.ELEVATIONGRIDCOVERAGE.LAMB93&FORMAT=image%2Fgeotiff&STYLES=&CRS=EPSG:2154&BBOX=938999.75,6653000.25,939999.75,6654000.25&WIDTH=2000&HEIGHT=2000
+    date: '2026-11-22'
+    licence: 'Licence Ouverte 2.0 (Etalab) ; source : IGN'
+    traitement: 'PROVISOIRE : 0,5 m -> 10 m par moyenne ; float32, altitude IGN69 en m ; nodata -9999'
+  lidar/0939-6655_MNH_2m.tif:
+    source: IGN, MNH LiDAR HD (WMS-R GetMap, couche IGNF_LIDAR-HD_MNH_ELEVATION.ELEVATIONGRIDCOVERAGE.LAMB93)
+    requete: https://data.geopf.fr/wms-r?SERVICE=WMS&VERSION=1.3.0&EXCEPTIONS=text%2Fxml&REQUEST=GetMap&LAYERS=IGNF_LIDAR-HD_MNH_ELEVATION.ELEVATIONGRIDCOVERAGE.LAMB93&FORMAT=image%2Fgeotiff&STYLES=&CRS=EPSG:2154&BBOX=938999.75,6654000.25,939999.75,6655000.25&WIDTH=2000&HEIGHT=2000
+    date: '2026-11-22'
+    licence: 'Licence Ouverte 2.0 (Etalab) ; source : IGN'
+    traitement: 'PROVISOIRE : 0,5 m -> 2 m par maximum ; hauteurs négatives bornées à 0 ; uint16 en cm
+      ; nodata IGN (-9999) -> 65535 (spec § 2)'
+  lidar/0939-6655_MNT_10m.tif:
+    source: IGN, MNT LiDAR HD (WMS-R GetMap, couche IGNF_LIDAR-HD_MNT_ELEVATION.ELEVATIONGRIDCOVERAGE.LAMB93)
+    requete: https://data.geopf.fr/wms-r?SERVICE=WMS&VERSION=1.3.0&EXCEPTIONS=text%2Fxml&REQUEST=GetMap&LAYERS=IGNF_LIDAR-HD_MNT_ELEVATION.ELEVATIONGRIDCOVERAGE.LAMB93&FORMAT=image%2Fgeotiff&STYLES=&CRS=EPSG:2154&BBOX=938999.75,6654000.25,939999.75,6655000.25&WIDTH=2000&HEIGHT=2000
+    date: '2026-11-22'
+    licence: 'Licence Ouverte 2.0 (Etalab) ; source : IGN'
+    traitement: 'PROVISOIRE : 0,5 m -> 10 m par moyenne ; float32, altitude IGN69 en m ; nodata -9999'
+  manifeste_dalles.parquet:
+    source: IGN, métadonnées LiDAR HD (WFS IGNF_LIDAR-HD_METADONNEE:metadata)
+    requete: https://data.geopf.fr/wfs/ows?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=IGNF_LIDAR-HD_METADONNEE:metadata&OUTPUTFORMAT=application%2Fjson&COUNT=5&CQL_FILTER=BBOX(geom,901499.0,6664499.0,901501.0,6664501.0,'EPSG:2154')
+      ; https://data.geopf.fr/wfs/ows?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=IGNF_LIDAR-HD_METADONNEE:metadata&OUTPUTFORMAT=application%2Fjson&COUNT=5&CQL_FILTER=BBOX(geom,902499.0,6664499.0,902501.0,6664501.0,'EPSG:2154')
+      ; https://data.geopf.fr/wfs/ows?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=IGNF_LIDAR-HD_METADONNEE:metadata&OUTPUTFORMAT=application%2Fjson&COUNT=5&CQL_FILTER=BBOX(geom,939499.0,6653499.0,939501.0,6653501.0,'EPSG:2154')
+      ; https://data.geopf.fr/wfs/ows?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=IGNF_LIDAR-HD_METADONNEE:metadata&OUTPUTFORMAT=application%2Fjson&COUNT=5&CQL_FILTER=BBOX(geom,939499.0,6654499.0,939501.0,6654501.0,'EPSG:2154')
+    date: '2026-11-22'
+    licence: 'Licence Ouverte 2.0 (Etalab) ; source : IGN'
+    traitement: GeoParquet, EPSG:2154 ; emprise nominale de 1 km déduite de l'identifiant
+  ortho/0901-6665_ortho_10m.tif:
+    source: 'IGN, BD ORTHO 20 cm RVB et IRC (WMS-R, couches HR.ORTHOIMAGERY.ORTHOPHOTOS et ORTHOIMAGERY.ORTHOPHOTOS.IRC)
+      ; date de prise de vue : graphe de mosaïquage (WFS, couche ORTHOIMAGERY.ORTHOPHOTOS.GRAPHE-MOSAIQUAGE:graphe_bdortho),
+      2023-09-04 (campagne [2023])'
+    requete: https://data.geopf.fr/wms-r?SERVICE=WMS&VERSION=1.3.0&EXCEPTIONS=text%2Fxml&REQUEST=GetMap&LAYERS=HR.ORTHOIMAGERY.ORTHOPHOTOS&FORMAT=image%2Fgeotiff&STYLES=&CRS=EPSG:2154&BBOX=901000.0,6664000.0,902000.0,6665000.0&WIDTH=5000&HEIGHT=5000
+      ; https://data.geopf.fr/wms-r?SERVICE=WMS&VERSION=1.3.0&EXCEPTIONS=text%2Fxml&REQUEST=GetMap&LAYERS=ORTHOIMAGERY.ORTHOPHOTOS.IRC&FORMAT=image%2Fgeotiff&STYLES=&CRS=EPSG:2154&BBOX=901000.0,6664000.0,902000.0,6665000.0&WIDTH=5000&HEIGHT=5000
+      ; https://data.geopf.fr/wfs/ows?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=ORTHOIMAGERY.ORTHOPHOTOS.GRAPHE-MOSAIQUAGE:graphe_bdortho&OUTPUTFORMAT=application%2Fjson&PROPERTYNAME=dep,pva,res,echelle,date_vol&CQL_FILTER=INTERSECTS(geom,SRID%3D2154%3BPOINT(901500.0+6664500.0))+AND+echelle%3D20
+    date: '2026-11-22'
+    licence: 'Licence Ouverte 2.0 (Etalab) ; source : IGN, BD ORTHO'
+    traitement: 'PROVISOIRE : calculé à la volée sur l''ortho 0,2 m (non conservée), par cellule de 10
+      m : rouge_moy, rouge_std, pir_moy, pir_std, ndvi_moy, ndvi_std, part_non_vegetal, part_ombre, lum_moy,
+      lum_std, gradient_moy, part_valide ; NDVI = (PIR - R) / (PIR + R) ; non végétal = NDVI < 0.1 ; ombre
+      = luminance < 48.0 ; float32, nodata -9999 ; date de prise de vue 2023-09-04 (2023-09-04 à 2023-09-04),
+      écart au vol LiDAR +404 jours (milieu du vol)'
+  ortho/0902-6665_ortho_10m.tif:
+    source: 'IGN, BD ORTHO 20 cm RVB et IRC (WMS-R, couches HR.ORTHOIMAGERY.ORTHOPHOTOS et ORTHOIMAGERY.ORTHOPHOTOS.IRC)
+      ; date de prise de vue : graphe de mosaïquage (WFS, couche ORTHOIMAGERY.ORTHOPHOTOS.GRAPHE-MOSAIQUAGE:graphe_bdortho),
+      2023-09-04 (campagne [2023])'
+    requete: https://data.geopf.fr/wms-r?SERVICE=WMS&VERSION=1.3.0&EXCEPTIONS=text%2Fxml&REQUEST=GetMap&LAYERS=HR.ORTHOIMAGERY.ORTHOPHOTOS&FORMAT=image%2Fgeotiff&STYLES=&CRS=EPSG:2154&BBOX=902000.0,6664000.0,903000.0,6665000.0&WIDTH=5000&HEIGHT=5000
+      ; https://data.geopf.fr/wms-r?SERVICE=WMS&VERSION=1.3.0&EXCEPTIONS=text%2Fxml&REQUEST=GetMap&LAYERS=ORTHOIMAGERY.ORTHOPHOTOS.IRC&FORMAT=image%2Fgeotiff&STYLES=&CRS=EPSG:2154&BBOX=902000.0,6664000.0,903000.0,6665000.0&WIDTH=5000&HEIGHT=5000
+      ; https://data.geopf.fr/wfs/ows?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=ORTHOIMAGERY.ORTHOPHOTOS.GRAPHE-MOSAIQUAGE:graphe_bdortho&OUTPUTFORMAT=application%2Fjson&PROPERTYNAME=dep,pva,res,echelle,date_vol&CQL_FILTER=INTERSECTS(geom,SRID%3D2154%3BPOINT(902500.0+6664500.0))+AND+echelle%3D20
+    date: '2026-11-22'
+    licence: 'Licence Ouverte 2.0 (Etalab) ; source : IGN, BD ORTHO'
+    traitement: 'PROVISOIRE : calculé à la volée sur l''ortho 0,2 m (non conservée), par cellule de 10
+      m : rouge_moy, rouge_std, pir_moy, pir_std, ndvi_moy, ndvi_std, part_non_vegetal, part_ombre, lum_moy,
+      lum_std, gradient_moy, part_valide ; NDVI = (PIR - R) / (PIR + R) ; non végétal = NDVI < 0.1 ; ombre
+      = luminance < 48.0 ; float32, nodata -9999 ; date de prise de vue 2023-09-04 (2023-09-04 à 2023-09-04),
+      écart au vol LiDAR +404 jours (milieu du vol)'
+  ortho/0939-6654_ortho_10m.tif:
+    source: 'IGN, BD ORTHO 20 cm RVB et IRC (WMS-R, couches HR.ORTHOIMAGERY.ORTHOPHOTOS et ORTHOIMAGERY.ORTHOPHOTOS.IRC)
+      ; date de prise de vue : graphe de mosaïquage (WFS, couche ORTHOIMAGERY.ORTHOPHOTOS.GRAPHE-MOSAIQUAGE:graphe_bdortho),
+      2023-09-06 (campagne [2023])'
+    requete: https://data.geopf.fr/wms-r?SERVICE=WMS&VERSION=1.3.0&EXCEPTIONS=text%2Fxml&REQUEST=GetMap&LAYERS=HR.ORTHOIMAGERY.ORTHOPHOTOS&FORMAT=image%2Fgeotiff&STYLES=&CRS=EPSG:2154&BBOX=939000.0,6653000.0,940000.0,6654000.0&WIDTH=5000&HEIGHT=5000
+      ; https://data.geopf.fr/wms-r?SERVICE=WMS&VERSION=1.3.0&EXCEPTIONS=text%2Fxml&REQUEST=GetMap&LAYERS=ORTHOIMAGERY.ORTHOPHOTOS.IRC&FORMAT=image%2Fgeotiff&STYLES=&CRS=EPSG:2154&BBOX=939000.0,6653000.0,940000.0,6654000.0&WIDTH=5000&HEIGHT=5000
+      ; https://data.geopf.fr/wfs/ows?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=ORTHOIMAGERY.ORTHOPHOTOS.GRAPHE-MOSAIQUAGE:graphe_bdortho&OUTPUTFORMAT=application%2Fjson&PROPERTYNAME=dep,pva,res,echelle,date_vol&CQL_FILTER=INTERSECTS(geom,SRID%3D2154%3BPOINT(939500.0+6653500.0))+AND+echelle%3D20
+    date: '2026-11-22'
+    licence: 'Licence Ouverte 2.0 (Etalab) ; source : IGN, BD ORTHO'
+    traitement: 'PROVISOIRE : calculé à la volée sur l''ortho 0,2 m (non conservée), par cellule de 10
+      m : rouge_moy, rouge_std, pir_moy, pir_std, ndvi_moy, ndvi_std, part_non_vegetal, part_ombre, lum_moy,
+      lum_std, gradient_moy, part_valide ; NDVI = (PIR - R) / (PIR + R) ; non végétal = NDVI < 0.1 ; ombre
+      = luminance < 48.0 ; float32, nodata -9999 ; date de prise de vue 2023-09-06 (2023-09-06 à 2023-09-06),
+      écart au vol LiDAR +324 jours (milieu du vol)'
+  ortho/0939-6655_ortho_10m.tif:
+    source: 'IGN, BD ORTHO 20 cm RVB et IRC (WMS-R, couches HR.ORTHOIMAGERY.ORTHOPHOTOS et ORTHOIMAGERY.ORTHOPHOTOS.IRC)
+      ; date de prise de vue : graphe de mosaïquage (WFS, couche ORTHOIMAGERY.ORTHOPHOTOS.GRAPHE-MOSAIQUAGE:graphe_bdortho),
+      2023-09-06 (campagne [2023])'
+    requete: https://data.geopf.fr/wms-r?SERVICE=WMS&VERSION=1.3.0&EXCEPTIONS=text%2Fxml&REQUEST=GetMap&LAYERS=HR.ORTHOIMAGERY.ORTHOPHOTOS&FORMAT=image%2Fgeotiff&STYLES=&CRS=EPSG:2154&BBOX=939000.0,6654000.0,940000.0,6655000.0&WIDTH=5000&HEIGHT=5000
+      ; https://data.geopf.fr/wms-r?SERVICE=WMS&VERSION=1.3.0&EXCEPTIONS=text%2Fxml&REQUEST=GetMap&LAYERS=ORTHOIMAGERY.ORTHOPHOTOS.IRC&FORMAT=image%2Fgeotiff&STYLES=&CRS=EPSG:2154&BBOX=939000.0,6654000.0,940000.0,6655000.0&WIDTH=5000&HEIGHT=5000
+      ; https://data.geopf.fr/wfs/ows?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=ORTHOIMAGERY.ORTHOPHOTOS.GRAPHE-MOSAIQUAGE:graphe_bdortho&OUTPUTFORMAT=application%2Fjson&PROPERTYNAME=dep,pva,res,echelle,date_vol&CQL_FILTER=INTERSECTS(geom,SRID%3D2154%3BPOINT(939500.0+6654500.0))+AND+echelle%3D20
+    date: '2026-11-22'
+    licence: 'Licence Ouverte 2.0 (Etalab) ; source : IGN, BD ORTHO'
+    traitement: 'PROVISOIRE : calculé à la volée sur l''ortho 0,2 m (non conservée), par cellule de 10
+      m : rouge_moy, rouge_std, pir_moy, pir_std, ndvi_moy, ndvi_std, part_non_vegetal, part_ombre, lum_moy,
+      lum_std, gradient_moy, part_valide ; NDVI = (PIR - R) / (PIR + R) ; non végétal = NDVI < 0.1 ; ombre
+      = luminance < 48.0 ; float32, nodata -9999 ; date de prise de vue 2023-09-06 (2023-09-06 à 2023-09-06),
+      écart au vol LiDAR +324 jours (milieu du vol)'
+  references/forms_t_v1/0901-6665_hauteur_2022.tif:
+    source: FORMS-T v1, hauteur à 10 m (Zenodo 15489231, fichier Height_2022.tif), DOI 10.5281/zenodo.15489231,
+      v1 (Zenodo, publié le 2025-06-06)
+    requete: /vsicurl/https://zenodo.org/api/records/15489231/files/Height_2022.tif/content ; fenêtre
+      col 82527, ligne 45008, 100 x 100 px
+    date: '2026-11-22'
+    licence: CC BY 4.0 (Zenodo 15489231, license.id cc-by-4.0)
+    citation: 'Schwartz, M. et al. (2025). FORMS-T v1 [jeu de données]. Zenodo, https://doi.org/10.5281/zenodo.15489231
+      ; article associé : Remote Sensing of Environment, https://doi.org/10.1016/j.rse.2025.114959'
+    traitement: fenêtre de la dalle lue telle quelle (pas 10 m aligné sur le km, aucun rééchantillonnage)
+      ; int16 en cm -> uint16 en cm ; nodata source 0 -> 65535 (0 est une hauteur valide dans le projet)
+      ; valeurs négatives -> nodata ; année = année de vol
+  references/forms_t_v1/0902-6665_hauteur_2022.tif:
+    source: FORMS-T v1, hauteur à 10 m (Zenodo 15489231, fichier Height_2022.tif), DOI 10.5281/zenodo.15489231,
+      v1 (Zenodo, publié le 2025-06-06)
+    requete: /vsicurl/https://zenodo.org/api/records/15489231/files/Height_2022.tif/content ; fenêtre
+      col 82627, ligne 45008, 100 x 100 px
+    date: '2026-11-22'
+    licence: CC BY 4.0 (Zenodo 15489231, license.id cc-by-4.0)
+    citation: 'Schwartz, M. et al. (2025). FORMS-T v1 [jeu de données]. Zenodo, https://doi.org/10.5281/zenodo.15489231
+      ; article associé : Remote Sensing of Environment, https://doi.org/10.1016/j.rse.2025.114959'
+    traitement: fenêtre de la dalle lue telle quelle (pas 10 m aligné sur le km, aucun rééchantillonnage)
+      ; int16 en cm -> uint16 en cm ; nodata source 0 -> 65535 (0 est une hauteur valide dans le projet)
+      ; valeurs négatives -> nodata ; année = année de vol
+  references/forms_t_v1/0939-6654_hauteur_2022.tif:
+    source: FORMS-T v1, hauteur à 10 m (Zenodo 15489231, fichier Height_2022.tif), DOI 10.5281/zenodo.15489231,
+      v1 (Zenodo, publié le 2025-06-06)
+    requete: /vsicurl/https://zenodo.org/api/records/15489231/files/Height_2022.tif/content ; fenêtre
+      col 86327, ligne 46108, 100 x 100 px
+    date: '2026-11-22'
+    licence: CC BY 4.0 (Zenodo 15489231, license.id cc-by-4.0)
+    citation: 'Schwartz, M. et al. (2025). FORMS-T v1 [jeu de données]. Zenodo, https://doi.org/10.5281/zenodo.15489231
+      ; article associé : Remote Sensing of Environment, https://doi.org/10.1016/j.rse.2025.114959'
+    traitement: fenêtre de la dalle lue telle quelle (pas 10 m aligné sur le km, aucun rééchantillonnage)
+      ; int16 en cm -> uint16 en cm ; nodata source 0 -> 65535 (0 est une hauteur valide dans le projet)
+      ; valeurs négatives -> nodata ; année = année de vol
+  references/forms_t_v1/0939-6655_hauteur_2022.tif:
+    source: FORMS-T v1, hauteur à 10 m (Zenodo 15489231, fichier Height_2022.tif), DOI 10.5281/zenodo.15489231,
+      v1 (Zenodo, publié le 2025-06-06)
+    requete: /vsicurl/https://zenodo.org/api/records/15489231/files/Height_2022.tif/content ; fenêtre
+      col 86327, ligne 46008, 100 x 100 px
+    date: '2026-11-22'
+    licence: CC BY 4.0 (Zenodo 15489231, license.id cc-by-4.0)
+    citation: 'Schwartz, M. et al. (2025). FORMS-T v1 [jeu de données]. Zenodo, https://doi.org/10.5281/zenodo.15489231
+      ; article associé : Remote Sensing of Environment, https://doi.org/10.1016/j.rse.2025.114959'
+    traitement: fenêtre de la dalle lue telle quelle (pas 10 m aligné sur le km, aucun rééchantillonnage)
+      ; int16 en cm -> uint16 en cm ; nodata source 0 -> 65535 (0 est une hauteur valide dans le projet)
+      ; valeurs négatives -> nodata ; année = année de vol
+  sentinel2/0901-6665/S2A_31TFN_20220613_0_L2A_10m.tif:
+    source: Copernicus Sentinel-2 L2A via Earth Search (Element84), scène S2A_31TFN_20220613_0_L2A
+    requete: 'POST https://earth-search.aws.element84.com/v1/search {"collections": ["sentinel-2-l2a"],
+      "intersects": {"type": "Polygon", "coordinates": [[[5.661116777308598, 47.045601958930284], [5.661560655460406,
+      47.054600089117315], [5.6483945163158165, 47.05490275022794], [5.6479528306271245, 47.04590457050266],
+      [5.661116777308598, 47.045601958930284]]]}, "datetime": "2022-05-01T00:00:00Z/2022-09-30T23:59:59Z",
+      "query": {"eo:cloud_cover": {"lt": 20.0}}, "sortby": [{"field": "properties.eo:cloud_cover", "direction":
+      "asc"}], "limit": 100} ; assets COG https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/6/S2A_31TFN_20220613_0_L2A/B02.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/6/S2A_31TFN_20220613_0_L2A/B03.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/6/S2A_31TFN_20220613_0_L2A/B04.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/6/S2A_31TFN_20220613_0_L2A/B08.tif'
+    date: '2026-11-22'
+    licence: Contains modified Copernicus Sentinel data 2022
+    traitement: 'bandes B02,B03,B04,B08 découpées sur la dalle, grille de 10 m alignée sur le km, plus
+      proche voisin, entiers conservés ; valeurs : réflectance = DN x 0,0001 (offset déjà appliqué par
+      Earth Search, earthsearch:boa_offset_applied) - provisoire, à vérifier au jalon 3'
+  sentinel2/0901-6665/S2A_31TFN_20220613_0_L2A_20m.tif:
+    source: Copernicus Sentinel-2 L2A via Earth Search (Element84), scène S2A_31TFN_20220613_0_L2A
+    requete: 'POST https://earth-search.aws.element84.com/v1/search {"collections": ["sentinel-2-l2a"],
+      "intersects": {"type": "Polygon", "coordinates": [[[5.661116777308598, 47.045601958930284], [5.661560655460406,
+      47.054600089117315], [5.6483945163158165, 47.05490275022794], [5.6479528306271245, 47.04590457050266],
+      [5.661116777308598, 47.045601958930284]]]}, "datetime": "2022-05-01T00:00:00Z/2022-09-30T23:59:59Z",
+      "query": {"eo:cloud_cover": {"lt": 20.0}}, "sortby": [{"field": "properties.eo:cloud_cover", "direction":
+      "asc"}], "limit": 100} ; assets COG https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/6/S2A_31TFN_20220613_0_L2A/B05.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/6/S2A_31TFN_20220613_0_L2A/B06.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/6/S2A_31TFN_20220613_0_L2A/B07.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/6/S2A_31TFN_20220613_0_L2A/B8A.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/6/S2A_31TFN_20220613_0_L2A/B11.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/6/S2A_31TFN_20220613_0_L2A/B12.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/6/S2A_31TFN_20220613_0_L2A/SCL.tif'
+    date: '2026-11-22'
+    licence: Contains modified Copernicus Sentinel data 2022
+    traitement: 'bandes B05,B06,B07,B8A,B11,B12,SCL découpées sur la dalle, grille de 20 m alignée sur
+      le km, plus proche voisin, entiers conservés ; SCL en dernière bande (uint8 -> uint16) ; valeurs
+      : réflectance = DN x 0,0001 (offset déjà appliqué par Earth Search, earthsearch:boa_offset_applied)
+      - provisoire, à vérifier au jalon 3'
+  sentinel2/0901-6665/S2B_31TFN_20220711_0_L2A_10m.tif:
+    source: Copernicus Sentinel-2 L2A via Earth Search (Element84), scène S2B_31TFN_20220711_0_L2A
+    requete: 'POST https://earth-search.aws.element84.com/v1/search {"collections": ["sentinel-2-l2a"],
+      "intersects": {"type": "Polygon", "coordinates": [[[5.661116777308598, 47.045601958930284], [5.661560655460406,
+      47.054600089117315], [5.6483945163158165, 47.05490275022794], [5.6479528306271245, 47.04590457050266],
+      [5.661116777308598, 47.045601958930284]]]}, "datetime": "2022-05-01T00:00:00Z/2022-09-30T23:59:59Z",
+      "query": {"eo:cloud_cover": {"lt": 20.0}}, "sortby": [{"field": "properties.eo:cloud_cover", "direction":
+      "asc"}], "limit": 100} ; assets COG https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/7/S2B_31TFN_20220711_0_L2A/B02.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/7/S2B_31TFN_20220711_0_L2A/B03.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/7/S2B_31TFN_20220711_0_L2A/B04.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/7/S2B_31TFN_20220711_0_L2A/B08.tif'
+    date: '2026-11-22'
+    licence: Contains modified Copernicus Sentinel data 2022
+    traitement: 'bandes B02,B03,B04,B08 découpées sur la dalle, grille de 10 m alignée sur le km, plus
+      proche voisin, entiers conservés ; valeurs : réflectance = DN x 0,0001 (offset déjà appliqué par
+      Earth Search, earthsearch:boa_offset_applied) - provisoire, à vérifier au jalon 3'
+  sentinel2/0901-6665/S2B_31TFN_20220711_0_L2A_20m.tif:
+    source: Copernicus Sentinel-2 L2A via Earth Search (Element84), scène S2B_31TFN_20220711_0_L2A
+    requete: 'POST https://earth-search.aws.element84.com/v1/search {"collections": ["sentinel-2-l2a"],
+      "intersects": {"type": "Polygon", "coordinates": [[[5.661116777308598, 47.045601958930284], [5.661560655460406,
+      47.054600089117315], [5.6483945163158165, 47.05490275022794], [5.6479528306271245, 47.04590457050266],
+      [5.661116777308598, 47.045601958930284]]]}, "datetime": "2022-05-01T00:00:00Z/2022-09-30T23:59:59Z",
+      "query": {"eo:cloud_cover": {"lt": 20.0}}, "sortby": [{"field": "properties.eo:cloud_cover", "direction":
+      "asc"}], "limit": 100} ; assets COG https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/7/S2B_31TFN_20220711_0_L2A/B05.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/7/S2B_31TFN_20220711_0_L2A/B06.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/7/S2B_31TFN_20220711_0_L2A/B07.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/7/S2B_31TFN_20220711_0_L2A/B8A.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/7/S2B_31TFN_20220711_0_L2A/B11.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/7/S2B_31TFN_20220711_0_L2A/B12.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/7/S2B_31TFN_20220711_0_L2A/SCL.tif'
+    date: '2026-11-22'
+    licence: Contains modified Copernicus Sentinel data 2022
+    traitement: 'bandes B05,B06,B07,B8A,B11,B12,SCL découpées sur la dalle, grille de 20 m alignée sur
+      le km, plus proche voisin, entiers conservés ; SCL en dernière bande (uint8 -> uint16) ; valeurs
+      : réflectance = DN x 0,0001 (offset déjà appliqué par Earth Search, earthsearch:boa_offset_applied)
+      - provisoire, à vérifier au jalon 3'
+  sentinel2/0901-6665/S2B_31TFN_20220810_0_L2A_10m.tif:
+    source: Copernicus Sentinel-2 L2A via Earth Search (Element84), scène S2B_31TFN_20220810_0_L2A
+    requete: 'POST https://earth-search.aws.element84.com/v1/search {"collections": ["sentinel-2-l2a"],
+      "intersects": {"type": "Polygon", "coordinates": [[[5.661116777308598, 47.045601958930284], [5.661560655460406,
+      47.054600089117315], [5.6483945163158165, 47.05490275022794], [5.6479528306271245, 47.04590457050266],
+      [5.661116777308598, 47.045601958930284]]]}, "datetime": "2022-05-01T00:00:00Z/2022-09-30T23:59:59Z",
+      "query": {"eo:cloud_cover": {"lt": 20.0}}, "sortby": [{"field": "properties.eo:cloud_cover", "direction":
+      "asc"}], "limit": 100} ; assets COG https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/8/S2B_31TFN_20220810_0_L2A/B02.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/8/S2B_31TFN_20220810_0_L2A/B03.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/8/S2B_31TFN_20220810_0_L2A/B04.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/8/S2B_31TFN_20220810_0_L2A/B08.tif'
+    date: '2026-11-22'
+    licence: Contains modified Copernicus Sentinel data 2022
+    traitement: 'bandes B02,B03,B04,B08 découpées sur la dalle, grille de 10 m alignée sur le km, plus
+      proche voisin, entiers conservés ; valeurs : réflectance = DN x 0,0001 (offset déjà appliqué par
+      Earth Search, earthsearch:boa_offset_applied) - provisoire, à vérifier au jalon 3'
+  sentinel2/0901-6665/S2B_31TFN_20220810_0_L2A_20m.tif:
+    source: Copernicus Sentinel-2 L2A via Earth Search (Element84), scène S2B_31TFN_20220810_0_L2A
+    requete: 'POST https://earth-search.aws.element84.com/v1/search {"collections": ["sentinel-2-l2a"],
+      "intersects": {"type": "Polygon", "coordinates": [[[5.661116777308598, 47.045601958930284], [5.661560655460406,
+      47.054600089117315], [5.6483945163158165, 47.05490275022794], [5.6479528306271245, 47.04590457050266],
+      [5.661116777308598, 47.045601958930284]]]}, "datetime": "2022-05-01T00:00:00Z/2022-09-30T23:59:59Z",
+      "query": {"eo:cloud_cover": {"lt": 20.0}}, "sortby": [{"field": "properties.eo:cloud_cover", "direction":
+      "asc"}], "limit": 100} ; assets COG https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/8/S2B_31TFN_20220810_0_L2A/B05.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/8/S2B_31TFN_20220810_0_L2A/B06.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/8/S2B_31TFN_20220810_0_L2A/B07.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/8/S2B_31TFN_20220810_0_L2A/B8A.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/8/S2B_31TFN_20220810_0_L2A/B11.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/8/S2B_31TFN_20220810_0_L2A/B12.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/8/S2B_31TFN_20220810_0_L2A/SCL.tif'
+    date: '2026-11-22'
+    licence: Contains modified Copernicus Sentinel data 2022
+    traitement: 'bandes B05,B06,B07,B8A,B11,B12,SCL découpées sur la dalle, grille de 20 m alignée sur
+      le km, plus proche voisin, entiers conservés ; SCL en dernière bande (uint8 -> uint16) ; valeurs
+      : réflectance = DN x 0,0001 (offset déjà appliqué par Earth Search, earthsearch:boa_offset_applied)
+      - provisoire, à vérifier au jalon 3'
+  sentinel2/0902-6665/S2A_31TFN_20220613_0_L2A_10m.tif:
+    source: Copernicus Sentinel-2 L2A via Earth Search (Element84), scène S2A_31TFN_20220613_0_L2A
+    requete: 'POST https://earth-search.aws.element84.com/v1/search {"collections": ["sentinel-2-l2a"],
+      "intersects": {"type": "Polygon", "coordinates": [[[5.674280576016445, 47.04529784724175], [5.674726646557367,
+      47.05429592764528], [5.661560655460406, 47.054600089117315], [5.661116777308598, 47.045601958930284],
+      [5.674280576016445, 47.04529784724175]]]}, "datetime": "2022-05-01T00:00:00Z/2022-09-30T23:59:59Z",
+      "query": {"eo:cloud_cover": {"lt": 20.0}}, "sortby": [{"field": "properties.eo:cloud_cover", "direction":
+      "asc"}], "limit": 100} ; assets COG https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/6/S2A_31TFN_20220613_0_L2A/B02.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/6/S2A_31TFN_20220613_0_L2A/B03.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/6/S2A_31TFN_20220613_0_L2A/B04.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/6/S2A_31TFN_20220613_0_L2A/B08.tif'
+    date: '2026-11-22'
+    licence: Contains modified Copernicus Sentinel data 2022
+    traitement: 'bandes B02,B03,B04,B08 découpées sur la dalle, grille de 10 m alignée sur le km, plus
+      proche voisin, entiers conservés ; valeurs : réflectance = DN x 0,0001 (offset déjà appliqué par
+      Earth Search, earthsearch:boa_offset_applied) - provisoire, à vérifier au jalon 3'
+  sentinel2/0902-6665/S2A_31TFN_20220613_0_L2A_20m.tif:
+    source: Copernicus Sentinel-2 L2A via Earth Search (Element84), scène S2A_31TFN_20220613_0_L2A
+    requete: 'POST https://earth-search.aws.element84.com/v1/search {"collections": ["sentinel-2-l2a"],
+      "intersects": {"type": "Polygon", "coordinates": [[[5.674280576016445, 47.04529784724175], [5.674726646557367,
+      47.05429592764528], [5.661560655460406, 47.054600089117315], [5.661116777308598, 47.045601958930284],
+      [5.674280576016445, 47.04529784724175]]]}, "datetime": "2022-05-01T00:00:00Z/2022-09-30T23:59:59Z",
+      "query": {"eo:cloud_cover": {"lt": 20.0}}, "sortby": [{"field": "properties.eo:cloud_cover", "direction":
+      "asc"}], "limit": 100} ; assets COG https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/6/S2A_31TFN_20220613_0_L2A/B05.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/6/S2A_31TFN_20220613_0_L2A/B06.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/6/S2A_31TFN_20220613_0_L2A/B07.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/6/S2A_31TFN_20220613_0_L2A/B8A.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/6/S2A_31TFN_20220613_0_L2A/B11.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/6/S2A_31TFN_20220613_0_L2A/B12.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/6/S2A_31TFN_20220613_0_L2A/SCL.tif'
+    date: '2026-11-22'
+    licence: Contains modified Copernicus Sentinel data 2022
+    traitement: 'bandes B05,B06,B07,B8A,B11,B12,SCL découpées sur la dalle, grille de 20 m alignée sur
+      le km, plus proche voisin, entiers conservés ; SCL en dernière bande (uint8 -> uint16) ; valeurs
+      : réflectance = DN x 0,0001 (offset déjà appliqué par Earth Search, earthsearch:boa_offset_applied)
+      - provisoire, à vérifier au jalon 3'
+  sentinel2/0902-6665/S2B_31TFN_20220711_0_L2A_10m.tif:
+    source: Copernicus Sentinel-2 L2A via Earth Search (Element84), scène S2B_31TFN_20220711_0_L2A
+    requete: 'POST https://earth-search.aws.element84.com/v1/search {"collections": ["sentinel-2-l2a"],
+      "intersects": {"type": "Polygon", "coordinates": [[[5.674280576016445, 47.04529784724175], [5.674726646557367,
+      47.05429592764528], [5.661560655460406, 47.054600089117315], [5.661116777308598, 47.045601958930284],
+      [5.674280576016445, 47.04529784724175]]]}, "datetime": "2022-05-01T00:00:00Z/2022-09-30T23:59:59Z",
+      "query": {"eo:cloud_cover": {"lt": 20.0}}, "sortby": [{"field": "properties.eo:cloud_cover", "direction":
+      "asc"}], "limit": 100} ; assets COG https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/7/S2B_31TFN_20220711_0_L2A/B02.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/7/S2B_31TFN_20220711_0_L2A/B03.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/7/S2B_31TFN_20220711_0_L2A/B04.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/7/S2B_31TFN_20220711_0_L2A/B08.tif'
+    date: '2026-11-22'
+    licence: Contains modified Copernicus Sentinel data 2022
+    traitement: 'bandes B02,B03,B04,B08 découpées sur la dalle, grille de 10 m alignée sur le km, plus
+      proche voisin, entiers conservés ; valeurs : réflectance = DN x 0,0001 (offset déjà appliqué par
+      Earth Search, earthsearch:boa_offset_applied) - provisoire, à vérifier au jalon 3'
+  sentinel2/0902-6665/S2B_31TFN_20220711_0_L2A_20m.tif:
+    source: Copernicus Sentinel-2 L2A via Earth Search (Element84), scène S2B_31TFN_20220711_0_L2A
+    requete: 'POST https://earth-search.aws.element84.com/v1/search {"collections": ["sentinel-2-l2a"],
+      "intersects": {"type": "Polygon", "coordinates": [[[5.674280576016445, 47.04529784724175], [5.674726646557367,
+      47.05429592764528], [5.661560655460406, 47.054600089117315], [5.661116777308598, 47.045601958930284],
+      [5.674280576016445, 47.04529784724175]]]}, "datetime": "2022-05-01T00:00:00Z/2022-09-30T23:59:59Z",
+      "query": {"eo:cloud_cover": {"lt": 20.0}}, "sortby": [{"field": "properties.eo:cloud_cover", "direction":
+      "asc"}], "limit": 100} ; assets COG https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/7/S2B_31TFN_20220711_0_L2A/B05.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/7/S2B_31TFN_20220711_0_L2A/B06.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/7/S2B_31TFN_20220711_0_L2A/B07.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/7/S2B_31TFN_20220711_0_L2A/B8A.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/7/S2B_31TFN_20220711_0_L2A/B11.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/7/S2B_31TFN_20220711_0_L2A/B12.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/7/S2B_31TFN_20220711_0_L2A/SCL.tif'
+    date: '2026-11-22'
+    licence: Contains modified Copernicus Sentinel data 2022
+    traitement: 'bandes B05,B06,B07,B8A,B11,B12,SCL découpées sur la dalle, grille de 20 m alignée sur
+      le km, plus proche voisin, entiers conservés ; SCL en dernière bande (uint8 -> uint16) ; valeurs
+      : réflectance = DN x 0,0001 (offset déjà appliqué par Earth Search, earthsearch:boa_offset_applied)
+      - provisoire, à vérifier au jalon 3'
+  sentinel2/0902-6665/S2B_31TFN_20220810_0_L2A_10m.tif:
+    source: Copernicus Sentinel-2 L2A via Earth Search (Element84), scène S2B_31TFN_20220810_0_L2A
+    requete: 'POST https://earth-search.aws.element84.com/v1/search {"collections": ["sentinel-2-l2a"],
+      "intersects": {"type": "Polygon", "coordinates": [[[5.674280576016445, 47.04529784724175], [5.674726646557367,
+      47.05429592764528], [5.661560655460406, 47.054600089117315], [5.661116777308598, 47.045601958930284],
+      [5.674280576016445, 47.04529784724175]]]}, "datetime": "2022-05-01T00:00:00Z/2022-09-30T23:59:59Z",
+      "query": {"eo:cloud_cover": {"lt": 20.0}}, "sortby": [{"field": "properties.eo:cloud_cover", "direction":
+      "asc"}], "limit": 100} ; assets COG https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/8/S2B_31TFN_20220810_0_L2A/B02.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/8/S2B_31TFN_20220810_0_L2A/B03.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/8/S2B_31TFN_20220810_0_L2A/B04.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/8/S2B_31TFN_20220810_0_L2A/B08.tif'
+    date: '2026-11-22'
+    licence: Contains modified Copernicus Sentinel data 2022
+    traitement: 'bandes B02,B03,B04,B08 découpées sur la dalle, grille de 10 m alignée sur le km, plus
+      proche voisin, entiers conservés ; valeurs : réflectance = DN x 0,0001 (offset déjà appliqué par
+      Earth Search, earthsearch:boa_offset_applied) - provisoire, à vérifier au jalon 3'
+  sentinel2/0902-6665/S2B_31TFN_20220810_0_L2A_20m.tif:
+    source: Copernicus Sentinel-2 L2A via Earth Search (Element84), scène S2B_31TFN_20220810_0_L2A
+    requete: 'POST https://earth-search.aws.element84.com/v1/search {"collections": ["sentinel-2-l2a"],
+      "intersects": {"type": "Polygon", "coordinates": [[[5.674280576016445, 47.04529784724175], [5.674726646557367,
+      47.05429592764528], [5.661560655460406, 47.054600089117315], [5.661116777308598, 47.045601958930284],
+      [5.674280576016445, 47.04529784724175]]]}, "datetime": "2022-05-01T00:00:00Z/2022-09-30T23:59:59Z",
+      "query": {"eo:cloud_cover": {"lt": 20.0}}, "sortby": [{"field": "properties.eo:cloud_cover", "direction":
+      "asc"}], "limit": 100} ; assets COG https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/8/S2B_31TFN_20220810_0_L2A/B05.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/8/S2B_31TFN_20220810_0_L2A/B06.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/8/S2B_31TFN_20220810_0_L2A/B07.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/8/S2B_31TFN_20220810_0_L2A/B8A.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/8/S2B_31TFN_20220810_0_L2A/B11.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/8/S2B_31TFN_20220810_0_L2A/B12.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/FN/2022/8/S2B_31TFN_20220810_0_L2A/SCL.tif'
+    date: '2026-11-22'
+    licence: Contains modified Copernicus Sentinel data 2022
+    traitement: 'bandes B05,B06,B07,B8A,B11,B12,SCL découpées sur la dalle, grille de 20 m alignée sur
+      le km, plus proche voisin, entiers conservés ; SCL en dernière bande (uint8 -> uint16) ; valeurs
+      : réflectance = DN x 0,0001 (offset déjà appliqué par Earth Search, earthsearch:boa_offset_applied)
+      - provisoire, à vérifier au jalon 3'
+  sentinel2/0939-6654/S2A_31TGN_20220812_0_L2A_10m.tif:
+    source: Copernicus Sentinel-2 L2A via Earth Search (Element84), scène S2A_31TGN_20220812_0_L2A
+    requete: 'POST https://earth-search.aws.element84.com/v1/search {"collections": ["sentinel-2-l2a"],
+      "intersects": {"type": "Polygon", "coordinates": [[[6.155443546704286, 46.93403276033701], [6.155968753008309,
+      46.94302913624434], [6.142832795531981, 46.94338814575976], [6.142309770644422, 46.934391711118074],
+      [6.155443546704286, 46.93403276033701]]]}, "datetime": "2022-05-01T00:00:00Z/2022-09-30T23:59:59Z",
+      "query": {"eo:cloud_cover": {"lt": 20.0}}, "sortby": [{"field": "properties.eo:cloud_cover", "direction":
+      "asc"}], "limit": 100} ; assets COG https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/8/S2A_31TGN_20220812_0_L2A/B02.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/8/S2A_31TGN_20220812_0_L2A/B03.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/8/S2A_31TGN_20220812_0_L2A/B04.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/8/S2A_31TGN_20220812_0_L2A/B08.tif'
+    date: '2026-11-22'
+    licence: Contains modified Copernicus Sentinel data 2022
+    traitement: 'bandes B02,B03,B04,B08 découpées sur la dalle, grille de 10 m alignée sur le km, plus
+      proche voisin, entiers conservés ; valeurs : réflectance = DN x 0,0001 (offset déjà appliqué par
+      Earth Search, earthsearch:boa_offset_applied) - provisoire, à vérifier au jalon 3'
+  sentinel2/0939-6654/S2A_31TGN_20220812_0_L2A_20m.tif:
+    source: Copernicus Sentinel-2 L2A via Earth Search (Element84), scène S2A_31TGN_20220812_0_L2A
+    requete: 'POST https://earth-search.aws.element84.com/v1/search {"collections": ["sentinel-2-l2a"],
+      "intersects": {"type": "Polygon", "coordinates": [[[6.155443546704286, 46.93403276033701], [6.155968753008309,
+      46.94302913624434], [6.142832795531981, 46.94338814575976], [6.142309770644422, 46.934391711118074],
+      [6.155443546704286, 46.93403276033701]]]}, "datetime": "2022-05-01T00:00:00Z/2022-09-30T23:59:59Z",
+      "query": {"eo:cloud_cover": {"lt": 20.0}}, "sortby": [{"field": "properties.eo:cloud_cover", "direction":
+      "asc"}], "limit": 100} ; assets COG https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/8/S2A_31TGN_20220812_0_L2A/B05.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/8/S2A_31TGN_20220812_0_L2A/B06.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/8/S2A_31TGN_20220812_0_L2A/B07.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/8/S2A_31TGN_20220812_0_L2A/B8A.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/8/S2A_31TGN_20220812_0_L2A/B11.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/8/S2A_31TGN_20220812_0_L2A/B12.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/8/S2A_31TGN_20220812_0_L2A/SCL.tif'
+    date: '2026-11-22'
+    licence: Contains modified Copernicus Sentinel data 2022
+    traitement: 'bandes B05,B06,B07,B8A,B11,B12,SCL découpées sur la dalle, grille de 20 m alignée sur
+      le km, plus proche voisin, entiers conservés ; SCL en dernière bande (uint8 -> uint16) ; valeurs
+      : réflectance = DN x 0,0001 (offset déjà appliqué par Earth Search, earthsearch:boa_offset_applied)
+      - provisoire, à vérifier au jalon 3'
+  sentinel2/0939-6654/S2B_31TGN_20220611_0_L2A_10m.tif:
+    source: Copernicus Sentinel-2 L2A via Earth Search (Element84), scène S2B_31TGN_20220611_0_L2A
+    requete: 'POST https://earth-search.aws.element84.com/v1/search {"collections": ["sentinel-2-l2a"],
+      "intersects": {"type": "Polygon", "coordinates": [[[6.155443546704286, 46.93403276033701], [6.155968753008309,
+      46.94302913624434], [6.142832795531981, 46.94338814575976], [6.142309770644422, 46.934391711118074],
+      [6.155443546704286, 46.93403276033701]]]}, "datetime": "2022-05-01T00:00:00Z/2022-09-30T23:59:59Z",
+      "query": {"eo:cloud_cover": {"lt": 20.0}}, "sortby": [{"field": "properties.eo:cloud_cover", "direction":
+      "asc"}], "limit": 100} ; assets COG https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/6/S2B_31TGN_20220611_0_L2A/B02.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/6/S2B_31TGN_20220611_0_L2A/B03.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/6/S2B_31TGN_20220611_0_L2A/B04.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/6/S2B_31TGN_20220611_0_L2A/B08.tif'
+    date: '2026-11-22'
+    licence: Contains modified Copernicus Sentinel data 2022
+    traitement: 'bandes B02,B03,B04,B08 découpées sur la dalle, grille de 10 m alignée sur le km, plus
+      proche voisin, entiers conservés ; valeurs : réflectance = DN x 0,0001 (offset déjà appliqué par
+      Earth Search, earthsearch:boa_offset_applied) - provisoire, à vérifier au jalon 3'
+  sentinel2/0939-6654/S2B_31TGN_20220611_0_L2A_20m.tif:
+    source: Copernicus Sentinel-2 L2A via Earth Search (Element84), scène S2B_31TGN_20220611_0_L2A
+    requete: 'POST https://earth-search.aws.element84.com/v1/search {"collections": ["sentinel-2-l2a"],
+      "intersects": {"type": "Polygon", "coordinates": [[[6.155443546704286, 46.93403276033701], [6.155968753008309,
+      46.94302913624434], [6.142832795531981, 46.94338814575976], [6.142309770644422, 46.934391711118074],
+      [6.155443546704286, 46.93403276033701]]]}, "datetime": "2022-05-01T00:00:00Z/2022-09-30T23:59:59Z",
+      "query": {"eo:cloud_cover": {"lt": 20.0}}, "sortby": [{"field": "properties.eo:cloud_cover", "direction":
+      "asc"}], "limit": 100} ; assets COG https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/6/S2B_31TGN_20220611_0_L2A/B05.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/6/S2B_31TGN_20220611_0_L2A/B06.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/6/S2B_31TGN_20220611_0_L2A/B07.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/6/S2B_31TGN_20220611_0_L2A/B8A.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/6/S2B_31TGN_20220611_0_L2A/B11.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/6/S2B_31TGN_20220611_0_L2A/B12.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/6/S2B_31TGN_20220611_0_L2A/SCL.tif'
+    date: '2026-11-22'
+    licence: Contains modified Copernicus Sentinel data 2022
+    traitement: 'bandes B05,B06,B07,B8A,B11,B12,SCL découpées sur la dalle, grille de 20 m alignée sur
+      le km, plus proche voisin, entiers conservés ; SCL en dernière bande (uint8 -> uint16) ; valeurs
+      : réflectance = DN x 0,0001 (offset déjà appliqué par Earth Search, earthsearch:boa_offset_applied)
+      - provisoire, à vérifier au jalon 3'
+  sentinel2/0939-6654/S2B_31TGN_20220711_0_L2A_10m.tif:
+    source: Copernicus Sentinel-2 L2A via Earth Search (Element84), scène S2B_31TGN_20220711_0_L2A
+    requete: 'POST https://earth-search.aws.element84.com/v1/search {"collections": ["sentinel-2-l2a"],
+      "intersects": {"type": "Polygon", "coordinates": [[[6.155443546704286, 46.93403276033701], [6.155968753008309,
+      46.94302913624434], [6.142832795531981, 46.94338814575976], [6.142309770644422, 46.934391711118074],
+      [6.155443546704286, 46.93403276033701]]]}, "datetime": "2022-05-01T00:00:00Z/2022-09-30T23:59:59Z",
+      "query": {"eo:cloud_cover": {"lt": 20.0}}, "sortby": [{"field": "properties.eo:cloud_cover", "direction":
+      "asc"}], "limit": 100} ; assets COG https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/7/S2B_31TGN_20220711_0_L2A/B02.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/7/S2B_31TGN_20220711_0_L2A/B03.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/7/S2B_31TGN_20220711_0_L2A/B04.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/7/S2B_31TGN_20220711_0_L2A/B08.tif'
+    date: '2026-11-22'
+    licence: Contains modified Copernicus Sentinel data 2022
+    traitement: 'bandes B02,B03,B04,B08 découpées sur la dalle, grille de 10 m alignée sur le km, plus
+      proche voisin, entiers conservés ; valeurs : réflectance = DN x 0,0001 (offset déjà appliqué par
+      Earth Search, earthsearch:boa_offset_applied) - provisoire, à vérifier au jalon 3'
+  sentinel2/0939-6654/S2B_31TGN_20220711_0_L2A_20m.tif:
+    source: Copernicus Sentinel-2 L2A via Earth Search (Element84), scène S2B_31TGN_20220711_0_L2A
+    requete: 'POST https://earth-search.aws.element84.com/v1/search {"collections": ["sentinel-2-l2a"],
+      "intersects": {"type": "Polygon", "coordinates": [[[6.155443546704286, 46.93403276033701], [6.155968753008309,
+      46.94302913624434], [6.142832795531981, 46.94338814575976], [6.142309770644422, 46.934391711118074],
+      [6.155443546704286, 46.93403276033701]]]}, "datetime": "2022-05-01T00:00:00Z/2022-09-30T23:59:59Z",
+      "query": {"eo:cloud_cover": {"lt": 20.0}}, "sortby": [{"field": "properties.eo:cloud_cover", "direction":
+      "asc"}], "limit": 100} ; assets COG https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/7/S2B_31TGN_20220711_0_L2A/B05.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/7/S2B_31TGN_20220711_0_L2A/B06.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/7/S2B_31TGN_20220711_0_L2A/B07.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/7/S2B_31TGN_20220711_0_L2A/B8A.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/7/S2B_31TGN_20220711_0_L2A/B11.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/7/S2B_31TGN_20220711_0_L2A/B12.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/7/S2B_31TGN_20220711_0_L2A/SCL.tif'
+    date: '2026-11-22'
+    licence: Contains modified Copernicus Sentinel data 2022
+    traitement: 'bandes B05,B06,B07,B8A,B11,B12,SCL découpées sur la dalle, grille de 20 m alignée sur
+      le km, plus proche voisin, entiers conservés ; SCL en dernière bande (uint8 -> uint16) ; valeurs
+      : réflectance = DN x 0,0001 (offset déjà appliqué par Earth Search, earthsearch:boa_offset_applied)
+      - provisoire, à vérifier au jalon 3'
+  sentinel2/0939-6655/S2A_31TGN_20220812_0_L2A_10m.tif:
+    source: Copernicus Sentinel-2 L2A via Earth Search (Element84), scène S2A_31TGN_20220812_0_L2A
+    requete: 'POST https://earth-search.aws.element84.com/v1/search {"collections": ["sentinel-2-l2a"],
+      "intersects": {"type": "Polygon", "coordinates": [[[6.155968753008309, 46.94302913624434], [6.156494134083709,
+      46.95202548510395], [6.1433559944673295, 46.952384553364396], [6.142832795531981, 46.94338814575976],
+      [6.155968753008309, 46.94302913624434]]]}, "datetime": "2022-05-01T00:00:00Z/2022-09-30T23:59:59Z",
+      "query": {"eo:cloud_cover": {"lt": 20.0}}, "sortby": [{"field": "properties.eo:cloud_cover", "direction":
+      "asc"}], "limit": 100} ; assets COG https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/8/S2A_31TGN_20220812_0_L2A/B02.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/8/S2A_31TGN_20220812_0_L2A/B03.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/8/S2A_31TGN_20220812_0_L2A/B04.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/8/S2A_31TGN_20220812_0_L2A/B08.tif'
+    date: '2026-11-22'
+    licence: Contains modified Copernicus Sentinel data 2022
+    traitement: 'bandes B02,B03,B04,B08 découpées sur la dalle, grille de 10 m alignée sur le km, plus
+      proche voisin, entiers conservés ; valeurs : réflectance = DN x 0,0001 (offset déjà appliqué par
+      Earth Search, earthsearch:boa_offset_applied) - provisoire, à vérifier au jalon 3'
+  sentinel2/0939-6655/S2A_31TGN_20220812_0_L2A_20m.tif:
+    source: Copernicus Sentinel-2 L2A via Earth Search (Element84), scène S2A_31TGN_20220812_0_L2A
+    requete: 'POST https://earth-search.aws.element84.com/v1/search {"collections": ["sentinel-2-l2a"],
+      "intersects": {"type": "Polygon", "coordinates": [[[6.155968753008309, 46.94302913624434], [6.156494134083709,
+      46.95202548510395], [6.1433559944673295, 46.952384553364396], [6.142832795531981, 46.94338814575976],
+      [6.155968753008309, 46.94302913624434]]]}, "datetime": "2022-05-01T00:00:00Z/2022-09-30T23:59:59Z",
+      "query": {"eo:cloud_cover": {"lt": 20.0}}, "sortby": [{"field": "properties.eo:cloud_cover", "direction":
+      "asc"}], "limit": 100} ; assets COG https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/8/S2A_31TGN_20220812_0_L2A/B05.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/8/S2A_31TGN_20220812_0_L2A/B06.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/8/S2A_31TGN_20220812_0_L2A/B07.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/8/S2A_31TGN_20220812_0_L2A/B8A.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/8/S2A_31TGN_20220812_0_L2A/B11.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/8/S2A_31TGN_20220812_0_L2A/B12.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/8/S2A_31TGN_20220812_0_L2A/SCL.tif'
+    date: '2026-11-22'
+    licence: Contains modified Copernicus Sentinel data 2022
+    traitement: 'bandes B05,B06,B07,B8A,B11,B12,SCL découpées sur la dalle, grille de 20 m alignée sur
+      le km, plus proche voisin, entiers conservés ; SCL en dernière bande (uint8 -> uint16) ; valeurs
+      : réflectance = DN x 0,0001 (offset déjà appliqué par Earth Search, earthsearch:boa_offset_applied)
+      - provisoire, à vérifier au jalon 3'
+  sentinel2/0939-6655/S2B_31TGN_20220611_0_L2A_10m.tif:
+    source: Copernicus Sentinel-2 L2A via Earth Search (Element84), scène S2B_31TGN_20220611_0_L2A
+    requete: 'POST https://earth-search.aws.element84.com/v1/search {"collections": ["sentinel-2-l2a"],
+      "intersects": {"type": "Polygon", "coordinates": [[[6.155968753008309, 46.94302913624434], [6.156494134083709,
+      46.95202548510395], [6.1433559944673295, 46.952384553364396], [6.142832795531981, 46.94338814575976],
+      [6.155968753008309, 46.94302913624434]]]}, "datetime": "2022-05-01T00:00:00Z/2022-09-30T23:59:59Z",
+      "query": {"eo:cloud_cover": {"lt": 20.0}}, "sortby": [{"field": "properties.eo:cloud_cover", "direction":
+      "asc"}], "limit": 100} ; assets COG https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/6/S2B_31TGN_20220611_0_L2A/B02.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/6/S2B_31TGN_20220611_0_L2A/B03.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/6/S2B_31TGN_20220611_0_L2A/B04.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/6/S2B_31TGN_20220611_0_L2A/B08.tif'
+    date: '2026-11-22'
+    licence: Contains modified Copernicus Sentinel data 2022
+    traitement: 'bandes B02,B03,B04,B08 découpées sur la dalle, grille de 10 m alignée sur le km, plus
+      proche voisin, entiers conservés ; valeurs : réflectance = DN x 0,0001 (offset déjà appliqué par
+      Earth Search, earthsearch:boa_offset_applied) - provisoire, à vérifier au jalon 3'
+  sentinel2/0939-6655/S2B_31TGN_20220611_0_L2A_20m.tif:
+    source: Copernicus Sentinel-2 L2A via Earth Search (Element84), scène S2B_31TGN_20220611_0_L2A
+    requete: 'POST https://earth-search.aws.element84.com/v1/search {"collections": ["sentinel-2-l2a"],
+      "intersects": {"type": "Polygon", "coordinates": [[[6.155968753008309, 46.94302913624434], [6.156494134083709,
+      46.95202548510395], [6.1433559944673295, 46.952384553364396], [6.142832795531981, 46.94338814575976],
+      [6.155968753008309, 46.94302913624434]]]}, "datetime": "2022-05-01T00:00:00Z/2022-09-30T23:59:59Z",
+      "query": {"eo:cloud_cover": {"lt": 20.0}}, "sortby": [{"field": "properties.eo:cloud_cover", "direction":
+      "asc"}], "limit": 100} ; assets COG https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/6/S2B_31TGN_20220611_0_L2A/B05.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/6/S2B_31TGN_20220611_0_L2A/B06.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/6/S2B_31TGN_20220611_0_L2A/B07.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/6/S2B_31TGN_20220611_0_L2A/B8A.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/6/S2B_31TGN_20220611_0_L2A/B11.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/6/S2B_31TGN_20220611_0_L2A/B12.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/6/S2B_31TGN_20220611_0_L2A/SCL.tif'
+    date: '2026-11-22'
+    licence: Contains modified Copernicus Sentinel data 2022
+    traitement: 'bandes B05,B06,B07,B8A,B11,B12,SCL découpées sur la dalle, grille de 20 m alignée sur
+      le km, plus proche voisin, entiers conservés ; SCL en dernière bande (uint8 -> uint16) ; valeurs
+      : réflectance = DN x 0,0001 (offset déjà appliqué par Earth Search, earthsearch:boa_offset_applied)
+      - provisoire, à vérifier au jalon 3'
+  sentinel2/0939-6655/S2B_31TGN_20220711_0_L2A_10m.tif:
+    source: Copernicus Sentinel-2 L2A via Earth Search (Element84), scène S2B_31TGN_20220711_0_L2A
+    requete: 'POST https://earth-search.aws.element84.com/v1/search {"collections": ["sentinel-2-l2a"],
+      "intersects": {"type": "Polygon", "coordinates": [[[6.155968753008309, 46.94302913624434], [6.156494134083709,
+      46.95202548510395], [6.1433559944673295, 46.952384553364396], [6.142832795531981, 46.94338814575976],
+      [6.155968753008309, 46.94302913624434]]]}, "datetime": "2022-05-01T00:00:00Z/2022-09-30T23:59:59Z",
+      "query": {"eo:cloud_cover": {"lt": 20.0}}, "sortby": [{"field": "properties.eo:cloud_cover", "direction":
+      "asc"}], "limit": 100} ; assets COG https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/7/S2B_31TGN_20220711_0_L2A/B02.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/7/S2B_31TGN_20220711_0_L2A/B03.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/7/S2B_31TGN_20220711_0_L2A/B04.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/7/S2B_31TGN_20220711_0_L2A/B08.tif'
+    date: '2026-11-22'
+    licence: Contains modified Copernicus Sentinel data 2022
+    traitement: 'bandes B02,B03,B04,B08 découpées sur la dalle, grille de 10 m alignée sur le km, plus
+      proche voisin, entiers conservés ; valeurs : réflectance = DN x 0,0001 (offset déjà appliqué par
+      Earth Search, earthsearch:boa_offset_applied) - provisoire, à vérifier au jalon 3'
+  sentinel2/0939-6655/S2B_31TGN_20220711_0_L2A_20m.tif:
+    source: Copernicus Sentinel-2 L2A via Earth Search (Element84), scène S2B_31TGN_20220711_0_L2A
+    requete: 'POST https://earth-search.aws.element84.com/v1/search {"collections": ["sentinel-2-l2a"],
+      "intersects": {"type": "Polygon", "coordinates": [[[6.155968753008309, 46.94302913624434], [6.156494134083709,
+      46.95202548510395], [6.1433559944673295, 46.952384553364396], [6.142832795531981, 46.94338814575976],
+      [6.155968753008309, 46.94302913624434]]]}, "datetime": "2022-05-01T00:00:00Z/2022-09-30T23:59:59Z",
+      "query": {"eo:cloud_cover": {"lt": 20.0}}, "sortby": [{"field": "properties.eo:cloud_cover", "direction":
+      "asc"}], "limit": 100} ; assets COG https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/7/S2B_31TGN_20220711_0_L2A/B05.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/7/S2B_31TGN_20220711_0_L2A/B06.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/7/S2B_31TGN_20220711_0_L2A/B07.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/7/S2B_31TGN_20220711_0_L2A/B8A.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/7/S2B_31TGN_20220711_0_L2A/B11.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/7/S2B_31TGN_20220711_0_L2A/B12.tif,
+      https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/31/T/GN/2022/7/S2B_31TGN_20220711_0_L2A/SCL.tif'
+    date: '2026-11-22'
+    licence: Contains modified Copernicus Sentinel data 2022
+    traitement: 'bandes B05,B06,B07,B8A,B11,B12,SCL découpées sur la dalle, grille de 20 m alignée sur
+      le km, plus proche voisin, entiers conservés ; SCL en dernière bande (uint8 -> uint16) ; valeurs
+      : réflectance = DN x 0,0001 (offset déjà appliqué par Earth Search, earthsearch:boa_offset_applied)
+      - provisoire, à vérifier au jalon 3'
+  sentinel2_scenes.csv:
+    source: Earth Search (Element84), métadonnées STAC des scènes retenues
+    requete: POST https://earth-search.aws.element84.com/v1/search
+    date: '2026-11-22'
+    licence: Contains modified Copernicus Sentinel data 2022
+    traitement: 'une ligne par fichier Sentinel-2 : dalle, scène, date, nuage, baseline'

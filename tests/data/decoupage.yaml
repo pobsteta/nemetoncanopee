@@ -1,0 +1,28 @@
+version: 1
+statut: 'figé le 2026-11-22 (orchestrateur, par délégation de Pascal ; journal) : A = apprentissage, B = test'
+taille_bloc_m: 10000
+bloc: indice (xmin // taille_bloc_m, ymin // taille_bloc_m) de l'emprise de la dalle
+apprentissage:
+- dalle: 0901-6665
+  bloc:
+  - 90
+  - 666
+- dalle: 0902-6665
+  bloc:
+  - 90
+  - 666
+test:
+- dalle: 0939-6654
+  bloc:
+  - 93
+  - 665
+- dalle: 0939-6655
+  bloc:
+  - 93
+  - 665
+justification: 'Deux paires de dalles voisines, distantes d''au moins 37 km (un bloc fait 10 km) : aucune
+  dalle de test ne touche une dalle d''apprentissage. Apprentissage = paire A, dalles 0901-6665, 0902-6665,
+  vol 2022-07-27 -> 2022-07-27. Test = paire B, dalles 0939-6654, 0939-6655, vol 2022-10-17 -> 2022-10-17.
+  Essences dominantes (BD Forêt V2, surface sur les dalles) : paire A = Chênes décidus 194 ha, Pin sylvestre
+  5 ha ; paire B = Sapin, épicéa 170 ha, Mixte 16 ha. Si elles diffèrent, le test sort du peuplement d''apprentissage
+  : exigeant mais honnête. Le choix inverse serait aussi valable ; décision du 22/11 (journal).'

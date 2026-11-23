@@ -1,0 +1,115 @@
+# Variante du modèle C (mission 013) : gbm.yaml + descripteurs des trouées (Sentinel-2) et de
+# la BD ORTHO (mission 012), pour la cause n° 1 de la mesure 011 (peuplements bas et trouées
+# surestimés, docs/mesures/2026-11-adr-0004.md). Tout le reste est identique à gbm.yaml (un
+# test le vérifie) : mêmes hyperparamètres, même validation. Le nom reste `gbm` (même code).
+# Rien n'est réglé sur les blocs de test. Mesure en mission 014.
+nom: gbm
+arrondi: demi_haut  # prédiction (cm, réelle) -> entier : 2625,5 cm -> 2626 cm
+
+descripteurs:
+  # Réflectance = DN x echelle (Earth Search, offset déjà appliqué ; docs/referentiels.md § 5).
+  echelle_reflectance: 0.0001
+  bandes: [B02, B03, B04, B05, B06, B07, B08, B8A, B11, B12]  # parmi prepare.bandes
+  # Indices normalisés (a - b) / (a + b), calculés scène par scène sur les cellules claires.
+  indices:
+    NDVI: [B08, B04]
+    NDRE: [B8A, B05]
+    NBR: [B08, B12]
+    NDMI: [B08, B11]
+  # Statistiques entre scènes de l'année de vol (cellules nuageuses exclues, masque SCL).
+  percentiles: [10, 50, 90]  # p50 = médiane
+  # Voisinages (côtés en cellules : 3 -> 30 m, 5 -> 50 m) : moyenne et écart-type de la
+  # médiane de chaque variable, cellules sans valeur ignorées, pas de débord hors de la dalle.
+  voisinages: [3, 5]
+  relief:
+    fichier_zone: mnt  # clé de `fichiers` dans conf/zones/*.yaml (MNT LiDAR HD 10 m, en m)
+  essence:
+    champ: essence  # champ BD Forêt V2 (docs/referentiels.md § 4), catégoriel
+  # Peuplements bas et trouées, depuis la médiane Sentinel-2 seule (disponibles chaque année).
+  # Chiffres ci-dessous refaits par scripts/justifier_trouees.py (sans réseau) : médianes entre
+  # scènes, cellules de forêt à cible valide, par classe de hauteur cible, sur 16 dalles
+  # d'apprentissage de l'échantillon du Jura (jamais de test), une sur trois des blocs chaux_a,
+  # sapiniere_a, altitude_a : 0894-6665, 0894-6668, 0895-6667, 0896-6666, 0897-6665,
+  # 0897-6668, 0916-6611, 0917-6610, 0918-6609, 0918-6612, 0919-6611, 0938-6634, 0939-6633,
+  # 0939-6636, 0940-6635, 0941-6634 (145 681 cellules).
+  # Sur ces dalles, la médiane de B11 (SWIR)
+  # baisse avec la hauteur (0,22 sous 2 m, 0,15 à 20-30 m, 0,12 au-dessus de 30 m), B08 (PIR)
+  # est plus forte pour les jeunes peuplements (0,41 à 5-10 m, 0,28 au-dessus de 30 m), le
+  # NDVI ne sépare que les trouées (médiane 0,74 sous 2 m, 0,86 à 0,89 au-dessus).
+  trouees:
+    contraste:  # cellule - moyenne 5 x 5 : la trouée se détache de ses voisines
+      variables: [NDVI, B08, B11]
+      cote: 5
+    minimum:  # minimum 3 x 3 du NDVI : une ouverture à moins de 15 m
+      - {variable: NDVI, cote: 3}
+    part_basse:  # part des cellules du 5 x 5 sous le seuil : trouées et clairières autour
+      # PROVISOIRE : sous 0,75 tombent 53 % des cellules < 2 m, 14 % de 2-10 m, 0,8 % de
+      # 20-30 m (16 dalles d'apprentissage, NDVI médian de l'année ; aucun bloc de test).
+      - {variable: NDVI, cote: 5, seuil: 0.75}
+  # BD ORTHO 20 cm résumée à 10 m (mission 012, millésime 2023 PROVISOIRE ; postérieure au vol
+  # LiDAR de 10 à 21 mois). Cellules sous `valide_min` de l'ortho = NaN (gérés par LightGBM).
+  ortho:
+    fichier_zone: ortho  # clé de `fichiers` dans conf/zones/*.yaml
+    bandes:  # descriptions des bandes du fichier (conf/jeu_essai.yaml, clé ortho.bandes)
+      - rouge_moy
+      - rouge_std
+      - pir_moy
+      - pir_std
+      - ndvi_moy
+      - ndvi_std
+      - part_non_vegetal
+      - part_ombre
+      - lum_moy
+      - lum_std
+      - gradient_moy
+      - part_valide
+    voisinage:  # moyenne 3 x 3 (30 m) : trouée qui déborde la cellule, texture du peuplement
+      cote: 3
+      variables: [part_non_vegetal, lum_std, gradient_moy]
+    # Âge de l'ortho : jours entre la prise de vue (tag date_prise_de_vue) et le milieu du vol
+    # LiDAR (manifeste), positif si l'ortho est postérieure ; le brief exige que le modèle le
+    # connaisse. Contrôlé contre le tag ecart_ortho_vol_lidar_jours du fichier.
+    age: true
+  # Cible : cellules prises pour l'apprentissage (forêt, cible valide, au moins une scène claire).
+
+apprentissage:
+  # Poids d'échantillon des grands arbres (critique du contradicteur, point 3). PROVISOIRE.
+  poids_grands_arbres:
+    seuil_cm: 3000  # hauteur cible strictement supérieure à 30 m
+    poids: 3.0
+  # Poids des peuplements bas (hauteur cible strictement sous seuil_cm), multiplié au poids
+  # ci-dessus. Désactivé : à tester en mission 014 sur les blocs d'apprentissage.
+  poids_peuplements_bas:
+    actif: false
+    seuil_cm: 1000
+    poids: 2.0  # PROVISOIRE, non réglé
+  # Validation pour l'arrêt anticipé : blocs spatiaux tirés des seules dalles
+  # d'apprentissage (jamais une dalle de test). PROVISOIRE : 500 m sur le jeu d'essai, où les
+  # 2 dalles d'apprentissage tiennent dans un seul bloc de 10 km.
+  validation:
+    taille_bloc_m: 500
+    part_blocs: 0.25  # part des blocs d'apprentissage tirés (graine) pour la validation
+  arret_anticipe_tours: 50
+  tours_max: 2000
+  reentrainer_sur_tout: true  # refit sur tous les blocs d'apprentissage au meilleur nb de tours
+  quantiles: [0.1, 0.9]  # incertitude : p90 - p10 (cm)
+  quantiles_ponderes: false  # quantiles ajustés sans les poids > 30 m (relecture 009)
+
+lightgbm:  # PROVISOIRE
+  objective: regression_l1  # médiane conditionnelle, cohérente avec une MAE
+  learning_rate: 0.05
+  num_leaves: 31
+  min_data_in_leaf: 20
+  feature_fraction: 0.8
+  bagging_fraction: 0.8
+  bagging_freq: 1
+  lambda_l2: 1.0
+  num_threads: 1  # avec deterministic, un nombre fixe de fils garantit la rejouabilité
+  deterministic: true
+  force_row_wise: true
+  verbosity: -1
+
+incertitude:
+  couche: hauteur_incertitude  # couche brute écrite par infer à côté de la hauteur
+  unite: cm
+  definition: "p90 - p10 de la hauteur prédite (modèles quantiles LightGBM), cm"

@@ -1,0 +1,43 @@
+# Paramètres de fabrication de l'échantillon du Jura (mission 008), lus par
+# scripts/fabriquer_echantillon.py. Les sources, la grille, les paramètres Sentinel-2 et
+# FORMS-T sont ceux du jeu d'essai (héritage) ; ce fichier ajoute les blocs et leurs rôles.
+heritage: jeu_essai.yaml
+sortie: /data/echantillon_jura  # hors dépôt, ignoré par git
+budget_octets: 21474836480  # 20 Gio (mission 008) ; mesuré en fin de fabrication
+travailleurs: 4  # dalles fabriquées en parallèle (4 CPU)
+travailleurs_ortho: 4  # dalles d'ortho en parallèle (5000 x 5000 px x 2 images par dalle, ~1 Go de mémoire chacune)
+tentatives: 3  # essais par dalle en cas d'échec réseau
+taille_bloc_dalles: 4  # un bloc = 4 x 4 dalles de 1 km
+distance_min_blocs_m: 10000  # entre blocs (découpage d'évaluation, CLAUDE.md)
+mnh_min_valide: 0.5  # part minimale de cellules MNH valides sur une dalle ("MNH publié")
+seuil_grands_arbres_m: 30.0  # hauteur au-delà de laquelle on parle de grands arbres
+forms_t_annees: [2018, 2024]  # FORMS-T v1 n'existe que pour ces années de vol
+
+# Plus tolérant que le jeu d'essai : en montagne, peu de scènes sont claires.
+s2_nuage_scene_max: 40.0  # % eo:cloud_cover de la scène ; le critère strict reste 2 % sur la dalle
+s2_candidats_max: 60
+
+statut_decoupage: >-
+  PROVISOIRE : proposition du dev (missions 008 et 012), à trancher par l'orchestrateur (délégation) puis Pascal ; blocs de test figés (chaux_b, joux, altitude_b)
+taille_bloc_m: 10000
+justification_roles: >-
+  Trois types de forêt, chacun avec un bloc d'apprentissage et un bloc de test (le modèle est
+  jugé sur un type qu'il a vu ailleurs, jamais sur les mêmes dalles ni les mêmes blocs de 10 km).
+  Le bloc de la Joux (test) porte les plus grands sapins ; le bloc d'altitude de test est en haute
+  montagne (970-1290 m). Mission 012 : trois blocs d'apprentissage de plus (un par type), à 10 km
+  ou plus de tous les autres blocs, pour donner au modèle d'autres exemplaires de chaque type.
+
+# Coin nord-ouest du bloc en km Lambert-93 (comme l'identifiant de dalle) ; année de vol 2022 pour
+# toutes les dalles (WFS IGN), BD Forêt V2 majoritaire sur chaque bloc. Blocs *_c : mission 012,
+# apprentissage seulement, à 10 km ou plus de tous les autres blocs (les trois blocs de test sont
+# inchangés).
+blocs:
+  - {nom: chaux_a, role: apprentissage, nw_km: [894, 6668], type: "chênaie de plaine (forêt de Chaux), 210-260 m"}
+  - {nom: chaux_b, role: test, nw_km: [908, 6674], type: "chênaie de plaine (forêt de Chaux), 240-280 m"}
+  - {nom: sapiniere_a, role: apprentissage, nw_km: [916, 6612], type: "sapinière-hêtraie de moyenne montagne, 740-1120 m"}
+  - {nom: joux, role: test, nw_km: [926, 6646], type: "sapinière à grands arbres (forêt de la Joux), 630-870 m"}
+  - {nom: altitude_a, role: apprentissage, nw_km: [938, 6636], type: "forêt d'altitude, sapin-épicéa et hêtre, 860-1090 m"}
+  - {nom: altitude_b, role: test, nw_km: [934, 6610], type: "forêt d'altitude du Haut-Jura, sapin-épicéa, 970-1290 m"}
+  - {nom: chenaie_c, role: apprentissage, nw_km: [890, 6649], type: "chênaie de plaine (Jura nord-ouest), 210-250 m"}
+  - {nom: sapiniere_c, role: apprentissage, nw_km: [910, 6597], type: "sapinière-pessière de moyenne montagne (Haut-Jura sud), 620-980 m"}
+  - {nom: altitude_c, role: apprentissage, nw_km: [929, 6596], type: "forêt d'altitude, sapin-épicéa, 1010-1500 m"}

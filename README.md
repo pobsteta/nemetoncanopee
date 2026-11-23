@@ -27,6 +27,33 @@ python -m pip install -e ".[dev]"
 canopee --version
 ```
 
+## Commandes
+
+Une commande par étape ; chaque étape lit et écrit des fichiers dans le dossier de travail,
+et se relance seule (dalle par dalle avec `--dalles`). Tout se règle dans `conf/` : aucun
+chemin ni seuil n'est écrit dans le code.
+
+```sh
+C=conf/chaine.yaml            # ou : export CANOPEE_CONF=conf/chaine.yaml
+canopee --conf $C ingest      [--dalles D…] [--annees 2022]   # manifeste des dalles et des scènes
+canopee --conf $C prepare     [--dalles D…]                   # piles Sentinel-2 10 m, masque forêt
+canopee --conf $C targets     [--dalles D…]                   # cible de hauteur LiDAR HD à 10 m
+canopee --conf $C train                                       # modèle (jalon 1 : médiane)
+canopee --conf $C infer       [--annees A…] [--dalles D…]     # couche brute
+canopee --conf $C smooth      [--annees A…] [--dalles D…]     # couche lissée (identité au jalon 1)
+canopee --conf $C validate                                    # validate/rapport.md et rapport.json
+canopee --conf $C export      [--annees A…]                   # COG + catalogue STAC validé hors ligne
+canopee --conf $C zonal --polygones parcelles.gpkg [--champ-id id] --annees 2022 \
+        --couches hauteur [--traitement lissee] [--sortie stats.csv]
+```
+
+`--travail DOSSIER` remplace le dossier de travail de la configuration (par défaut
+`data/travail/`, hors git). Codes de retour : 0 succès ; 2 entrée manquante (le message
+nomme l'étape à relancer) ; 3 donnée refusée (le message nomme la règle : découpage,
+année de vol…).
+
+Depuis Python : `from nemeton_canopee.zonal import statistiques_zonales`.
+
 ## Tests
 
 Une seule commande lance tout ce que la CI vérifie :

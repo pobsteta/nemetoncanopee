@@ -3,6 +3,6 @@
 set -e
 .github/scripts/test-release-necessaire.sh
 .github/scripts/test-version-calendaire.sh
-ruff check .
-ruff format --check .
-pytest --cov=nemeton_canopee
+uv run --extra dev ruff check .
+uv run --extra dev ruff format --check .
+uv run --extra dev pytest --cov=nemeton_canopee

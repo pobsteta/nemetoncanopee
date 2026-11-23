@@ -1,0 +1,66 @@
+# Modèle C de l'ADR 0004 (mission 009) : LightGBM sur descripteurs par cellule de 10 m.
+# Toutes les valeurs marquées PROVISOIRE sont réglées sur les blocs d'apprentissage seulement,
+# mesure en mission 011. La graine est celle de conf/chaine.yaml.
+# Mission 013 : options absentes ici, donc désactivées (ce fichier reste celui de la mesure 011,
+# prédictions identiques à l'octet). Pour les activer, ajouter les clés de
+# conf/modele/gbm_ortho.yaml : `descripteurs.trouees` (Sentinel-2 seul), `descripteurs.ortho`
+# (BD ORTHO, mission 012) et `apprentissage.poids_peuplements_bas` (actif: true).
+nom: gbm
+arrondi: demi_haut  # prédiction (cm, réelle) -> entier : 2625,5 cm -> 2626 cm
+
+descripteurs:
+  # Réflectance = DN x echelle (Earth Search, offset déjà appliqué ; docs/referentiels.md § 5).
+  echelle_reflectance: 0.0001
+  bandes: [B02, B03, B04, B05, B06, B07, B08, B8A, B11, B12]  # parmi prepare.bandes
+  # Indices normalisés (a - b) / (a + b), calculés scène par scène sur les cellules claires.
+  indices:
+    NDVI: [B08, B04]
+    NDRE: [B8A, B05]
+    NBR: [B08, B12]
+    NDMI: [B08, B11]
+  # Statistiques entre scènes de l'année de vol (cellules nuageuses exclues, masque SCL).
+  percentiles: [10, 50, 90]  # p50 = médiane
+  # Voisinages (côtés en cellules : 3 -> 30 m, 5 -> 50 m) : moyenne et écart-type de la
+  # médiane de chaque variable, cellules sans valeur ignorées, pas de débord hors de la dalle.
+  voisinages: [3, 5]
+  relief:
+    fichier_zone: mnt  # clé de `fichiers` dans conf/zones/*.yaml (MNT LiDAR HD 10 m, en m)
+  essence:
+    champ: essence  # champ BD Forêt V2 (docs/referentiels.md § 4), catégoriel
+  # Cible : cellules prises pour l'apprentissage (forêt, cible valide, au moins une scène claire).
+
+apprentissage:
+  # Poids d'échantillon des grands arbres (critique du contradicteur, point 3). PROVISOIRE.
+  poids_grands_arbres:
+    seuil_cm: 3000  # hauteur cible strictement supérieure à 30 m
+    poids: 3.0
+  # Validation pour l'arrêt anticipé : blocs spatiaux tirés des seules dalles
+  # d'apprentissage (jamais une dalle de test). PROVISOIRE : 500 m sur le jeu d'essai, où les
+  # 2 dalles d'apprentissage tiennent dans un seul bloc de 10 km.
+  validation:
+    taille_bloc_m: 500
+    part_blocs: 0.25  # part des blocs d'apprentissage tirés (graine) pour la validation
+  arret_anticipe_tours: 50
+  tours_max: 2000
+  reentrainer_sur_tout: true  # refit sur tous les blocs d'apprentissage au meilleur nb de tours
+  quantiles: [0.1, 0.9]  # incertitude : p90 - p10 (cm)
+  quantiles_ponderes: false  # quantiles ajustés sans les poids > 30 m (relecture 009)
+
+lightgbm:  # PROVISOIRE
+  objective: regression_l1  # médiane conditionnelle, cohérente avec une MAE
+  learning_rate: 0.05
+  num_leaves: 31
+  min_data_in_leaf: 20
+  feature_fraction: 0.8
+  bagging_fraction: 0.8
+  bagging_freq: 1
+  lambda_l2: 1.0
+  num_threads: 1  # avec deterministic, un nombre fixe de fils garantit la rejouabilité
+  deterministic: true
+  force_row_wise: true
+  verbosity: -1
+
+incertitude:
+  couche: hauteur_incertitude  # couche brute écrite par infer à côté de la hauteur
+  unite: cm
+  definition: "p90 - p10 de la hauteur prédite (modèles quantiles LightGBM), cm"

@@ -1,0 +1,55 @@
+# Modèle A de l'ADR 0004 (mission 010) : petit U-Net sur CPU (PyTorch, extra [ml]), scène par
+# scène. Toutes les valeurs marquées PROVISOIRE sont réglées sur les blocs d'apprentissage
+# seulement, mesure en mission 011. La graine est celle de conf/chaine.yaml.
+nom: unet
+arrondi: demi_haut  # prédiction (cm, réelle) -> entier : 2625,5 cm -> 2626 cm
+
+descripteurs:  # entrées d'une scène (canaux : bandes, relief, puis la bande `clair`)
+  # Réflectance = DN x echelle (Earth Search, offset déjà appliqué ; docs/referentiels.md § 5).
+  echelle_reflectance: 0.0001
+  bandes: [B02, B03, B04, B05, B06, B07, B08, B8A, B11, B12]  # parmi prepare.bandes
+  relief:
+    fichier_zone: mnt  # clé de `fichiers` dans conf/zones/*.yaml (MNT LiDAR HD 10 m, en m)
+  # Normalisation : moyenne et écart-type par canal, sur les seules dalles d'ajustement ; la
+  # cible (m) aussi. Sauf les canaux de `normalisation_physique` : (valeur - centre) / echelle,
+  # fixés ici, car quelques dalles d'apprentissage ne donnent pas la plage de l'altitude.
+  normalisation_physique:
+    altitude_m: {centre: 500.0, echelle: 500.0}  # PROVISOIRE : Jura de ~200 à ~1 700 m
+  # Garde-fou seulement (pas un correctif) : entrées normalisées bornées à +/- 5 ; une valeur
+  # aberrante ne fait pas extrapoler le réseau sans limite.
+  borne_normalisee: 5.0  # PROVISOIRE
+
+architecture:  # PROVISOIRE
+  niveaux: 3  # résolutions 64, 32, 16 cellules pour un patch de 64
+  base_canaux: 48  # 48, 96, 192 canaux : ~1,06 M paramètres
+
+apprentissage:
+  patch: 64  # côté des patchs (cellules de 10 m)
+  pas_patch: 36  # dalle de 100 cellules : débuts 0 et 36, 4 patchs recouvrants par scène
+  augmentation: true  # quarts de tour et symétrie, exposition tournée avec l'image
+  taille_lot: 16
+  taux_apprentissage: 0.001  # Adam. PROVISOIRE
+  decroissance_poids: 0.0
+  epoques_max: 50  # PROVISOIRE
+  arret_anticipe_epoques: 5  # époques sans gain de MAE de validation avant l'arrêt
+  # Poids des grands arbres dans la perte L1 (critique du contradicteur, point 3). PROVISOIRE.
+  poids_grands_arbres:
+    seuil_cm: 3000  # hauteur cible strictement supérieure à 30 m
+    poids: 3.0
+  # Validation pour l'arrêt anticipé : dalles des blocs spatiaux tirés (graine) parmi ceux des
+  # seules dalles d'apprentissage (jamais une dalle de test). PROVISOIRE : 2 km, soit 2 blocs
+  # sur le jeu d'essai (2 dalles d'apprentissage) et 12 sur l'échantillon du Jura.
+  validation:
+    taille_bloc_m: 2000
+    part_blocs: 0.25
+
+inference:
+  percentiles: [10, 90]  # entre scènes claires de la cellule ; la hauteur est la médiane
+
+torch:
+  num_threads: 4  # avec use_deterministic_algorithms, un nombre fixe de fils (rejouable)
+
+incertitude:
+  couche: hauteur_incertitude  # couche brute écrite par infer à côté de la hauteur
+  unite: cm
+  definition: "p90 - p10 des hauteurs prédites scène par scène (U-Net, scènes claires), cm"
