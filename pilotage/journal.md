@@ -124,3 +124,4 @@
 2026-11-22 · relecteur · 014 · prêt : cellules, blocs et chiffres recalculés à l'identique (autre graine) ; corrections mineures faites (section Excès sur option, essai signalé, ordre d'attribution, échantillon QGIS nommé).
 2026-11-22 · Claude (orchestrateur) · 014 · mauvaise nouvelle : gbm_ortho ne bat toujours pas FORMS-T au peuplement ; l'ortho aide (−0,29 m par polygone), les blocs _c nuisent sur altitude_b ; suite à Pascal.
 2026-11-23 · Pascal · ADR 0004 · cap · « A2 » : corriger les deux défauts mesurés en 014 (biais d'altitude introduit par les blocs ajoutés, tours_max qui borne l'apprentissage) sans rien régler sur le test, puis remesurer · fait : missions 015 à 017 proposées.
+2026-11-23 · Pascal · /mission · « Oui » : équipe des missions 015 à 017 validée (porte n° 2).
